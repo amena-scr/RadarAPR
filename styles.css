@@ -1,0 +1,157 @@
+:root {
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --primary: #2c3e50;
+    --accent: #d35400;
+    --accent2: #8e44ad;
+    --danger: #c0392b;
+    --success: #27ae60;
+    --info: #2980b9;
+    --warning: #f39c12;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 15px;
+}
+
+.container {
+    max-width: 450px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+select,
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ── Botón Filtros Avanzados ── */
+.btn-avanzados {
+    width: 100%;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 1.5px solid #adb5bd;
+    color: var(--primary);
+    padding: 11px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s, border-color 0.2s;
+}
+.btn-avanzados:hover { background: #dee2e6; border-color: var(--accent2); }
+.btn-avanzados .arrow { transition: transform 0.3s; display: inline-block; }
+.btn-avanzados.open .arrow { transform: rotate(180deg); }
+
+/* ── Panel Filtros Avanzados ── */
+#seccion_avanzada {
+    display: none;
+    background: #f8f6fc;
+    border: 1.5px solid #d6c8ea;
+    border-radius: 8px;
+    padding: 18px 16px 12px;
+    margin-top: 10px;
+}
+#seccion_avanzada .seccion-titulo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent2);
+    margin: 18px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #d6c8ea;
+}
+#seccion_avanzada .seccion-titulo:first-child { margin-top: 0; }
+
+/* ── Banderas Rojas (dentro del panel) ── */
+.banderas-box {
+    background: #fdf2f2;
+    border: 1px solid #f5c6cb;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.checkbox-item input {
+    width: auto;
+    margin-right: 10px;
+    margin-top: 0;
+}
+
+.checkbox-item label {
+    margin-top: 0;
+    font-weight: normal;
+}
+
+.btn-principal {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+#resultado_analisis {
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #bdc3c7;
+    margin-top: 20px;
+}
