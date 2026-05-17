@@ -292,7 +292,7 @@ function evaluarOferta() {
             detalle: 'El sector define el marco de remuneraciones aplicable y los beneficios adicionales del cargo.'
         });
     }
-    
+
     // CORRECCIÓN "Unterminated template literal": Reemplazado por concatenación de strings para evitar errores del editor
     if (redFlags.length === 0) {
         preguntas.push({
@@ -300,16 +300,16 @@ function evaluarOferta() {
             pregunta: '¿El cargo incluye funciones ajenas al Experto en Prevención?',
             detalle: 'Según el <strong>Decreto Supremo N°44</strong> (Art. 10–12), las funciones <u>legales</u> del Experto en Prevención son:<br>' +
                 '<ol style="margin:6px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-                    '<li>Planificar, organizar y supervisar el programa de prevención de riesgos.</li>' +
-                    '<li>Asesorar al empleador en la formulación de políticas y metas de seguridad.</li>' +
-                    '<li>Inspeccionar y controlar las condiciones ambientales y de trabajo.</li>' +
-                    '<li>Investigar accidentes del trabajo y enfermedades profesionales.</li>' +
-                    '<li>Mantener las estadísticas de siniestralidad (tasas de frecuencia y gravedad).</li>' +
-                    '<li>Colaborar con los Comités Paritarios de Higiene y Seguridad.</li>' +
-                    '<li>Programar y promover capacitación y gestionar la IRL.</li>' +
-                    '<li>Controlar el uso de elementos de protección personal.</li>' +
-                    '<li>Coordinar acciones con el organismo administrador (ISL / Mutualidad).</li>' +
-                    '<li>Mantener actualizado el RIOHS.</li>' +
+                '<li>Planificar, organizar y supervisar el programa de prevención de riesgos.</li>' +
+                '<li>Asesorar al empleador en la formulación de políticas y metas de seguridad.</li>' +
+                '<li>Inspeccionar y controlar las condiciones ambientales y de trabajo.</li>' +
+                '<li>Investigar accidentes del trabajo y enfermedades profesionales.</li>' +
+                '<li>Mantener las estadísticas de siniestralidad (tasas de frecuencia y gravedad).</li>' +
+                '<li>Colaborar con los Comités Paritarios de Higiene y Seguridad.</li>' +
+                '<li>Programar y promover capacitación y gestionar la IRL.</li>' +
+                '<li>Controlar el uso de elementos de protección personal.</li>' +
+                '<li>Coordinar acciones con el organismo administrador (ISL / Mutualidad).</li>' +
+                '<li>Mantener actualizado el RIOHS.</li>' +
                 '</ol>' +
                 '<span style="color:#c0392b;font-size:0.78rem">⚠️ Funciones como bodega, RRHH, logística, contabilidad, conducción o supervisión de operaciones <strong>no están contempladas</strong> en el DS N°44 y constituyen multifuncionalidad no remunerada.</span>'
         });
@@ -320,10 +320,10 @@ function evaluarOferta() {
         pregunta: '¿La empresa costea alimentación, alojamiento o traslados?',
         detalle: 'Estos beneficios tienen impacto directo en el costo de vida real del cargo. Consulta específicamente por:<br>' +
             '<ul style="margin:5px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-                '<li><strong>Alimentación:</strong> ¿Casino en faena, colación o asignación en dinero?</li>' +
-                '<li><strong>Alojamiento:</strong> ¿Campamento, hotel o asignación para arriendo?</li>' +
-                '<li><strong>Traslado de ciudad:</strong> ¿Pasaje aéreo o terrestre pagado por la empresa?</li>' +
-                '<li><strong>Transporte de acercamiento:</strong> ¿Movilización desde la ciudad al lugar de trabajo?</li>' +
+            '<li><strong>Alimentación:</strong> ¿Casino en faena, colación o asignación en dinero?</li>' +
+            '<li><strong>Alojamiento:</strong> ¿Campamento, hotel o asignación para arriendo?</li>' +
+            '<li><strong>Traslado de ciudad:</strong> ¿Pasaje aéreo o terrestre pagado por la empresa?</li>' +
+            '<li><strong>Transporte de acercamiento:</strong> ¿Movilización desde la ciudad al lugar de trabajo?</li>' +
             '</ul>' +
             '<span style="font-size:0.78rem;color:#555">Si estos beneficios <strong>no están incluidos</strong>, el sueldo ofrecido debe cubrir esos costos. Considéralos al negociar.</span>'
     });
@@ -357,7 +357,7 @@ function evaluarOferta() {
                 ciudad: ciudad,
                 rubro: rubro,
                 experiencia: exp,
-                sueldo_ofrecido: sueldoOfrecido,
+                sueldo_ofrecido: Math.round(sueldoOfrecido),
                 sueldo_sugerido: sueldoJusto
             }
         ]).select().then(({ data, error }) => {
