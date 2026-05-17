@@ -21,169 +21,152 @@ const COORDENADAS_CIUDADES = {
     // II - Antofagasta
     antofagasta:      [-23.650, -70.397],
     calama:           [-22.455, -68.925],
-    tocopilla:        [-22.092, -70.197],
-    mejillones:       [-23.098, -70.454],
-    maria_elena:      [-22.353, -69.660],
-    sierra_gorda:     [-22.896, -69.322],
-    taltal:           [-25.395, -70.481],
-    san_pedro_atacama:[-22.909, -68.200],
+    taltal:           [-25.407, -70.483],
+    mejillones:       [-23.101, -70.454],
+    tocopilla:        [-22.086, -70.197],
+    sierra_gorda:     [-22.892, -69.323],
+    san_pedro_atacama:[-22.911, -68.199],
+    ollague:          [-21.229, -68.252],
+    maria_elena:      [-22.343, -69.661],
     // III - Atacama
     copiapo:          [-27.366, -70.332],
-    caldera:          [-27.069, -70.823],
-    tierra_amarilla:  [-27.490, -70.273],
-    chanaral:         [-26.349, -70.622],
-    diego_almagro:    [-26.374, -70.044],
-    vallenar:         [-28.574, -70.760],
-    freirina:         [-28.512, -71.077],
-    huasco:           [-28.459, -71.219],
+    vallenar:         [-28.576, -70.758],
+    caldera:          [-27.067, -70.820],
+    chañaral:         [-26.348, -70.622],
+    diego_almagro:    [-26.392, -70.046],
+    huasco:           [-28.468, -71.219],
+    freirina:         [-28.506, -71.077],
+    tierra_amarilla:  [-27.482, -70.265],
+    alto_del_carmen:  [-28.759, -70.485],
     // IV - Coquimbo
-    la_serena:        [-29.902, -71.252],
-    coquimbo:         [-29.953, -71.343],
-    ovalle:           [-30.603, -71.198],
-    illapel:          [-31.635, -71.165],
-    los_vilos:        [-31.912, -71.509],
-    vicuna:           [-30.032, -70.712],
-    andacollo:        [-30.231, -71.085],
-    monte_patria:     [-30.694, -70.966],
-    combarbala:       [-31.178, -71.020],
-    salamanca:        [-31.773, -70.965],
-    paihuano:         [-30.001, -70.503],
+    la_serena:        [-29.953, -71.343],
+    coquimbo:         [-29.963, -71.339],
+    ovalle:           [-30.598, -71.200],
+    illapel:          [-31.631, -71.169],
+    vicuña:           [-30.032, -70.713],
+    salamanca:        [-31.779, -70.964],
+    los_vilos:        [-31.913, -71.514],
+    combarbala:       [-31.180, -71.003],
+    andacollo:        [-30.229, -71.085],
+    canela:           [-31.396, -71.458],
+    monte_patria:     [-30.694, -70.946],
+    punitaqui:        [-30.830, -71.258],
+    rio_hurtado:      [-30.280, -70.822],
+    paiguano:         [-30.032, -70.523],
     // V - Valparaíso
     valparaiso:       [-33.045, -71.620],
-    viña_del_mar:     [-33.024, -71.552],
-    quilpue:          [-33.042, -71.443],
-    villa_alemana:    [-33.041, -71.373],
-    san_antonio:      [-33.594, -71.619],
-    quillota:         [-32.876, -71.247],
+    vina_del_mar:     [-33.024, -71.552],
+    quillota:         [-32.880, -71.246],
+    san_antonio:      [-33.594, -71.613],
+    san_felipe:       [-32.751, -70.725],
     los_andes:        [-32.834, -70.598],
-    san_felipe:       [-32.750, -70.724],
-    la_ligua:         [-32.455, -71.232],
-    limache:          [-33.000, -71.267],
-    olmue:            [-32.987, -71.192],
-    isla_de_pascua:   [-27.112, -109.349],
-    rancagua_v:       [-33.316, -71.526],
-    cartagena:        [-33.555, -71.614],
-    san_pedro_valpo:  [-33.628, -71.464],
-    // RM - Región Metropolitana
+    marga_marga:      [-33.050, -71.400],
+    quintero:         [-32.784, -71.531],
+    villa_alemana:    [-33.042, -71.373],
+    quilpue:          [-33.048, -71.441],
+    la_ligua:         [-32.449, -71.231],
+    limache:          [-33.015, -71.264],
+    // RM - Metropolitana
     santiago:         [-33.448, -70.669],
-    puente_alto:      [-33.610, -70.576],
-    maipu:            [-33.519, -70.758],
-    la_florida:       [-33.517, -70.598],
-    las_condes:       [-33.416, -70.574],
-    san_bernardo:     [-33.594, -70.712],
-    penalolen:        [-33.491, -70.546],
-    providencia:      [-33.432, -70.618],
-    vitacura:         [-33.393, -70.579],
-    lo_barnechea:     [-33.352, -70.516],
-    buin:             [-33.731, -70.742],
-    melipilla:        [-33.691, -71.212],
-    talagante:        [-33.661, -70.928],
-    colina:           [-33.199, -70.676],
-    lampa:            [-33.283, -70.880],
-    quilicura:        [-33.365, -70.742],
-    conchali:         [-33.374, -70.659],
-    recoleta:         [-33.397, -70.639],
-    independencia:    [-33.420, -70.650],
-    el_bosque:        [-33.571, -70.666],
-    estacion_central: [-33.455, -70.710],
-    padre_hurtado:    [-33.558, -70.820],
-    paine:            [-33.811, -70.739],
+    puente_alto:      [-33.617, -70.575],
+    san_bernardo:     [-33.592, -70.705],
+    maipu:            [-33.510, -70.766],
+    la_florida:       [-33.522, -70.557],
+    colina:           [-33.202, -70.674],
+    melipilla:        [-33.685, -71.214],
+    talagante:        [-33.666, -70.927],
+    buin:             [-33.732, -70.742],
+    quilicura:        [-33.361, -70.733],
+    pudahuel:         [-33.442, -70.803],
+    lampa:            [-33.284, -70.875],
     // VI - O'Higgins
     rancagua:         [-34.170, -70.744],
-    san_fernando:     [-34.585, -70.985],
-    rengo:            [-34.399, -70.862],
-    machalí:          [-34.177, -70.653],
-    santa_cruz:       [-34.637, -71.362],
-    pichilemu:        [-34.387, -72.000],
-    graneros:         [-34.068, -70.724],
-    codegua:          [-34.033, -70.649],
+    san_fernando:     [-34.584, -70.989],
+    pichilemu:        [-34.385, -72.004],
+    rengo:            [-34.406, -70.857],
+    san_vicente:      [-34.439, -71.079],
+    machali:          [-34.181, -70.650],
+    graneros:         [-34.062, -70.723],
+    mostazal:         [-33.990, -70.718],
+    chimbarongo:      [-34.697, -71.045],
+    santa_cruz:       [-34.639, -71.366],
     // VII - Maule
     talca:            [-35.426, -71.655],
-    curico:           [-34.979, -71.239],
-    linares:          [-35.848, -71.597],
-    constitución:     [-35.329, -72.413],
-    cauquenes:        [-35.968, -72.321],
-    molina:           [-35.113, -71.281],
-    parral:           [-36.155, -71.827],
-    san_javier:       [-35.596, -71.740],
-    maule_ciudad:     [-35.496, -71.673],
+    curico:           [-34.985, -71.239],
+    linares:          [-35.845, -71.593],
+    cauquenes:        [-35.967, -72.315],
+    constitucion:     [-35.333, -72.417],
+    san_javier:       [-35.590, -71.737],
+    molina:           [-35.112, -71.281],
+    parral:           [-36.143, -71.826],
+    tलेca_clemente:    [-35.531, -71.491],
     // XVI - Ñuble
     chillan:          [-36.606, -72.103],
-    chillan_viejo:    [-36.623, -72.118],
-    san_carlos:       [-36.422, -71.955],
-    bulnes:           [-36.742, -72.296],
-    quirihue:         [-36.286, -72.535],
-    yungay:           [-37.113, -72.010],
-    coelemu:          [-36.486, -72.706],
+    san_carlos:       [-36.425, -71.958],
+    bulnes:           [-36.742, -72.298],
+    coelemu:          [-36.488, -72.702],
+    yungay:           [-37.120, -72.019],
+    quirihue:         [-36.284, -72.539],
+    el_carmen:        [-36.897, -72.025],
     // VIII - Biobío
     concepcion:       [-36.820, -73.044],
-    talcahuano:       [-36.713, -73.116],
-    los_angeles:      [-37.470, -72.351],
-    hualpén:          [-36.773, -73.095],
-    chiguayante:      [-36.921, -73.016],
-    san_pedro_de_la_paz: [-36.844, -73.100],
-    coronel:          [-37.021, -73.147],
-    lota:             [-37.089, -73.158],
-    lebu:             [-37.608, -73.651],
+    talcahuano:       [-36.724, -73.116],
+    los_angeles:      [-37.469, -72.353],
+    coronel:          [-37.030, -73.139],
+    chiguayante:      [-36.914, -73.023],
+    san_pedro_paz:    [-36.842, -73.095],
+    penco:            [-36.716, -72.996],
+    hualpen:          [-36.795, -73.104],
+    tome:             [-36.584, -72.955],
+    arauco:           [-37.247, -73.316],
+    lebu:             [-37.610, -73.655],
     cañete:           [-37.799, -73.396],
-    arauco:           [-37.246, -73.317],
-    tome:             [-36.619, -72.957],
-    penco:            [-36.737, -72.986],
-    cabrero:          [-37.031, -72.412],
-    yumbel:           [-37.100, -72.531],
-    nacimiento:       [-37.504, -72.671],
-    mulchen:          [-37.718, -72.233],
     // IX - Araucanía
     temuco:           [-38.739, -72.590],
-    padre_las_casas:  [-38.771, -72.598],
-    angol:            [-37.799, -72.709],
-    victoria:         [-38.229, -72.330],
-    pitrufquen:       [-38.977, -72.647],
-    lautaro:          [-38.528, -72.444],
-    nueva_imperial:   [-38.744, -72.952],
-    villarrica:       [-39.284, -72.226],
-    pucon:            [-39.272, -71.978],
-    carahue:          [-38.706, -73.157],
-    cunco:            [-38.928, -72.020],
-    curacautin:       [-38.423, -71.883],
+    padre_las_casas:  [-38.766, -72.599],
+    villarrica:       [-39.281, -72.227],
+    angol:            [-37.797, -72.716],
+    lautaro:          [-38.531, -72.436],
+    victoria:         [-38.214, -72.332],
+    pucon:            [-39.273, -71.975],
+    nueva_imperial:   [-38.743, -72.950],
+    collipulli:       [-37.954, -72.435],
+    carahue:          [-38.704, -73.165],
     // XIV - Los Ríos
     valdivia:         [-39.819, -73.245],
-    la_union:         [-40.294, -73.081],
-    rio_bueno:        [-40.326, -72.961],
-    panguipulli:      [-39.641, -72.337],
-    los_lagos_lr:     [-39.849, -72.824],
-    futrono:          [-40.130, -72.394],
-    corral:           [-39.883, -73.433],
+    la_union:         [-40.292, -73.082],
+    panguipulli:      [-39.643, -72.332],
+    rio_bueno:        [-40.332, -72.964],
+    mariquina:        [-39.518, -72.969],
+    lanco:            [-39.444, -72.791],
+    los_lagos_com:    [-39.851, -72.833],
+    paillaco:         [-40.077, -72.888],
     // X - Los Lagos
     puerto_montt:     [-41.469, -72.944],
-    puerto_varas:     [-41.319, -72.988],
-    osorno:           [-40.574, -73.135],
-    castro:           [-42.481, -73.763],
-    ancud:            [-41.869, -73.830],
-    calbuco:          [-41.771, -73.131],
-    llanquihue:       [-41.254, -73.005],
-    frutillar:        [-41.126, -73.055],
-    chonchi:          [-42.622, -73.769],
-    quemchi:          [-42.143, -73.473],
-    chaitén:          [-42.917, -72.707],
-    cochamo:          [-41.487, -72.296],
+    osorno:           [-40.574, -73.133],
+    castro:           [-42.472, -73.764],
+    ancud:            [-41.868, -73.828],
+    puerto_varas:     [-41.320, -72.985],
+    quellon:          [-43.118, -73.615],
+    calbuco:          [-41.774, -73.131],
+    frutillar:        [-41.114, -73.048],
+    purranque:        [-40.916, -73.161],
+    chaiten:          [-42.923, -72.709],
     // XI - Aysén
     coyhaique:        [-45.571, -72.068],
-    aysen_ciudad:     [-45.403, -72.703],
-    chile_chico:      [-46.538, -71.724],
-    cochrane:         [-47.244, -72.561],
-    villa_ohiggins:   [-48.468, -72.571],
-    puyuhuapi:        [-44.333, -72.574],
-    lago_verde:       [-44.271, -71.843],
+    puerto_aysen:     [-45.405, -72.695],
+    chile_chico:      [-46.541, -71.722],
+    cochrane:         [-47.255, -72.571],
+    cisnes:           [-44.747, -72.699],
+    guaitecas:        [-43.886, -73.754],
     // XII - Magallanes
     punta_arenas:     [-53.163, -70.907],
-    puerto_natales:   [-51.727, -72.494],
-    porvenir:         [-53.299, -70.371],
-    puerto_williams:  [-54.935, -67.613],
-    punta_delgada:    [-52.436, -69.646]
+    puerto_natales:   [-51.724, -72.506],
+    porvenir:         [-53.296, -70.363],
+    cabo_hornos:      [-54.935, -67.610]
 };
 
-// ── Coordenadas por región (fallback) ──────────────────────
+// ── Coordenadas por región para el calor ────────────────────
 const COORDENADAS_REGIONES = {
     arica:         [-18.478, -70.312],
     tarapaca:      [-20.213, -70.150],
@@ -204,123 +187,115 @@ const COORDENADAS_REGIONES = {
 };
 
 let mapaRadar = null;
-let markerCiudad = null;
+let marcadorCiudad = null;
 
-// ── Toggle visibilidad del mapa ─────────────────────────────
+/**
+ * Muestra u oculta la sección del mapa
+ */
 function toggleMapa() {
     const contenedor = document.getElementById('contenedor_mapa');
+    if (!contenedor) return;
+    
     const isHidden = contenedor.style.display === 'none';
-
     contenedor.style.display = isHidden ? 'block' : 'none';
 
-    if (isHidden && !mapaRadar) {
-        inicializarMapa();
-    } else if (isHidden) {
-        setTimeout(() => mapaRadar.invalidateSize(), 100);
-        actualizarMarcadorCiudad();
-        dibujarDatos();
+    if (isHidden) {
+        if (!mapaRadar) {
+            inicializarMapa();
+        } else {
+            setTimeout(() => {
+                mapaRadar.invalidateSize();
+                marcarCiudadActual();
+                dibujarDatos();
+            }, 150);
+        }
     }
 }
 
-// ── Inicializar mapa ────────────────────────────────────────
+/**
+ * Inicializa la instancia del mapa centrado en Chile
+ */
 function inicializarMapa() {
-    mapaRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 5);
+    mapaRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 4);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© RadarAPR / OpenStreetMap'
     }).addTo(mapaRadar);
 
-    actualizarMarcadorCiudad();
+    marcarCiudadActual();
     dibujarDatos();
+}
 
-    // Actualizar marcador cuando cambia la ciudad
-    const selectCiudad = document.getElementById('ciudad');
-    if (selectCiudad) {
-        selectCiudad.addEventListener('change', () => {
-            if (mapaRadar && document.getElementById('contenedor_mapa').style.display !== 'none') {
-                actualizarMarcadorCiudad();
-            }
-        });
+/**
+ * Pone un marcador azul en la ciudad que el usuario seleccionó en el formulario
+ */
+function marcarCiudadActual() {
+    if (!mapaRadar) return;
+
+    const ciudadSelect = document.getElementById('ciudad');
+    if (!ciudadSelect) return;
+
+    const ciudadValue = ciudadSelect.value;
+
+    if (marcadorCiudad) {
+        mapaRadar.removeLayer(marcadorCiudad);
+        marcadorCiudad = null;
+    }
+
+    if (COORDENADAS_CIUDADES[ciudadValue]) {
+        const coords = COORDENADAS_CIUDADES[ciudadValue];
+        
+        marcadorCiudad = L.marker(coords).addTo(mapaRadar)
+            .bindPopup(`📍 <strong>Oferta evaluada aquí</strong>`)
+            .openPopup();
+            
+        mapaRadar.setView(coords, 8);
     }
 }
 
-// ── Marcador de ciudad seleccionada ────────────────────────
-function actualizarMarcadorCiudad() {
-    const selectCiudad = document.getElementById('ciudad');
-    if (!selectCiudad || !mapaRadar) return;
-
-    const ciudadVal = selectCiudad.value;
-    const nombreCiudad = selectCiudad.options[selectCiudad.selectedIndex].text;
-
-    // Obtener coordenadas: ciudad → región como fallback
-    let coords = COORDENADAS_CIUDADES[ciudadVal];
-    if (!coords) {
-        const region = document.getElementById('region')?.value;
-        coords = COORDENADAS_REGIONES[region] || [-35.6751, -71.5429];
-    }
-
-    // Ícono personalizado
-    const icono = L.divIcon({
-        className: '',
-        html: `<div style="
-            background: #d35400;
-            border: 3px solid #fff;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            width: 22px; height: 22px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        "></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 22]
-    });
-
-    // Eliminar marcador anterior
-    if (markerCiudad) mapaRadar.removeLayer(markerCiudad);
-
-    markerCiudad = L.marker(coords, { icon: icono })
-        .addTo(mapaRadar)
-        .bindPopup(`<strong>📍 ${nombreCiudad}</strong><br><small>Ciudad seleccionada para análisis</small>`)
-        .openPopup();
-
-    mapaRadar.flyTo(coords, 9, { animate: true, duration: 1.2 });
-}
-
-// ── Capa de calor histórica por región ─────────────────────
+/**
+ * Obtiene el historial de Supabase (o localStorage) y dibuja círculos de calor
+ */
 async function dibujarDatos() {
+    if (!mapaRadar) return;
+
+    // Limpiar círculos previos
     mapaRadar.eachLayer((layer) => {
-        if (layer instanceof L.Circle) mapaRadar.removeLayer(layer);
+        if (layer instanceof L.Circle) {
+            mapaRadar.removeLayer(layer);
+        }
     });
 
     let historial = [];
 
-    if (window.supabase) {
+    // CORRECCIÓN: Uso de window.supabaseClient en lugar de la palabra clave global supabase
+    if (window.supabaseClient) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await window.supabaseClient
                 .from('consultas_salariales')
                 .select('region, sueldo_ofrecido');
-            
-            if (error) throw error;
-            
-            // Adaptar los datos de Supabase al formato que espera el mapa
-            if (data) {
-                historial = data.map(row => ({
-                    region: row.region,
-                    ofrecido: row.sueldo_ofrecido
+
+            if (error) {
+                console.error('Error cargando datos desde Supabase para mapa:', error);
+                historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
+            } else if (data) {
+                historial = data.map(item => ({
+                    region: item.region,
+                    ofrecido: item.sueldo_ofrecido
                 }));
             }
         } catch (err) {
-            console.error('Error cargando historial de Supabase:', err);
-            // Fallback en caso de error
+            console.error('Excepción al conectar con Supabase desde mapa.js:', err);
             historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
         }
     } else {
-        // Fallback si Supabase no está cargado
         historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
     }
 
     const conteo = {};
 
     historial.forEach(item => {
+        if (!item.region) return;
         if (!conteo[item.region]) {
             conteo[item.region] = { cantidad: 0, sueldos: [] };
         }
@@ -336,7 +311,7 @@ async function dibujarDatos() {
             const promedio = data.sueldos.length > 0 
                 ? data.sueldos.reduce((a, b) => a + b, 0) / data.sueldos.length 
                 : 0;
-                
+
             const radio = 15000 + (data.cantidad * 8000);
             const color = data.cantidad > 5 ? '#c0392b' : (data.cantidad > 2 ? '#e67e22' : '#27ae60');
 
@@ -346,11 +321,24 @@ async function dibujarDatos() {
                 fillOpacity: 0.4,
                 radius: Math.min(radio, 80000)
             }).addTo(mapaRadar)
-                .bindPopup(`
+              .bindPopup(`
                 <strong>Región:</strong> ${reg.toUpperCase()}<br>
                 <strong>Consultas:</strong> ${data.cantidad}<br>
-                <strong>Promedio Ofrecido:</strong> $${Math.round(promedio).toLocaleString('es-CL')}
+                <strong>Promedio Ofrecido:</strong> ${promedio > 0 ? '$' + Math.round(promedio).toLocaleString('es-CL') : 'No especificado'}
               `);
         }
     }
 }
+
+// Escuchar cambios en el selector de ciudades del formulario para mover el mapa dinámicamente
+document.addEventListener('DOMContentLoaded', () => {
+    const ciudadSelect = document.getElementById('ciudad');
+    if (ciudadSelect) {
+        ciudadSelect.addEventListener('change', () => {
+            const contenedor = document.getElementById('contenedor_mapa');
+            if (contenedor && contenedor.style.display !== 'none') {
+                marcarCiudadActual();
+            }
+        });
+    }
+});

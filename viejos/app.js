@@ -151,6 +151,8 @@ function evaluarOferta() {
     const sueldoOfrecido = Number(sueldoInput.value);
 
     // ── 2. Siempre leer TODOS los filtros avanzados ──
+    //    Si el panel está cerrado los selects mantienen su valor por defecto,
+    //    lo que equivale a multiplicador ×1.00 (sin impacto en el cálculo).
     const getVal = id => {
         const el = document.getElementById(id);
         return el ? el.value : null;
@@ -175,7 +177,7 @@ function evaluarOferta() {
     if (isChecked('tarea_conduccion')) redFlags.push('Conducción de vehículos de la empresa');
     if (isChecked('tarea_supervision_op')) redFlags.push('Supervisión de la operación productiva');
 
-    // ── 3. Cálculo ──
+    // ── 3. Cálculo (siempre aplica todos los multiplicadores) ──
     const mBase = DATABASE.sueldosBase[formacion];
     const mRegion = DATABASE.mult.region[region] || 1.00;
     const mRubro = DATABASE.mult.rubro[rubro] || 1.00;
@@ -213,6 +215,7 @@ function evaluarOferta() {
                  <small>El ofrecido ($${fmt(sueldoOfrecido)}) está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
     }
 
+    // Tabla de factores
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
     html += `<p style="font-size:0.82rem;color:#555;margin:0 0 6px"><strong>Factores aplicados:</strong></p>`;
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse">`;
@@ -243,6 +246,7 @@ function evaluarOferta() {
     </tr>`;
     html += `</table>`;
 
+    // Banderas rojas detectadas
     if (redFlags.length > 0) {
         resDiv.style.backgroundColor = '#f8d7da';
         resDiv.style.borderLeft = '6px solid #dc3545';
@@ -254,7 +258,7 @@ function evaluarOferta() {
         html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del Experto en Prevención. Considera negociar una compensación adicional.</p>`;
     }
 
-    // ── 5. Preguntas para negociar ──
+    // ── 5. Preguntas para negociar (filtros en valor por defecto) ──
     const preguntas = [];
 
     if (contrato === 'indefinido') {
@@ -292,40 +296,39 @@ function evaluarOferta() {
             detalle: 'El sector define el marco de remuneraciones aplicable y los beneficios adicionales del cargo.'
         });
     }
-    
-    // CORRECCIÓN "Unterminated template literal": Reemplazado por concatenación de strings para evitar errores del editor
     if (redFlags.length === 0) {
         preguntas.push({
             icono: '🚩',
             pregunta: '¿El cargo incluye funciones ajenas al Experto en Prevención?',
-            detalle: 'Según el <strong>Decreto Supremo N°44</strong> (Art. 10–12), las funciones <u>legales</u> del Experto en Prevención son:<br>' +
-                '<ol style="margin:6px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-                    '<li>Planificar, organizar y supervisar el programa de prevención de riesgos.</li>' +
-                    '<li>Asesorar al empleador en la formulación de políticas y metas de seguridad.</li>' +
-                    '<li>Inspeccionar y controlar las condiciones ambientales y de trabajo.</li>' +
-                    '<li>Investigar accidentes del trabajo y enfermedades profesionales.</li>' +
-                    '<li>Mantener las estadísticas de siniestralidad (tasas de frecuencia y gravedad).</li>' +
-                    '<li>Colaborar con los Comités Paritarios de Higiene y Seguridad.</li>' +
-                    '<li>Programar y promover capacitación y gestionar la IRL.</li>' +
-                    '<li>Controlar el uso de elementos de protección personal.</li>' +
-                    '<li>Coordinar acciones con el organismo administrador (ISL / Mutualidad).</li>' +
-                    '<li>Mantener actualizado el RIOHS.</li>' +
-                '</ol>' +
-                '<span style="color:#c0392b;font-size:0.78rem">⚠️ Funciones como bodega, RRHH, logística, contabilidad, conducción o supervisión de operaciones <strong>no están contempladas</strong> en el DS N°44 y constituyen multifuncionalidad no remunerada.</span>'
+            detalle: `Según el <strong>Decreto Supremo N°44</strong> (Art. 10–12), las funciones <u>legales</u> del Experto en Prevención son:<br>
+                <ol style="margin:6px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">
+                    <li>Planificar, organizar y supervisar el programa de prevención de riesgos.</li>
+                    <li>Asesorar al empleador en la formulación de políticas y metas de seguridad.</li>
+                    <li>Inspeccionar y controlar las condiciones ambientales y de trabajo.</li>
+                    <li>Investigar accidentes del trabajo y enfermedades profesionales.</li>
+                    <li>Mantener las estadísticas de siniestralidad (tasas de frecuencia y gravedad).</li>
+                    <li>Colaborar con los Comités Paritarios de Higiene y Seguridad.</li>
+                    <li>Programar y promover capacitación y gestionar la IRL.</li>
+                    <li>Controlar el uso de elementos de protección personal.</li>
+                    <li>Coordinar acciones con el organismo administrador (ISL / Mutualidad).</li>
+                    <li>Mantener actualizado el RIOHS.</li>
+                </ol>
+                <span style="color:#c0392b;font-size:0.78rem">⚠️ Funciones como bodega, RRHH, logística, contabilidad, conducción o supervisión de operaciones <strong>no están contempladas</strong> en el DS N°44 y constituyen multifuncionalidad no remunerada.</span>`
         });
     }
 
+    // Pregunta de beneficios (siempre aparece)
     preguntas.push({
         icono: '🍽️',
         pregunta: '¿La empresa costea alimentación, alojamiento o traslados?',
-        detalle: 'Estos beneficios tienen impacto directo en el costo de vida real del cargo. Consulta específicamente por:<br>' +
-            '<ul style="margin:5px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-                '<li><strong>Alimentación:</strong> ¿Casino en faena, colación o asignación en dinero?</li>' +
-                '<li><strong>Alojamiento:</strong> ¿Campamento, hotel o asignación para arriendo?</li>' +
-                '<li><strong>Traslado de ciudad:</strong> ¿Pasaje aéreo o terrestre pagado por la empresa?</li>' +
-                '<li><strong>Transporte de acercamiento:</strong> ¿Movilización desde la ciudad al lugar de trabajo?</li>' +
-            '</ul>' +
-            '<span style="font-size:0.78rem;color:#555">Si estos beneficios <strong>no están incluidos</strong>, el sueldo ofrecido debe cubrir esos costos. Considéralos al negociar.</span>'
+        detalle: `Estos beneficios tienen impacto directo en el costo de vida real del cargo. Consulta específicamente por:<br>
+            <ul style="margin:5px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">
+                <li><strong>Alimentación:</strong> ¿Casino en faena, colación o asignación en dinero?</li>
+                <li><strong>Alojamiento:</strong> ¿Campamento, hotel o asignación para arriendo?</li>
+                <li><strong>Traslado de ciudad:</strong> ¿Pasaje aéreo o terrestre pagado por la empresa?</li>
+                <li><strong>Transporte de acercamiento:</strong> ¿Movilización desde la ciudad al lugar de trabajo?</li>
+            </ul>
+            <span style="font-size:0.78rem;color:#555">Si estos beneficios <strong>no están incluidos</strong>, el sueldo ofrecido debe cubrir esos costos. Considéralos al negociar.</span>`
     });
 
     if (preguntas.length > 0) {
@@ -346,10 +349,9 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // ── 6. Guardar consulta en Supabase (CORRECCIÓN "is not a function") ──
+    // ── 6. Guardar consulta en Supabase ──
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
-        // CORRECCIÓN: Se usa window.supabaseClient en lugar de supabase global
         window.supabaseClient.from('consultas_salariales').insert([
             {
                 formacion: formacion,
@@ -366,12 +368,14 @@ function evaluarOferta() {
                 alert('Hubo un error al guardar en la base de datos: ' + error.message);
             } else {
                 console.log('Consulta guardada en Supabase:', data);
+                // Si el mapa está visible, actualizarlo
                 if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
                     dibujarDatos();
                 }
             }
         });
     } else {
+        // Fallback a localStorage si Supabase falla
         const historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
         historial.push({
             region: region,
