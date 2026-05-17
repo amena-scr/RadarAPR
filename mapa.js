@@ -286,12 +286,38 @@ function actualizarMarcadorCiudad() {
 }
 
 // ── Capa de calor histórica por región ─────────────────────
-function dibujarDatos() {
+async function dibujarDatos() {
     mapaRadar.eachLayer((layer) => {
         if (layer instanceof L.Circle) mapaRadar.removeLayer(layer);
     });
 
-    const historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
+    let historial = [];
+
+    if (window.supabase) {
+        try {
+            const { data, error } = await supabase
+                .from('consultas_salariales')
+                .select('region, sueldo_ofrecido');
+            
+            if (error) throw error;
+            
+            // Adaptar los datos de Supabase al formato que espera el mapa
+            if (data) {
+                historial = data.map(row => ({
+                    region: row.region,
+                    ofrecido: row.sueldo_ofrecido
+                }));
+            }
+        } catch (err) {
+            console.error('Error cargando historial de Supabase:', err);
+            // Fallback en caso de error
+            historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
+        }
+    } else {
+        // Fallback si Supabase no está cargado
+        historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
+    }
+
     const conteo = {};
 
     historial.forEach(item => {
@@ -299,13 +325,18 @@ function dibujarDatos() {
             conteo[item.region] = { cantidad: 0, sueldos: [] };
         }
         conteo[item.region].cantidad++;
-        conteo[item.region].sueldos.push(item.ofrecido);
+        if (item.ofrecido) {
+            conteo[item.region].sueldos.push(item.ofrecido);
+        }
     });
 
     for (const reg in conteo) {
         if (COORDENADAS_REGIONES[reg]) {
             const data = conteo[reg];
-            const promedio = data.sueldos.reduce((a, b) => a + b, 0) / data.cantidad;
+            const promedio = data.sueldos.length > 0 
+                ? data.sueldos.reduce((a, b) => a + b, 0) / data.sueldos.length 
+                : 0;
+                
             const radio = 15000 + (data.cantidad * 8000);
             const color = data.cantidad > 5 ? '#c0392b' : (data.cantidad > 2 ? '#e67e22' : '#27ae60');
 

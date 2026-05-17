@@ -348,4 +348,43 @@ function evaluarOferta() {
     }
 
     resDiv.innerHTML = html;
+
+    // ── 6. Guardar consulta en Supabase ──
+    if (window.supabase) {
+        const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
+        supabase.from('consultas_salariales').insert([
+            {
+                formacion: formacion,
+                region: region,
+                ciudad: ciudad,
+                rubro: rubro,
+                experiencia: exp,
+                sueldo_ofrecido: sueldoOfrecido,
+                sueldo_sugerido: sueldoJusto
+            }
+        ]).then(({ data, error }) => {
+            if (error) {
+                console.error('Error guardando en Supabase:', error);
+            } else {
+                console.log('Consulta guardada en Supabase');
+                // Si el mapa está visible, actualizarlo
+                if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
+                    dibujarDatos();
+                }
+            }
+        });
+    } else {
+        // Fallback a localStorage si Supabase falla
+        const historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
+        historial.push({
+            region: region,
+            ofrecido: sueldoOfrecido,
+            fecha: new Date().toISOString()
+        });
+        localStorage.setItem('radar_logs', JSON.stringify(historial));
+        
+        if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
+            dibujarDatos();
+        }
+    }
 }
