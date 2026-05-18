@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.3 — Ajuste de Jornadas y Tarifas Por Día
+ * Versión: 1.1.4 — Ajuste Realista de Tarifa Diaria
  * Base normativa: INE 2026 / DS 44 / Ley 16.744
  */
 
@@ -63,16 +63,16 @@ const DATABASE = {
             corto: 1.15,
             un_mes: 1.20,
             solo_un_mes: 1.25,
-            un_dia: 1.80 // Factor de recargo por jornada única esporádica
+            un_dia: 1.15 // CORRECCIÓN: Bajado de 1.80 a 1.15 para evitar sobrevaloración
         },
 
         sector: { privado: 1.00, publico_general: 0.88, publico_salud: 0.90, publico_educacion: 0.82 },
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
-        // ── Jornada y Turnos (Separado Lunes a Viernes de Art. 22) ──
+        // ── Jornada y Turnos ──
         turno: {
             lunes_viernes_normal: 1.00,
-            lunes_viernes_art22: 1.15, // Mayor disponibilidad horaria requerida
+            lunes_viernes_art22: 1.15,
             turno_5x2: 1.05,
             turno_4x3: 1.08,
             turno_nocturno: 1.12,
@@ -142,7 +142,7 @@ function evaluarOferta() {
 
     const duracionVal = getVal('duracion');
 
-    // CORRECCIÓN: Si es "por dia", dividimos la base mensual por 30 para calcular sobre 1 día real
+    // Si es "por dia", dividimos la base mensual por 30 para calcular sobre 1 día real
     if (avanzadosActivos && duracionVal === 'un_dia') {
         mBase = mBase / 30;
     }
@@ -193,11 +193,11 @@ function evaluarOferta() {
     if (diferencia >= -50000) {
         resDiv.style.backgroundColor = '#d4edda';
         resDiv.style.borderLeft = '6px solid #28a745';
-        html += `<p>✅ <strong>Sueldo Competitivo:</strong> El monto ofrecido está al nivel del mercado técnico analizado.</p>`;
+        html += `<p>✅ <strong>Valor Competitivo:</strong> El monto ofrecido está al nivel del mercado técnico analizado.</p>`;
     } else {
         resDiv.style.backgroundColor = '#fff3cd';
         resDiv.style.borderLeft = '6px solid #ffc107';
-        html += `<p>⚠️ <strong>Sueldo bajo el mercado:</strong> El valor de mercado estimado es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
+        html += `<p>⚠️ <strong>Valor bajo el mercado:</strong> El valor de mercado estimado es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
                  <small>El valor ingresado ($${fmt(sueldoOfrecido)}) está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
     }
 
