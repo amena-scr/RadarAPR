@@ -14,7 +14,7 @@
     <div class="container">
         <header>
             <h1>RadarAPR 📡</h1>
-            <p class="subtitle">Versión 1.1.8 — Base de Ciudades Completa y Ajuste de Turnos</p>
+            <p class="subtitle">Versión 1.1.9 — Cálculo de Valor por Hora y Jornadas Parciales</p>
         </header>
 
         <main id="app-form">
@@ -140,9 +140,21 @@
                 <select id="duracion">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
                     <option value="indefinida">Indefinida</option>
-                    <option value="un_mes">Duración de un mes</option>
+                    <option value="por_mes">Por mes</option>
                     <option value="un_dia">Por día</option>
+                    <option value="por_horas">Por horas</option>
                 </select>
+
+                <div id="contenedor_horas"
+                    style="display: none; margin-top: 10px; background: #e8f4fd; padding: 12px; border-radius: 6px; border: 1px solid #b3d7f6;">
+                    <label for="horas_semana"
+                        style="font-size: 0.85rem; color: #1a5276; font-weight: bold; margin-bottom: 5px; display: block;">Horas
+                        a trabajar por semana:</label>
+                    <input type="number" id="horas_semana" value="20" min="1" max="42"
+                        style="width: 100%; margin-bottom: 0;">
+                    <p style="font-size: 0.72rem; color: #555; margin: 6px 0 0 0;"><i>(El sueldo ofrecido arriba debe
+                            ser el total que te pagarán al mes por estas horas).</i></p>
+                </div>
 
                 <div class="seccion-titulo">Jornada y Turnos</div>
                 <select id="turno">

@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.8 — Base de Ciudades Completa y Ajuste de Turnos
+ * Versión: 1.1.9 — Cálculo de Valor por Hora y Jornadas Parciales (42hrs/168hrs)
  * Base normativa: INE 2026 / DS 44 / Ley 16.744 / Código del Trabajo Art. 7 y 8
  */
 
@@ -37,17 +37,19 @@ const DATABASE = {
 
         // ── FILTROS AVANZADOS ──
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 0.66, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
-        duracion: { indefinida: 1.00, un_mes: 1.20, un_dia: 1.15 },
+
+        // ── Duración de Servicio Ajustada ──
+        duracion: { indefinida: 1.00, por_mes: 1.20, un_dia: 1.15, por_horas: 1.15 },
+
         trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico: 0.88 },
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
-        // ── TURNOS ACTUALIZADOS ──
         turno: {
             lunes_viernes_normal: 1.00,
             lunes_viernes_art22: 1.15,
-            un_dia_semana: 1.00, // Reemplazado 5x2
+            un_dia_semana: 1.00,
             turno_4x3: 1.08,
             turno_nocturno: 1.12,
             turno_7x7: 1.15,
@@ -72,7 +74,6 @@ const INFO_CONTRATOS = {
     honorarios: "Boleta de Honorarios."
 };
 
-// LISTA COMPLETA DE CIUDADES DE MAPA.JS
 const CIUDADES_POR_REGION = {
     arica: [
         { val: 'arica', txt: 'Arica' }, { val: 'putre', txt: 'Putre' }, { val: 'camarones', txt: 'Camarones' }, { val: 'general_lagos', txt: 'General Lagos' }
@@ -192,10 +193,23 @@ function evaluarOferta() {
     const duracionVal = getVal('duracion');
     const contratoVal = getVal('tipo_contrato');
 
-    if (avanzadosActivos && duracionVal === 'un_dia') {
-        mBase = mBase / 30;
+    let esPorHora = false;
+    let horasSemana = 1;
+    let valorHoraSugerido = 0;
+
+    // Lógica para Cálculo de Fracción (Día vs Hora)
+    if (avanzadosActivos) {
+        if (duracionVal === 'un_dia') {
+            mBase = mBase / 30; // Tarifa diaria pura
+        } else if (duracionVal === 'por_horas') {
+            esPorHora = true;
+            horasSemana = Number(getVal('horas_semana')) || 20; // Recibe valor del input
+            let mBaseHora = mBase / 168; // 168 hrs al mes exactas (42 hrs semanales x 4 semanas)
+            mBase = mBaseHora * (horasSemana * 4); // Proyección a total mensual según horas
+        }
     }
 
+    // Lógica para Multiplicadores de Mercado
     if (avanzadosActivos) {
         const rubroVal = getVal('rubro');
         const expVal = getVal('experiencia');
@@ -229,6 +243,7 @@ function evaluarOferta() {
     const diferencia = sueldoOfrecido - sueldoJusto;
     const fmt = n => Math.round(n).toLocaleString('es-CL');
 
+    // ── Renderizar Panel de Resultados ──
     const resDiv = document.getElementById('resultado_analisis');
     resDiv.style.display = 'block';
     resDiv.style.marginTop = '25px';
@@ -252,10 +267,17 @@ function evaluarOferta() {
     html += `<p style="font-size:0.82rem;color:#555;margin:0 0 6px"><strong>Factores matemáticos aplicados:</strong></p>`;
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse">`;
 
-    const filas = [
-        [duracionVal === 'un_dia' ? 'Sueldo base (Por día)' : 'Sueldo base', `$${fmt(mBase)}`],
-        ['Región', `×${mRegion.toFixed(2)}`]
-    ];
+    // Tabla dinámica que identifica si es mensual, por día o por horas
+    const filas = [];
+    if (duracionVal === 'un_dia') {
+        filas.push(['Sueldo base (Por día)', `$${fmt(mBase)}`]);
+    } else if (duracionVal === 'por_horas') {
+        filas.push([`Sueldo base (Proyección de ${horasSemana} hrs/sem)`, `$${fmt(mBase)}`]);
+    } else {
+        filas.push(['Sueldo base', `$${fmt(mBase)}`]);
+    }
+
+    filas.push(['Región', `×${mRegion.toFixed(2)}`]);
 
     if (avanzadosActivos) {
         if (mRubro !== 1.00) filas.push(['Sector económico', `×${mRubro.toFixed(2)}`]);
@@ -279,9 +301,22 @@ function evaluarOferta() {
     });
 
     html += `<tr style="border-top:1px solid #ccc">
-        <td style="padding:5px 6px;font-weight:bold">${duracionVal === 'un_dia' ? 'Sugerido por día' : 'Sueldo sugerido mensual'}</td>
+        <td style="padding:5px 6px;font-weight:bold">${duracionVal === 'un_dia' ? 'Sugerido por día' :
+            duracionVal === 'por_horas' ? 'Sugerido total mensual' :
+                'Sueldo sugerido mensual'
+        }</td>
         <td style="padding:5px 6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td>
     </tr>`;
+
+    // ── Alerta especial del Valor por Hora ──
+    if (esPorHora) {
+        valorHoraSugerido = sueldoJusto / (horasSemana * 4); // Se divide por las horas totales proyectadas al mes (horasSemana * 4 semanas)
+        html += `<tr style="background-color: #e8f4fd;">
+            <td style="padding:5px 6px;font-weight:bold;color:#1a5276; border-bottom-left-radius: 4px;">▶ Sugerido por Hora</td>
+            <td style="padding:5px 6px;text-align:right;font-weight:bold;color:#1a5276;font-size:0.95rem; border-bottom-right-radius: 4px;">$${fmt(valorHoraSugerido)} / hr</td>
+        </tr>`;
+    }
+
     html += `</table>`;
 
     if (redFlags.length > 0) {
@@ -295,10 +330,9 @@ function evaluarOferta() {
         html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del cargo de Experto en Prevención. Considera negociar una compensación adicional o rechazar responsabilidades civiles ajenas.</p>`;
     }
 
-    // ── 7. Preguntas de Entrevista e Infracciones Legales ──
+    // ── Preguntas de Entrevista e Infracciones Legales ──
     const preguntas = [];
 
-    // GATILLO LEGAL: Alerta de Vínculo de Subordinación y Dependencia
     if (avanzadosActivos && contratoVal === 'honorarios') {
         preguntas.push({
             icono: '⚖️',
@@ -344,7 +378,7 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // ── 8. Persistencia en Supabase ──
+    // ── Persistencia en Supabase ──
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
         window.supabaseClient.from('consultas_salariales').insert([
@@ -366,20 +400,33 @@ function evaluarOferta() {
 }
 
 // ============================================================
-// EVENTOS ADICIONALES (Tooltips y Mapas)
+// EVENTOS ADICIONALES (Tooltips, Mapas y Lógica Dinámica)
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+
     // 1. Llenar ciudades al cargar e interceptar el cambio de región
     const regionSelect = document.getElementById('region');
     if (regionSelect) {
         regionSelect.addEventListener('change', actualizarCiudades);
-        actualizarCiudades(); // Ejecuta una vez para llenar la región por defecto
+        actualizarCiudades();
     }
 
-    // 2. Lógica para actualizar el tooltip del Tipo de Contrato dinámicamente
+    // 2. Lógica para mostrar las Horas de forma dinámica al elegir "Por horas"
+    const duracionSelect = document.getElementById('duracion');
+    const contenedorHoras = document.getElementById('contenedor_horas');
+    if (duracionSelect && contenedorHoras) {
+        duracionSelect.addEventListener('change', () => {
+            if (duracionSelect.value === 'por_horas') {
+                contenedorHoras.style.display = 'block';
+            } else {
+                contenedorHoras.style.display = 'none';
+            }
+        });
+    }
+
+    // 3. Lógica para actualizar el tooltip del Tipo de Contrato
     const contratoSelect = document.getElementById('tipo_contrato');
     const infoIcon = document.getElementById('info_contrato');
-
     if (contratoSelect && infoIcon) {
         contratoSelect.addEventListener('change', () => {
             if (INFO_CONTRATOS[contratoSelect.value]) {
@@ -388,14 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 infoIcon.title = "Información del contrato";
             }
         });
-
         infoIcon.addEventListener('click', () => {
             const desc = INFO_CONTRATOS[contratoSelect.value];
             if (desc) alert("Detalle del contrato:\n\n" + desc);
         });
     }
 
-    // 3. Lógica para actualizar el mapa si se cambia la ciudad (viene de mapa.js)
+    // 4. Lógica para el mapa al cambiar ciudad
     const ciudadSelect = document.getElementById('ciudad');
     if (ciudadSelect) {
         ciudadSelect.addEventListener('change', () => {
