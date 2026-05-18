@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.0 — Con Filtros Avanzados
+ * Versión: 1.1.2 — Integración de Sernageomin, Turnos y Minería
  * Base normativa: INE 2026 / DS 44 / Ley 16.744
  */
 
@@ -17,29 +17,17 @@ const DATABASE = {
     mult: {
         // ── Región (16 regiones de Chile) ──
         region: {
-            arica: 1.10,
-            tarapaca: 1.35,
-            antofagasta: 1.50,
-            atacama: 1.30,
-            coquimbo: 1.05,
-            valparaiso: 1.05,
-            metropolitana: 1.00,
-            ohiggins: 0.95,
-            maule: 0.90,
-            nuble: 0.88,
-            biobio: 0.95,
-            araucania: 0.88,
-            los_rios: 0.90,
-            los_lagos: 0.92,
-            aysen: 1.20,
-            magallanes: 1.30
+            arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30,
+            coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95,
+            maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88,
+            los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
         },
 
         // ── Rubro / Sector Económico ──
         rubro: {
-            mineria_cielo_abierto: 1.50,
-            mineria_subterranea: 1.60,
-            mineria_salares: 1.55,
+            mineria_cielo_abierto: 1.45,
+            mineria_subterranea: 1.55,
+            mineria_salares: 1.50,
             petroleo_gas: 1.45,
             energias_renovables: 1.35,
             montaje_industrial: 1.35,
@@ -60,62 +48,38 @@ const DATABASE = {
         },
 
         // ── Experiencia ──
-        experiencia: {
-            junior: 1.00,
-            semi_senior: 1.25,
-            senior: 1.50
-        },
+        experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
 
         // ── FILTROS AVANZADOS ──
+        contrato: { indefinido: 1.00, plazo_fijo: 1.08, honorarios: 1.22, obra_faena: 1.15 },
+        trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
+        modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
+        duracion: { indefinida: 1.00, largo: 1.00, mediano: 1.08, corto: 1.15, un_mes: 1.20, solo_un_mes: 1.25, un_dia: 1.30 },
+        sector: { privado: 1.00, publico_general: 0.88, publico_salud: 0.90, publico_educacion: 0.82 },
+        zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
-        // Tipo de Contrato
-        contrato: {
-            indefinido: 1.00,
-            plazo_fijo: 1.08,
-            honorarios: 1.22,
-            obra_faena: 1.15
+        // ── NUEVOS FILTROS MINEROS Y TURNOS ──
+        turno: {
+            lunes_viernes: 1.00,
+            turno_5x2: 1.05,
+            turno_4x3: 1.08,
+            turno_nocturno: 1.12,
+            turno_7x7: 1.15,
+            turno_14x14: 1.20
         },
-
-        // Trabajadores a Cargo
-        trabajadores: {
-            sin_cargo: 1.00,
-            hasta_50: 1.10,
-            hasta_200: 1.20,
-            hasta_500: 1.32,
-            mas_500: 1.45
+        especializacion: {
+            ninguna: 1.00,
+            sns: 1.05,
+            auditor: 1.08,
+            sernageomin_c: 1.10,
+            sernageomin_b: 1.20,
+            sernageomin_a: 1.35
         },
-
-        // Modalidad de Trabajo
-        modalidad: {
-            oficina: 1.00,
-            mixto: 1.12,
-            terreno: 1.25
-        },
-
-        // Duración del Servicio
-        duracion: {
-            indefinida: 1.00,
-            largo: 1.00,
-            mediano: 1.08,
-            corto: 1.15,
-            un_mes: 1.20,
-            solo_un_mes: 1.25,
-            un_dia: 1.30
-        },
-
-        // Sector
-        sector: {
-            privado: 1.00,
-            publico_general: 0.88,
-            publico_salud: 0.90,
-            publico_educacion: 0.82
-        },
-
-        // Zona Extrema
-        zona_extrema: {
-            no_aplica: 1.00,
-            extremo_norte: 1.15,
-            extremo_sur: 1.20
+        exp_mineria: {
+            sin_experiencia: 1.00,
+            pequena_mineria: 1.05,
+            mediana_mineria: 1.10,
+            gran_mineria: 1.15
         }
     }
 };
@@ -126,7 +90,7 @@ const DATABASE = {
 
 function toggleAvanzados() {
     const panel = document.getElementById('seccion_avanzada');
-    const btn = document.getElementById('btn-avanzados');
+    const btn = document.querySelector('.btn-avanzados');
     const open = panel.style.display === 'block';
     panel.style.display = open ? 'none' : 'block';
     if (btn) btn.classList.toggle('open', !open);
@@ -137,20 +101,19 @@ function toggleAvanzados() {
 // ============================================================
 function evaluarOferta() {
 
-    // ── 1. Campos base ──
+    // ── 1. Validación inicial ──
     const sueldoInput = document.getElementById('sueldo_ofrecido');
     if (!sueldoInput || sueldoInput.value.trim() === "") {
         alert("⚠️ Por favor, ingresa el Sueldo Líquido Ofrecido ($) para realizar el análisis.");
         if (sueldoInput) sueldoInput.focus();
         return;
     }
+
     const formacion = document.getElementById('formacion').value;
     const region = document.getElementById('region').value;
-    const rubro = document.getElementById('rubro').value;
-    const exp = document.getElementById('experiencia').value;
     const sueldoOfrecido = Number(sueldoInput.value);
 
-    // ── 2. Siempre leer TODOS los filtros avanzados ──
+    // ── 2. Helper de captura ──
     const getVal = id => {
         const el = document.getElementById(id);
         return el ? el.value : null;
@@ -160,40 +123,60 @@ function evaluarOferta() {
         return el ? el.checked : false;
     };
 
-    const zona_extrema = getVal('zona_extrema') || 'no_aplica';
-    const contrato = getVal('tipo_contrato') || 'indefinido';
-    const trabajadores = getVal('trabajadores_cargo') || 'sin_cargo';
-    const modalidad = getVal('modalidad') || 'oficina';
-    const duracion = getVal('duracion') || 'indefinida';
-    const sector = getVal('sector') || 'privado';
+    // ── 3. CANDADO LÓGICO: Estado del Panel Avanzado ──
+    const panelAvanzado = document.getElementById('seccion_avanzada');
+    const avanzadosActivos = panelAvanzado && (panelAvanzado.style.display === 'block');
 
-    const redFlags = [];
-    if (isChecked('tarea_bodega')) redFlags.push('Administrar bodega o materiales');
-    if (isChecked('tarea_rrhh')) redFlags.push('Control de asistencia o remuneraciones');
-    if (isChecked('tarea_logistica')) redFlags.push('Coordinación logística o despachos');
-    if (isChecked('tarea_contabilidad')) redFlags.push('Funciones contables o de finanzas');
-    if (isChecked('tarea_conduccion')) redFlags.push('Conducción de vehículos de la empresa');
-    if (isChecked('tarea_supervision_op')) redFlags.push('Supervisión de la operación productiva');
-
-    // ── 3. Cálculo ──
+    // Factores Base
     const mBase = DATABASE.sueldosBase[formacion];
     const mRegion = DATABASE.mult.region[region] || 1.00;
-    const mRubro = DATABASE.mult.rubro[rubro] || 1.00;
-    const mExp = DATABASE.mult.experiencia[exp] || 1.00;
-    const mZona = DATABASE.mult.zona_extrema[zona_extrema] || 1.00;
-    const mContrato = DATABASE.mult.contrato[contrato] || 1.00;
-    const mTrab = DATABASE.mult.trabajadores[trabajadores] || 1.00;
-    const mModalidad = DATABASE.mult.modalidad[modalidad] || 1.00;
-    const mDuracion = DATABASE.mult.duracion[duracion] || 1.00;
-    const mSector = DATABASE.mult.sector[sector] || 1.00;
 
-    const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona
-        * mContrato * mTrab * mModalidad * mDuracion * mSector;
+    // Factores Avanzados (Bloqueados en 1.00 por defecto)
+    let mRubro = 1.00, mExp = 1.00, mZona = 1.00;
+    let mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mDuracion = 1.00, mSector = 1.00;
+    let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00;
 
+    // Variables para base de datos
+    let bdRubro = 'general';
+    let bdExp = 'general';
+    let redFlags = [];
+
+    // ── 4. Lectura EXCLUSIVA si el panel está abierto ──
+    if (avanzadosActivos) {
+        const rubroVal = getVal('rubro');
+        const expVal = getVal('experiencia');
+
+        bdRubro = rubroVal || 'general';
+        bdExp = expVal || 'general';
+
+        mRubro = DATABASE.mult.rubro[rubroVal] || 1.00;
+        mExp = DATABASE.mult.experiencia[expVal] || 1.00;
+        mZona = DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00;
+        mContrato = DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00;
+        mTrab = DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00;
+        mModalidad = DATABASE.mult.modalidad[getVal('modalidad')] || 1.00;
+        mDuracion = DATABASE.mult.duracion[getVal('duracion')] || 1.00;
+        mSector = DATABASE.mult.sector[getVal('sector')] || 1.00;
+
+        // Nuevos multiplicadores
+        mTurno = DATABASE.mult.turno[getVal('turno')] || 1.00;
+        mEspecializacion = DATABASE.mult.especializacion[getVal('especializacion')] || 1.00;
+        mExpMineria = DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00;
+
+        if (isChecked('tarea_bodega')) redFlags.push('Administrar bodega o materiales');
+        if (isChecked('tarea_rrhh')) redFlags.push('Control de asistencia o remuneraciones');
+        if (isChecked('tarea_logistica')) redFlags.push('Coordinación logística o despachos');
+        if (isChecked('tarea_contabilidad')) redFlags.push('Funciones contables o de finanzas');
+        if (isChecked('tarea_conduccion')) redFlags.push('Conducción de vehículos de la empresa');
+        if (isChecked('tarea_supervision_op')) redFlags.push('Supervisión de la operación productiva');
+    }
+
+    // ── 5. Cálculo Matemático Combinado ──
+    const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
     const fmt = n => Math.round(n).toLocaleString('es-CL');
 
-    // ── 4. Renderizar resultado ──
+    // ── 6. Renderizar panel de resultados ──
     const resDiv = document.getElementById('resultado_analisis');
     resDiv.style.display = 'block';
     resDiv.style.marginTop = '25px';
@@ -209,26 +192,32 @@ function evaluarOferta() {
     } else {
         resDiv.style.backgroundColor = '#fff3cd';
         resDiv.style.borderLeft = '6px solid #ffc107';
-        html += `<p>⚠️ <strong>Sueldo bajo el mercado:</strong> El sueldo estimado para este perfil es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
+        html += `<p>⚠️ <strong>Sueldo bajo el mercado:</strong> El sueldo estimado es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
                  <small>El ofrecido ($${fmt(sueldoOfrecido)}) está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
     }
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
-    html += `<p style="font-size:0.82rem;color:#555;margin:0 0 6px"><strong>Factores aplicados:</strong></p>`;
+    html += `<p style="font-size:0.82rem;color:#555;margin:0 0 6px"><strong>Factores matemáticos aplicados:</strong></p>`;
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse">`;
 
     const filas = [
         ['Sueldo base', `$${fmt(mBase)}`],
-        ['Región', `×${mRegion.toFixed(2)}`],
-        ['Sector económico', `×${mRubro.toFixed(2)}`],
-        ['Experiencia', `×${mExp.toFixed(2)}`],
-        ['Zona extrema', `×${mZona.toFixed(2)}`],
-        ['Tipo de contrato', `×${mContrato.toFixed(2)}`],
-        ['Trabajadores a cargo', `×${mTrab.toFixed(2)}`],
-        ['Modalidad', `×${mModalidad.toFixed(2)}`],
-        ['Duración del servicio', `×${mDuracion.toFixed(2)}`],
-        ['Sector institución', `×${mSector.toFixed(2)}`],
+        ['Región', `×${mRegion.toFixed(2)}`]
     ];
+
+    if (avanzadosActivos) {
+        if (mRubro !== 1.00) filas.push(['Sector económico', `×${mRubro.toFixed(2)}`]);
+        if (mExp !== 1.00) filas.push(['Experiencia general', `×${mExp.toFixed(2)}`]);
+        if (mZona !== 1.00) filas.push(['Zona extrema', `×${mZona.toFixed(2)}`]);
+        if (mContrato !== 1.00) filas.push(['Tipo de contrato', `×${mContrato.toFixed(2)}`]);
+        if (mTrab !== 1.00) filas.push(['Trabajadores a cargo', `×${mTrab.toFixed(2)}`]);
+        if (mModalidad !== 1.00) filas.push(['Modalidad', `×${mModalidad.toFixed(2)}`]);
+        if (mTurno !== 1.00) filas.push(['Sistema de turnos', `×${mTurno.toFixed(2)}`]);
+        if (mDuracion !== 1.00) filas.push(['Duración del servicio', `×${mDuracion.toFixed(2)}`]);
+        if (mEspecializacion !== 1.00) filas.push(['Resolución/Certificación', `×${mEspecializacion.toFixed(2)}`]);
+        if (mExpMineria !== 1.00) filas.push(['Experiencia en minería', `×${mExpMineria.toFixed(2)}`]);
+        if (mSector !== 1.00) filas.push(['Sector institución', `×${mSector.toFixed(2)}`]);
+    }
 
     filas.forEach(([label, val]) => {
         html += `<tr>
@@ -254,88 +243,39 @@ function evaluarOferta() {
         html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del Experto en Prevención. Considera negociar una compensación adicional.</p>`;
     }
 
-    // ── 5. Preguntas para negociar ──
+    // ── 7. Preguntas de Negociación ──
     const preguntas = [];
 
-    if (contrato === 'indefinido') {
+    if (!avanzadosActivos) {
         preguntas.push({
             icono: '📄',
-            pregunta: '¿Cuál es el tipo de contrato que ofrecen?',
-            detalle: 'Consulta si es indefinido, a plazo fijo, por honorarios o por obra/faena. Cada modalidad implica distintos derechos y niveles de compensación.'
+            pregunta: '¿Cuál es el tipo de contrato, jornada y modalidad de trabajo?',
+            detalle: 'Un contrato a plazo fijo, trabajo en terreno o turnos de faena (7x7 / 14x14) justifican negociar un diferencial sustancial a tu favor.'
         });
-    }
-    if (trabajadores === 'sin_cargo') {
         preguntas.push({
             icono: '👷',
-            pregunta: '¿Cuántos trabajadores tendría a mi cargo o bajo mi asesoría directa?',
-            detalle: 'El volumen de trabajadores determina la carga real del cargo y es un argumento clave para negociar el sueldo.'
+            pregunta: '¿Cuántos trabajadores tendría bajo mi asesoría directa?',
+            detalle: 'A mayor cantidad de trabajadores, mayor responsabilidad legal y civil, lo que debe reflejarse en la renta.'
         });
-    }
-    if (modalidad === 'oficina') {
-        preguntas.push({
-            icono: '🏗️',
-            pregunta: '¿El cargo es de oficina, en terreno/faena o en modalidad mixta?',
-            detalle: 'El trabajo en terreno implica mayor exposición al riesgo y debe ser compensado económicamente.'
-        });
-    }
-    if (duracion === 'indefinida') {
-        preguntas.push({
-            icono: '⏱️',
-            pregunta: '¿Cuál es la duración del proyecto o del contrato?',
-            detalle: 'Un contrato de corta duración requiere una tarifa más alta para compensar la inestabilidad laboral.'
-        });
-    }
-    if (sector === 'privado') {
-        preguntas.push({
-            icono: '🏛️',
-            pregunta: '¿Es empresa privada o un organismo público (municipio, servicio, hospital)?',
-            detalle: 'El sector define el marco de remuneraciones aplicable y los beneficios adicionales del cargo.'
-        });
-    }
-
-    // CORRECCIÓN "Unterminated template literal": Reemplazado por concatenación de strings para evitar errores del editor
-    if (redFlags.length === 0) {
         preguntas.push({
             icono: '🚩',
             pregunta: '¿El cargo incluye funciones ajenas al Experto en Prevención?',
-            detalle: 'Según el <strong>Decreto Supremo N°44</strong> (Art. 10–12), las funciones <u>legales</u> del Experto en Prevención son:<br>' +
-                '<ol style="margin:6px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-                '<li>Planificar, organizar y supervisar el programa de prevención de riesgos.</li>' +
-                '<li>Asesorar al empleador en la formulación de políticas y metas de seguridad.</li>' +
-                '<li>Inspeccionar y controlar las condiciones ambientales y de trabajo.</li>' +
-                '<li>Investigar accidentes del trabajo y enfermedades profesionales.</li>' +
-                '<li>Mantener las estadísticas de siniestralidad (tasas de frecuencia y gravedad).</li>' +
-                '<li>Colaborar con los Comités Paritarios de Higiene y Seguridad.</li>' +
-                '<li>Programar y promover capacitación y gestionar la IRL.</li>' +
-                '<li>Controlar el uso de elementos de protección personal.</li>' +
-                '<li>Coordinar acciones con el organismo administrador (ISL / Mutualidad).</li>' +
-                '<li>Mantener actualizado el RIOHS.</li>' +
-                '</ol>' +
-                '<span style="color:#c0392b;font-size:0.78rem">⚠️ Funciones como bodega, RRHH, logística, contabilidad, conducción o supervisión de operaciones <strong>no están contempladas</strong> en el DS N°44 y constituyen multifuncionalidad no remunerada.</span>'
+            detalle: 'Según el <strong>DS N°44</strong>, tareas como administrar bodegas o pagar sueldos constituyen multifuncionalidad no remunerada.'
         });
     }
 
     preguntas.push({
         icono: '🍽️',
         pregunta: '¿La empresa costea alimentación, alojamiento o traslados?',
-        detalle: 'Estos beneficios tienen impacto directo en el costo de vida real del cargo. Consulta específicamente por:<br>' +
-            '<ul style="margin:5px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
-            '<li><strong>Alimentación:</strong> ¿Casino en faena, colación o asignación en dinero?</li>' +
-            '<li><strong>Alojamiento:</strong> ¿Campamento, hotel o asignación para arriendo?</li>' +
-            '<li><strong>Traslado de ciudad:</strong> ¿Pasaje aéreo o terrestre pagado por la empresa?</li>' +
-            '<li><strong>Transporte de acercamiento:</strong> ¿Movilización desde la ciudad al lugar de trabajo?</li>' +
-            '</ul>' +
-            '<span style="font-size:0.78rem;color:#555">Si estos beneficios <strong>no están incluidos</strong>, el sueldo ofrecido debe cubrir esos costos. Considéralos al negociar.</span>'
+        detalle: 'Especialmente en roles mineros o de faena, si la empresa no entrega casino, campamento o vuelos de acercamiento, el sueldo líquido debe cubrir esos altos costos operativos.'
     });
 
     if (preguntas.length > 0) {
         html += `<hr style="border:none;border-top:1px solid #ccc;margin:14px 0">`;
-        html += `<p style="font-size:0.85rem;font-weight:bold;color:#2c3e50;margin:0 0 4px">
-                    💬 Preguntas para negociar informado
-                 </p>`;
-        html += `<p style="font-size:0.78rem;color:#888;margin:0 0 10px">
-                    Los filtros marcados con ⬜ no fueron completados. Usa estas preguntas en la entrevista para afinar el cálculo salarial.
-                 </p>`;
+        html += `<p style="font-size:0.85rem;font-weight:bold;color:#2c3e50;margin:0 0 4px">💬 Prepárate para la entrevista</p>`;
+        if (!avanzadosActivos) {
+            html += `<p style="font-size:0.78rem;color:#888;margin:0 0 10px">Usa los <a href="#" onclick="toggleAvanzados(); return false;" style="color:#2980b9;">filtros avanzados</a> para detallar certificaciones como Sernageomin, o pregunta esto en tu entrevista:</p>`;
+        }
         preguntas.forEach(p => {
             html += `<div style="background:#f0f4f8;border-left:3px solid #2980b9;border-radius:5px;padding:8px 10px;margin-bottom:7px">
                         <p style="margin:0;font-size:0.85rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
@@ -346,42 +286,27 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // ── 6. Guardar consulta en Supabase (CORRECCIÓN "is not a function") ──
+    // ── 8. Guardar consulta en Supabase ──
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
-        // CORRECCIÓN: Se usa window.supabaseClient en lugar de supabase global
         window.supabaseClient.from('consultas_salariales').insert([
             {
                 formacion: formacion,
                 region: region,
                 ciudad: ciudad,
-                rubro: rubro,
-                experiencia: exp,
-                sueldo_ofrecido: Math.round(sueldoOfrecido),//Redondeado por seguridad
-                sueldo_sugerido: Math.round(sueldoJusto)//Correccion: Se redondea para evitar el error de "bigint"
+                rubro: bdRubro,
+                experiencia: bdExp,
+                sueldo_ofrecido: Math.round(sueldoOfrecido),
+                sueldo_sugerido: Math.round(sueldoJusto)
             }
         ]).select().then(({ data, error }) => {
             if (error) {
                 console.error('Error guardando en Supabase:', error);
-                alert('Hubo un error al guardar en la base de datos: ' + error.message);
             } else {
-                console.log('Consulta guardada en Supabase:', data);
                 if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
                     dibujarDatos();
                 }
             }
         });
-    } else {
-        const historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
-        historial.push({
-            region: region,
-            ofrecido: sueldoOfrecido,
-            fecha: new Date().toISOString()
-        });
-        localStorage.setItem('radar_logs', JSON.stringify(historial));
-
-        if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
-            dibujarDatos();
-        }
     }
 }
