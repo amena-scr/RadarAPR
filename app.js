@@ -1,7 +1,7 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.4 — Ajuste Realista de Tarifa Diaria
- * Base normativa: INE 2026 / DS 44 / Ley 16.744
+ * Versión: 1.1.6 — Optimización UI de Contratos y Tooltips
+ * Base normativa: INE 2026 / DS 44 / Ley 16.744 / Código del Trabajo Art. 7 y 8
  */
 
 // ============================================================
@@ -47,29 +47,31 @@ const DATABASE = {
             municipalidad: 0.85
         },
 
-        // ── Experiencia ──
         experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
 
         // ── FILTROS AVANZADOS ──
-        contrato: { indefinido: 1.00, plazo_fijo: 1.08, honorarios: 1.22, obra_faena: 1.15 },
-        trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
-        modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
-
-        // ── Duración del Servicio ──
-        duracion: {
-            indefinida: 1.00,
-            largo: 1.00,
-            mediano: 1.08,
-            corto: 1.15,
-            un_mes: 1.20,
-            solo_un_mes: 1.25,
-            un_dia: 1.15 // CORRECCIÓN: Bajado de 1.80 a 1.15 para evitar sobrevaloración
+        contrato: {
+            indefinido: 1.00,
+            plazo_fijo: 1.08,
+            obra_faena: 1.15,
+            tiempo_parcial: 0.66,
+            teletrabajo: 1.00,
+            temporada: 1.10,
+            honorarios: 1.22
         },
 
+        // Duraciones optimizadas
+        duracion: {
+            indefinida: 1.00,
+            un_mes: 1.20,
+            un_dia: 1.15
+        },
+
+        trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
+        modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico_general: 0.88, publico_salud: 0.90, publico_educacion: 0.82 },
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
-        // ── Jornada y Turnos ──
         turno: {
             lunes_viernes_normal: 1.00,
             lunes_viernes_art22: 1.15,
@@ -82,6 +84,19 @@ const DATABASE = {
         especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
     }
+};
+
+// ============================================================
+// DICCIONARIO DE TOOLTIPS (Información Flotante)
+// ============================================================
+const INFO_CONTRATOS = {
+    indefinido: "Sin fecha de término.",
+    plazo_fijo: "Duración 1 año.",
+    obra_faena: "Duración 30 días o menos / Mientras dura el servicio.",
+    tiempo_parcial: "Plazo fijo o indefinido, menos de 30 hrs semanales.",
+    teletrabajo: "Funciones fuera de la empresa.",
+    temporada: "Duración algunos meses del año.",
+    honorarios: "Boleta de Honorarios."
 };
 
 // ============================================================
@@ -101,7 +116,6 @@ function toggleAvanzados() {
 // ============================================================
 function evaluarOferta() {
 
-    // ── 1. Validación inicial ──
     const sueldoInput = document.getElementById('sueldo_ofrecido');
     if (!sueldoInput || sueldoInput.value.trim() === "") {
         alert("⚠️ Por favor, ingresa el Sueldo Líquido Ofrecido ($) para realizar el análisis.");
@@ -113,7 +127,6 @@ function evaluarOferta() {
     const region = document.getElementById('region').value;
     const sueldoOfrecido = Number(sueldoInput.value);
 
-    // ── 2. Helpers de captura ──
     const getVal = id => {
         const el = document.getElementById(id);
         return el ? el.value : null;
@@ -123,15 +136,12 @@ function evaluarOferta() {
         return el ? el.checked : false;
     };
 
-    // ── 3. Estado del Panel Avanzado ──
     const panelAvanzado = document.getElementById('seccion_avanzada');
     const avanzadosActivos = panelAvanzado && (panelAvanzado.style.display === 'block');
 
-    // Factores Base
     let mBase = DATABASE.sueldosBase[formacion];
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
-    // Factores Avanzados (Bloqueados en 1.00 por defecto)
     let mRubro = 1.00, mExp = 1.00, mZona = 1.00;
     let mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mDuracion = 1.00, mSector = 1.00;
     let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00;
@@ -141,13 +151,12 @@ function evaluarOferta() {
     let redFlags = [];
 
     const duracionVal = getVal('duracion');
+    const contratoVal = getVal('tipo_contrato');
 
-    // Si es "por dia", dividimos la base mensual por 30 para calcular sobre 1 día real
     if (avanzadosActivos && duracionVal === 'un_dia') {
         mBase = mBase / 30;
     }
 
-    // ── 4. Lectura si el panel está abierto ──
     if (avanzadosActivos) {
         const rubroVal = getVal('rubro');
         const expVal = getVal('experiencia');
@@ -158,7 +167,8 @@ function evaluarOferta() {
         mRubro = DATABASE.mult.rubro[rubroVal] || 1.00;
         mExp = DATABASE.mult.experiencia[expVal] || 1.00;
         mZona = DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00;
-        mContrato = DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00;
+
+        mContrato = DATABASE.mult.contrato[contratoVal] || 1.00;
         mTrab = DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00;
         mModalidad = DATABASE.mult.modalidad[getVal('modalidad')] || 1.00;
         mDuracion = DATABASE.mult.duracion[duracionVal] || 1.00;
@@ -176,12 +186,10 @@ function evaluarOferta() {
         if (isChecked('tarea_supervision_op')) redFlags.push('Supervisión de la operación productiva');
     }
 
-    // ── 5. Cálculo Matemático ──
     const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
     const fmt = n => Math.round(n).toLocaleString('es-CL');
 
-    // ── 6. Renderizar panel de resultados ──
     const resDiv = document.getElementById('resultado_analisis');
     resDiv.style.display = 'block';
     resDiv.style.marginTop = '25px';
@@ -248,13 +256,28 @@ function evaluarOferta() {
         html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del cargo de Experto en Prevención. Considera negociar una compensación adicional o rechazar responsabilidades civiles ajenas.</p>`;
     }
 
-    // ── 7. Preguntas de Entrevista ──
+    // ── 7. Preguntas de Entrevista e Infracciones Legales ──
     const preguntas = [];
+
+    // GATILLO LEGAL: Alerta de Vínculo de Subordinación y Dependencia
+    if (avanzadosActivos && contratoVal === 'honorarios') {
+        preguntas.push({
+            icono: '⚖️',
+            pregunta: '¿Existe Vínculo de Subordinación y Dependencia?',
+            detalle: 'Si emites boletas de honorarios pero cumples con las siguientes condiciones, la ley chilena considera que existe un <strong>vínculo laboral real (contrato de trabajo oculto)</strong>:<br>' +
+                '<ul style="margin:5px 0 4px;padding-left:18px;font-size:0.78rem;color:#444">' +
+                '<li>Cumples un horario fijo obligatorio.</li>' +
+                '<li>Tienes la obligación de asistir presencialmente a una oficina.</li>' +
+                '<li>Recibes órdenes directas y sanciones de un superior.</li>' +
+                '</ul>'
+        });
+    }
+
     if (!avanzadosActivos) {
         preguntas.push({
             icono: '📄',
             pregunta: '¿Cuál es el tipo de contrato, jornada y sistema de turnos?',
-            detalle: 'Un contrato esporádico o regirse por el Artículo 22 (sin límite horario) justifican la exigencia de un valor mayor.'
+            detalle: 'Un contrato esporádico, a honorarios, o regirse por el Artículo 22 justifican la exigencia de un valor mayor.'
         });
         preguntas.push({
             icono: '👷',
@@ -302,3 +325,35 @@ function evaluarOferta() {
         });
     }
 }
+
+// ============================================================
+// EVENTOS ADICIONALES (Tooltips y Mapas)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Lógica para actualizar el tooltip del Tipo de Contrato dinámicamente
+    const contratoSelect = document.getElementById('tipo_contrato');
+    const infoIcon = document.getElementById('info_contrato');
+
+    if (contratoSelect && infoIcon) {
+        // Actualizar al cambiar la opción
+        contratoSelect.addEventListener('change', () => {
+            infoIcon.title = INFO_CONTRATOS[contratoSelect.value];
+        });
+
+        // Mostrar un alert en móviles al hacer click sobre el ícono "i"
+        infoIcon.addEventListener('click', () => {
+            alert("Detalle del contrato:\n\n" + INFO_CONTRATOS[contratoSelect.value]);
+        });
+    }
+
+    // Lógica para actualizar el mapa si se cambia la ciudad (viene de la versión anterior)
+    const ciudadSelect = document.getElementById('ciudad');
+    if (ciudadSelect) {
+        ciudadSelect.addEventListener('change', () => {
+            const contenedor = document.getElementById('contenedor_mapa');
+            if (contenedor && contenedor.style.display !== 'none') {
+                if (typeof marcarCiudadActual === 'function') marcarCiudadActual();
+            }
+        });
+    }
+});

@@ -14,19 +14,17 @@
     <div class="container">
         <header>
             <h1>RadarAPR 📡</h1>
-            <p class="subtitle">Versión 1.1.0 — Inteligencia Colectiva</p>
+            <p class="subtitle">Versión 1.1.6 — Inteligencia Colectiva</p>
         </header>
 
         <main id="app-form">
 
-            <!-- FORMACIÓN -->
             <label>Nivel de Formación:</label>
             <select id="formacion">
                 <option value="tecnico">Técnico en Prevención</option>
                 <option value="ingeniero">Ingeniero en Prevención</option>
             </select>
 
-            <!-- REGIÓN -->
             <label>Región del Cargo:</label>
             <select id="region">
                 <option value="arica">XV - Arica y Parinacota</option>
@@ -47,327 +45,82 @@
                 <option value="magallanes">XII - Magallanes</option>
             </select>
 
-            <!-- CIUDAD -->
-            <label>Ciudad:</label>
+            <label>Ciudad Específica:</label>
             <select id="ciudad">
-                <optgroup label="XV - Arica y Parinacota">
+                <option value="">Seleccione una ciudad (Opcional)</option>
+                <optgroup label="Norte">
                     <option value="arica">Arica</option>
-                    <option value="putre">Putre</option>
-                    <option value="camarones">Camarones</option>
-                    <option value="general_lagos">General Lagos</option>
-                </optgroup>
-                <optgroup label="I - Tarapacá">
                     <option value="iquique">Iquique</option>
-                    <option value="alto_hospicio">Alto Hospicio</option>
-                    <option value="pozo_almonte">Pozo Almonte</option>
-                    <option value="pica">Pica</option>
-                    <option value="colchane">Colchane</option>
-                    <option value="huara">Huara</option>
-                    <option value="camiña">Camiña</option>
-                </optgroup>
-                <optgroup label="II - Antofagasta">
                     <option value="antofagasta">Antofagasta</option>
                     <option value="calama">Calama</option>
-                    <option value="tocopilla">Tocopilla</option>
-                    <option value="mejillones">Mejillones</option>
-                    <option value="maria_elena">María Elena</option>
-                    <option value="sierra_gorda">Sierra Gorda</option>
-                    <option value="taltal">Taltal</option>
-                    <option value="san_pedro_atacama">San Pedro de Atacama</option>
-                </optgroup>
-                <optgroup label="III - Atacama">
                     <option value="copiapo">Copiapó</option>
-                    <option value="caldera">Caldera</option>
-                    <option value="tierra_amarilla">Tierra Amarilla</option>
-                    <option value="chanaral">Chañaral</option>
-                    <option value="diego_almagro">Diego de Almagro</option>
-                    <option value="vallenar">Vallenar</option>
-                    <option value="freirina">Freirina</option>
-                    <option value="huasco">Huasco</option>
-                </optgroup>
-                <optgroup label="IV - Coquimbo">
                     <option value="la_serena">La Serena</option>
                     <option value="coquimbo">Coquimbo</option>
-                    <option value="ovalle">Ovalle</option>
-                    <option value="illapel">Illapel</option>
-                    <option value="los_vilos">Los Vilos</option>
-                    <option value="vicuna">Vicuña</option>
-                    <option value="andacollo">Andacollo</option>
-                    <option value="monte_patria">Monte Patria</option>
-                    <option value="combarbala">Combarbalá</option>
-                    <option value="salamanca">Salamanca</option>
-                    <option value="paihuano">Paihuano</option>
                 </optgroup>
-                <optgroup label="V - Valparaíso">
+                <optgroup label="Centro">
                     <option value="valparaiso">Valparaíso</option>
-                    <option value="viña_del_mar">Viña del Mar</option>
-                    <option value="quilpue">Quilpué</option>
-                    <option value="villa_alemana">Villa Alemana</option>
-                    <option value="san_antonio">San Antonio</option>
-                    <option value="quillota">Quillota</option>
-                    <option value="los_andes">Los Andes</option>
-                    <option value="san_felipe">San Felipe</option>
-                    <option value="la_ligua">La Ligua</option>
-                    <option value="limache">Limache</option>
-                    <option value="olmue">Olmué</option>
-                    <option value="isla_de_pascua">Isla de Pascua (Rapa Nui)</option>
-                    <option value="rancagua_v">Casablanca</option>
-                    <option value="cartagena">Cartagena</option>
-                    <option value="san_pedro_valpo">San Pedro</option>
-                </optgroup>
-                <optgroup label="RM - Región Metropolitana">
+                    <option value="vina_del_mar">Viña del Mar</option>
                     <option value="santiago">Santiago</option>
-                    <option value="puente_alto">Puente Alto</option>
-                    <option value="maipu">Maipú</option>
-                    <option value="la_florida">La Florida</option>
-                    <option value="las_condes">Las Condes</option>
-                    <option value="san_bernardo">San Bernardo</option>
-                    <option value="penalolen">Peñalolén</option>
-                    <option value="providencia">Providencia</option>
-                    <option value="vitacura">Vitacura</option>
-                    <option value="lo_barnechea">Lo Barnechea</option>
-                    <option value="buin">Buin</option>
-                    <option value="melipilla">Melipilla</option>
-                    <option value="talagante">Talagante</option>
-                    <option value="colina">Colina</option>
-                    <option value="lampa">Lampa</option>
-                    <option value="quilicura">Quilicura</option>
-                    <option value="conchali">Conchalí</option>
-                    <option value="recoleta">Recoleta</option>
-                    <option value="independencia">Independencia</option>
-                    <option value="el_bosque">El Bosque</option>
-                    <option value="estacion_central">Estación Central</option>
-                    <option value="padre_hurtado">Padre Hurtado</option>
-                    <option value="paine">Paine</option>
-                </optgroup>
-                <optgroup label="VI - O'Higgins">
                     <option value="rancagua">Rancagua</option>
-                    <option value="san_fernando">San Fernando</option>
-                    <option value="rengo">Rengo</option>
-                    <option value="machalí">Machalí</option>
-                    <option value="santa_cruz">Santa Cruz</option>
-                    <option value="pichilemu">Pichilemu</option>
-                    <option value="graneros">Graneros</option>
-                    <option value="codegua">Codegua</option>
-                </optgroup>
-                <optgroup label="VII - Maule">
                     <option value="talca">Talca</option>
-                    <option value="curico">Curicó</option>
-                    <option value="linares">Linares</option>
-                    <option value="constitución">Constitución</option>
-                    <option value="cauquenes">Cauquenes</option>
-                    <option value="molina">Molina</option>
-                    <option value="parral">Parral</option>
-                    <option value="san_javier">San Javier</option>
-                    <option value="maule_ciudad">Maule</option>
                 </optgroup>
-                <optgroup label="XVI - Ñuble">
+                <optgroup label="Sur">
                     <option value="chillan">Chillán</option>
-                    <option value="chillan_viejo">Chillán Viejo</option>
-                    <option value="san_carlos">San Carlos</option>
-                    <option value="bulnes">Bulnes</option>
-                    <option value="quirihue">Quirihue</option>
-                    <option value="yungay">Yungay</option>
-                    <option value="coelemu">Coelemu</option>
-                </optgroup>
-                <optgroup label="VIII - Biobío">
                     <option value="concepcion">Concepción</option>
-                    <option value="talcahuano">Talcahuano</option>
-                    <option value="los_angeles">Los Ángeles</option>
-                    <option value="hualpén">Hualpén</option>
-                    <option value="chiguayante">Chiguayante</option>
-                    <option value="san_pedro_de_la_paz">San Pedro de la Paz</option>
-                    <option value="coronel">Coronel</option>
-                    <option value="lota">Lota</option>
-                    <option value="lebu">Lebu</option>
-                    <option value="cañete">Cañete</option>
-                    <option value="arauco">Arauco</option>
-                    <option value="tome">Tomé</option>
-                    <option value="penco">Penco</option>
-                    <option value="cabrero">Cabrero</option>
-                    <option value="yumbel">Yumbel</option>
-                    <option value="nacimiento">Nacimiento</option>
-                    <option value="mulchen">Mulchén</option>
-                </optgroup>
-                <optgroup label="IX - Araucanía">
                     <option value="temuco">Temuco</option>
-                    <option value="padre_las_casas">Padre Las Casas</option>
-                    <option value="angol">Angol</option>
-                    <option value="victoria">Victoria</option>
-                    <option value="pitrufquen">Pitrufquén</option>
-                    <option value="lautaro">Lautaro</option>
-                    <option value="nueva_imperial">Nueva Imperial</option>
-                    <option value="villarrica">Villarrica</option>
-                    <option value="pucon">Pucón</option>
-                    <option value="carahue">Carahue</option>
-                    <option value="cunco">Cunco</option>
-                    <option value="curacautin">Curacautín</option>
-                </optgroup>
-                <optgroup label="XIV - Los Ríos">
                     <option value="valdivia">Valdivia</option>
-                    <option value="la_union">La Unión</option>
-                    <option value="rio_bueno">Río Bueno</option>
-                    <option value="panguipulli">Panguipulli</option>
-                    <option value="los_lagos_lr">Los Lagos</option>
-                    <option value="futrono">Futrono</option>
-                    <option value="corral">Corral</option>
-                </optgroup>
-                <optgroup label="X - Los Lagos">
                     <option value="puerto_montt">Puerto Montt</option>
-                    <option value="puerto_varas">Puerto Varas</option>
-                    <option value="osorno">Osorno</option>
-                    <option value="castro">Castro</option>
-                    <option value="ancud">Ancud</option>
-                    <option value="calbuco">Calbuco</option>
-                    <option value="llanquihue">Llanquihue</option>
-                    <option value="frutillar">Frutillar</option>
-                    <option value="chonchi">Chonchi</option>
-                    <option value="quemchi">Quemchi</option>
-                    <option value="chaitén">Chaitén</option>
-                    <option value="cochamo">Cochamó</option>
-                </optgroup>
-                <optgroup label="XI - Aysén">
                     <option value="coyhaique">Coyhaique</option>
-                    <option value="aysen_ciudad">Aysén</option>
-                    <option value="chile_chico">Chile Chico</option>
-                    <option value="cochrane">Cochrane</option>
-                    <option value="villa_ohiggins">Villa O'Higgins</option>
-                    <option value="puyuhuapi">Puyuhuapi</option>
-                    <option value="lago_verde">Lago Verde</option>
-                </optgroup>
-                <optgroup label="XII - Magallanes">
                     <option value="punta_arenas">Punta Arenas</option>
-                    <option value="puerto_natales">Puerto Natales</option>
-                    <option value="porvenir">Porvenir</option>
-                    <option value="puerto_williams">Puerto Williams</option>
-                    <option value="punta_delgada">Punta Delgada</option>
                 </optgroup>
             </select>
 
-            <!-- SECTOR ECONÓMICO -->
-            <label>Sector Económico:</label>
-            <select id="rubro">
-                <optgroup label="Minería y Energía">
-                    <option value="mineria_cielo_abierto">Minería a Cielo Abierto (Rajo / Tajo abierto)</option>
-                    <option value="mineria_subterranea">Minería Subterránea (Túnel / Pique)</option>
-                    <option value="mineria_salares">Minería de Salares (Aislamiento Remoto)</option>
-                    <option value="energias_renovables">E. Renovables (Solar/Eolica/Hidráulica/Biogas/Marina)
-                    </option>
-                    <option value="petroleo_gas">E. No renovables (Petróleo y Gas)</option>
-                </optgroup>
-                <optgroup label="Construcción e Infraestructura">
-                    <option value="edificacion_altura">Edificación en Altura (Obra gruesa)</option>
-                    <option value="obras_civiles">Obras Civiles (Vialidad / Infraestructura)</option>
-                    <option value="montaje_industrial">Montaje Industrial (Planta / Equipos)</option>
-                </optgroup>
-                <optgroup label="Logística y Transporte">
-                    <option value="puertos_maritimos">Puertos y Terminales (Marítimo / Carga)</option>
-                    <option value="transporte_terrestre">Transporte de Carga (Flota / Ruta)</option>
-                    <option value="centros_distribucion">Centros de Distribución (Bodega / CD)</option>
-                </optgroup>
-                <optgroup label="Industria y Alimentos">
-                    <option value="barrio_industrial">Barrio Industrial (Parques / Galpones)</option>
-                    <option value="agroindustria_pesca">Agroindustria y Pesca (Temporada / Campo)</option>
-                    <option value="forestal_madera">Forestal y Madera (Bosque / Aserradero)</option>
-                    <option value="manufactura_consumo">Manufactura de Consumo (Planta / Línea)</option>
-                </optgroup>
-                <optgroup label="Servicios y Retail">
-                    <option value="comercio_retail">Comercio Retail (Tienda / Mall)</option>
-                    <option value="salud_educacion">Salud y Educación (Clínica / Colegio)</option>
-                    <option value="turismo_gastronomia">Turismo y Gastronomía (Hotel / Restorán)</option>
-                </optgroup>
-                <optgroup label="Sector Público">
-                    <option value="municipalidad">Municipalidad (OMIL / DOM / Salud Municipal)</option>
-                    <option value="servicios_publicos">Servicios Públicos (Ministerios / SEREMI)</option>
-                </optgroup>
-            </select>
-
-            <!-- EXPERIENCIA -->
-            <label>Experiencia:</label>
-            <select id="experiencia">
-                <option value="junior">0 a 2 años (Junior)</option>
-                <option value="semi_senior">3 a 5 años (Semi-Senior)</option>
-                <option value="senior">Más de 5 años (Senior)</option>
-            </select>
-
-            <!-- SUELDO -->
             <label>Sueldo Líquido Ofrecido ($):</label>
             <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000">
 
-            <!-- BOTÓN CONFIGURACIÓN AVANZADA -->
-            <button type="button" id="btn-avanzados" class="btn-avanzados" onclick="toggleAvanzados()">
-                <span>⚙️ Revisemos la oferta y negocia informado</span>
-                <span class="arrow">▼</span>
+            <button type="button" class="btn-avanzados" onclick="toggleAvanzados()">
+                <span id="icon-avanzados">⚙️</span> Configuración Avanzada y Red Flags
             </button>
 
-            <!-- PANEL AVANZADO -->
-            <div id="seccion_avanzada">
+            <div id="seccion_avanzada" style="display: none;">
 
-                <div class="seccion-titulo">Detalles del Contrato</div>
-
-                <label style="margin-top:5px; font-size:0.8rem">Tipo de Contrato:</label>
-                <select id="tipo_contrato">
-                    <option value="indefinido">Indefinido</option>
-                    <option value="plazo_fijo">Plazo Fijo</option>
-                    <option value="honorarios">Honorarios (Boleta)</option>
-                    <option value="obra_faena">Por Obra o Faena</option>
+                <div class="seccion-titulo">Sector Económico</div>
+                <select id="rubro">
+                    <optgroup label="Minería y Energía">
+                        <option value="mineria_cielo_abierto">Minería a Cielo Abierto</option>
+                        <option value="mineria_subterranea">Minería Subterránea</option>
+                        <option value="mineria_salares">Minería No Metálica / Salares</option>
+                        <option value="energias_renovables">Energías Renovables</option>
+                        <option value="petroleo_gas">Petróleo y Gas</option>
+                    </optgroup>
+                    <optgroup label="Construcción e Infraestructura">
+                        <option value="edificacion_altura">Edificación en Altura</option>
+                        <option value="obras_civiles">Obras Civiles</option>
+                        <option value="montaje_industrial">Montaje Industrial</option>
+                    </optgroup>
+                    <optgroup label="Logística y Transporte">
+                        <option value="puertos_maritimos">Puertos y Terminales</option>
+                        <option value="transporte_terrestre">Transporte de Carga</option>
+                        <option value="centros_distribucion">Centros de Distribución</option>
+                    </optgroup>
+                    <optgroup label="Industria y Alimentos">
+                        <option value="agroindustria_pesca">Agroindustria y Pesca</option>
+                        <option value="forestal_madera">Forestal y Madera</option>
+                        <option value="manufactura_consumo">Manufactura de Consumo</option>
+                    </optgroup>
+                    <optgroup label="Servicios y Retail">
+                        <option value="comercio_retail">Comercio Retail</option>
+                        <option value="salud_educacion">Salud y Educación</option>
+                        <option value="turismo_gastronomia">Turismo y Gastronomía</option>
+                        <option value="servicios_publicos">Servicios Públicos</option>
+                    </optgroup>
                 </select>
 
-                <label style="margin-top:5px; font-size:0.8rem">Trabajadores a Cargo:</label>
-                <select id="trabajadores_cargo">
-                    <option value="sin_cargo">Sin personal a cargo</option>
-                    <option value="hasta_50">Hasta 50 trabajadores</option>
-                    <option value="hasta_200">De 51 a 200 trabajadores</option>
-                    <option value="hasta_500">De 201 a 500 trabajadores</option>
-                    <option value="mas_500">Más de 500 trabajadores</option>
-                </select>
-
-                <div class="seccion-titulo">Condiciones de Trabajo</div>
-
-                <label style="margin-top:5px; font-size:0.8rem">Modalidad:</label>
-                <select id="modalidad">
-                    <option value="oficina">100% Oficina / Administrativo</option>
-                    <option value="mixto">Mixto (Oficina y Terreno)</option>
-                    <option value="terreno">100% Terreno / Faena</option>
-                </select>
-
-                <div class="seccion-titulo">Duración del Servicio</div>
-                <select id="duracion">
-                    <option value="indefinida">Indefinida</option>
-                    <option value="largo">Proyecto Largo Plazo</option>
-                    <option value="mediano">Proyecto Mediano Plazo</option>
-                    <option value="corto">Proyecto Corto Plazo</option>
-                    <option value="un_mes">Un Mes</option>
-                    <option value="solo_un_mes">Solo un Mes</option>
-                    <option value="un_dia">Por día</option>
-                </select>
-
-                <div class="seccion-titulo">Contexto Institucional</div>
-
-                <label style="margin-top:5px; font-size:0.8rem">Sector de la Empresa:</label>
-                <select id="sector">
-                    <option value="privado">Empresa Privada</option>
-                    <option value="publico_general">Público (General)</option>
-                    <option value="publico_salud">Público (Salud)</option>
-                    <option value="publico_educacion">Público (Educación)</option>
-                </select>
-
-                <label style="margin-top:5px; font-size:0.8rem">Zona Extrema:</label>
-                <select id="zona_extrema">
-                    <option value="no_aplica">No aplica</option>
-                    <option value="extremo_norte">Extremo Norte (Arica/Iquique)</option>
-                    <option value="extremo_sur">Extremo Sur (Aysén/Magallanes)</option>
-                </select>
-
-                <div class="seccion-titulo">Jornada y Turnos</div>
-                <select id="turno">
-                    <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
-                    <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
-                    <option value="turno_5x2">Turno 5x2</option>
-                    <option value="turno_4x3">Turno 4x3</option>
-                    <option value="turno_nocturno">Turno Nocturno Fijo</option>
-                    <option value="turno_7x7">Turno 7x7 (Faena)</option>
-                    <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
+                <div class="seccion-titulo">Experiencia del Postulante</div>
+                <select id="experiencia">
+                    <option value="junior">0 a 2 años (Junior)</option>
+                    <option value="semi_senior">3 a 5 años (Semi-Senior)</option>
+                    <option value="senior">Más de 5 años (Senior)</option>
                 </select>
 
                 <div class="seccion-titulo">Certificaciones y Experiencia Minera</div>
@@ -387,9 +140,70 @@
                     <option value="gran_mineria">Experiencia en Gran Minería (Cobre/Litio)</option>
                 </select>
 
-                <div class="seccion-titulo" style="color: var(--danger)">Funciones que no corresponden al
-                    cargo🚩
+                <div class="seccion-titulo">Tipo de Contrato</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <select id="tipo_contrato" style="flex: 1; margin-bottom: 0;">
+                        <option value="indefinido">Contrato Indefinido</option>
+                        <option value="plazo_fijo">Contrato a Plazo Fijo</option>
+                        <option value="obra_faena">Contrato por Obra o Faena</option>
+                        <option value="tiempo_parcial">Contrato a Tiempo Parcial</option>
+                        <option value="teletrabajo">Contrato de Teletrabajo</option>
+                        <option value="temporada">Contrato de Temporada</option>
+                        <option value="honorarios">Contrato de Prestación de Servicios</option>
+                    </select>
+                    <span id="info_contrato" title="Sin fecha de término."
+                        style="cursor: help; font-size: 1.4rem;">ℹ️</span>
                 </div>
+
+                <div class="seccion-titulo" style="margin-top: 15px;">Duración del Servicio</div>
+                <select id="duracion">
+                    <option value="indefinida">Indefinida</option>
+                    <option value="un_mes">Duración de un mes</option>
+                    <option value="un_dia">Por día</option>
+                </select>
+
+                <div class="seccion-titulo">Jornada y Turnos</div>
+                <select id="turno">
+                    <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
+                    <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
+                    <option value="turno_5x2">Turno 5x2</option>
+                    <option value="turno_4x3">Turno 4x3</option>
+                    <option value="turno_nocturno">Turno Nocturno Fijo</option>
+                    <option value="turno_7x7">Turno 7x7 (Faena)</option>
+                    <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
+                </select>
+
+                <div class="seccion-titulo">Modalidad y Zona</div>
+                <select id="modalidad">
+                    <option value="oficina">100% Oficina / Administrativo</option>
+                    <option value="mixto">Mixto (Oficina y Terreno)</option>
+                    <option value="terreno">100% Terreno / Faena</option>
+                </select>
+
+                <select id="zona_extrema" style="margin-top: 10px;">
+                    <option value="no_aplica">Zona Geográfica Estándar</option>
+                    <option value="extremo_norte">Zona Extrema Norte (Tarapacá/Antofagasta cordillera)</option>
+                    <option value="extremo_sur">Zona Extrema Sur (Aysén/Magallanes)</option>
+                </select>
+
+                <div class="seccion-titulo">Trabajadores a Cargo / Dotación</div>
+                <select id="trabajadores_cargo">
+                    <option value="sin_cargo">0 a 25 trabajadores (Baja carga)</option>
+                    <option value="hasta_50">26 a 50 trabajadores</option>
+                    <option value="hasta_200">51 a 200 trabajadores (Exigencia CPHS)</option>
+                    <option value="hasta_500">201 a 500 trabajadores</option>
+                    <option value="mas_500">Más de 500 trabajadores (Departamento PR)</option>
+                </select>
+
+                <div class="seccion-titulo">Sector Institucional</div>
+                <select id="sector">
+                    <option value="privado">Sector Privado (Empresa)</option>
+                    <option value="publico_general">Sector Público (Municipalidad/Ministerio)</option>
+                    <option value="publico_salud">Sector Público (Salud/Hospital)</option>
+                    <option value="publico_educacion">Sector Público (Educación)</option>
+                </select>
+
+                <div class="seccion-titulo" style="color: var(--danger)">Escáner de Banderas Rojas 🚩</div>
                 <div class="banderas-box">
                     <div class="checkbox-item">
                         <input type="checkbox" id="tarea_bodega">
@@ -405,7 +219,7 @@
                     </div>
                     <div class="checkbox-item">
                         <input type="checkbox" id="tarea_contabilidad">
-                        <label for="tarea_contabilidad">Funciones contables o finanzas</label>
+                        <label for="tarea_contabilidad">Funciones contables o de finanzas</label>
                     </div>
                     <div class="checkbox-item">
                         <input type="checkbox" id="tarea_conduccion">
@@ -418,14 +232,12 @@
                 </div>
 
             </div>
-            <!-- FIN PANEL AVANZADO -->
-
             <button type="button" class="btn-principal" onclick="evaluarOferta()">Analizar Oferta</button>
 
             <button type="button" class="btn-avanzados"
                 style="margin-top: 15px; background: #e8f4fd; border-color: #2980b9; color: #2980b9;"
                 onclick="toggleMapa()">
-                🗺️ Ver Mapa de ofertas analizadas
+                🗺️ Ver mapa de ofertas analizadas
             </button>
 
             <div id="contenedor_mapa"
