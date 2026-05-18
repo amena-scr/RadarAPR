@@ -331,15 +331,15 @@
                     <option value="terreno">100% Terreno / Faena</option>
                 </select>
 
-                <label style="margin-top:5px; font-size:0.8rem">Duración Estimada:</label>
+                <div class="seccion-titulo">Duración del Servicio</div>
                 <select id="duracion">
-                    <option value="indefinida">Indefinida / Largo Plazo</option>
-                    <option value="largo">Más de 1 año</option>
-                    <option value="mediano">6 a 12 meses</option>
-                    <option value="corto">3 a 6 meses</option>
-                    <option value="un_mes">Menos de 3 meses</option>
-                    <option value="solo_un_mes">1 mes</option>
-                    <option value="un_dia">Puntual / Por día</option>
+                    <option value="indefinida">Indefinida</option>
+                    <option value="largo">Proyecto Largo Plazo</option>
+                    <option value="mediano">Proyecto Mediano Plazo</option>
+                    <option value="corto">Proyecto Corto Plazo</option>
+                    <option value="un_mes">Un Mes</option>
+                    <option value="solo_un_mes">Solo un Mes</option>
+                    <option value="un_dia">Por día</option>
                 </select>
 
                 <div class="seccion-titulo">Contexto Institucional</div>
@@ -361,12 +361,13 @@
 
                 <div class="seccion-titulo">Jornada y Turnos</div>
                 <select id="turno">
-                    <option value="lunes_viernes">Lunes a Viernes (Art. 22 o Normal)</option>
+                    <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
+                    <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
                     <option value="turno_5x2">Turno 5x2</option>
                     <option value="turno_4x3">Turno 4x3</option>
+                    <option value="turno_nocturno">Turno Nocturno Fijo</option>
                     <option value="turno_7x7">Turno 7x7 (Faena)</option>
                     <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
-                    <option value="turno_nocturno">Turno Nocturno Fijo</option>
                 </select>
 
                 <div class="seccion-titulo">Certificaciones y Experiencia Minera</div>
@@ -424,7 +425,7 @@
             <button type="button" class="btn-avanzados"
                 style="margin-top: 15px; background: #e8f4fd; border-color: #2980b9; color: #2980b9;"
                 onclick="toggleMapa()">
-                🗺️ Ver Mapa de Calor (Empleabilidad)
+                🗺️ Ver Mapa de ofertas analizadas
             </button>
 
             <div id="contenedor_mapa"

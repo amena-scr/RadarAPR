@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.2 — Integración de Sernageomin, Turnos y Minería
+ * Versión: 1.1.3 — Ajuste de Jornadas y Tarifas Por Día
  * Base normativa: INE 2026 / DS 44 / Ley 16.744
  */
 
@@ -54,33 +54,33 @@ const DATABASE = {
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, honorarios: 1.22, obra_faena: 1.15 },
         trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
-        duracion: { indefinida: 1.00, largo: 1.00, mediano: 1.08, corto: 1.15, un_mes: 1.20, solo_un_mes: 1.25, un_dia: 1.30 },
+
+        // ── Duración del Servicio ──
+        duracion: {
+            indefinida: 1.00,
+            largo: 1.00,
+            mediano: 1.08,
+            corto: 1.15,
+            un_mes: 1.20,
+            solo_un_mes: 1.25,
+            un_dia: 1.80 // Factor de recargo por jornada única esporádica
+        },
+
         sector: { privado: 1.00, publico_general: 0.88, publico_salud: 0.90, publico_educacion: 0.82 },
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
-        // ── NUEVOS FILTROS MINEROS Y TURNOS ──
+        // ── Jornada y Turnos (Separado Lunes a Viernes de Art. 22) ──
         turno: {
-            lunes_viernes: 1.00,
+            lunes_viernes_normal: 1.00,
+            lunes_viernes_art22: 1.15, // Mayor disponibilidad horaria requerida
             turno_5x2: 1.05,
             turno_4x3: 1.08,
             turno_nocturno: 1.12,
             turno_7x7: 1.15,
             turno_14x14: 1.20
         },
-        especializacion: {
-            ninguna: 1.00,
-            sns: 1.05,
-            auditor: 1.08,
-            sernageomin_c: 1.10,
-            sernageomin_b: 1.20,
-            sernageomin_a: 1.35
-        },
-        exp_mineria: {
-            sin_experiencia: 1.00,
-            pequena_mineria: 1.05,
-            mediana_mineria: 1.10,
-            gran_mineria: 1.15
-        }
+        especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
+        exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
     }
 };
 
@@ -113,7 +113,7 @@ function evaluarOferta() {
     const region = document.getElementById('region').value;
     const sueldoOfrecido = Number(sueldoInput.value);
 
-    // ── 2. Helper de captura ──
+    // ── 2. Helpers de captura ──
     const getVal = id => {
         const el = document.getElementById(id);
         return el ? el.value : null;
@@ -123,12 +123,12 @@ function evaluarOferta() {
         return el ? el.checked : false;
     };
 
-    // ── 3. CANDADO LÓGICO: Estado del Panel Avanzado ──
+    // ── 3. Estado del Panel Avanzado ──
     const panelAvanzado = document.getElementById('seccion_avanzada');
     const avanzadosActivos = panelAvanzado && (panelAvanzado.style.display === 'block');
 
     // Factores Base
-    const mBase = DATABASE.sueldosBase[formacion];
+    let mBase = DATABASE.sueldosBase[formacion];
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
     // Factores Avanzados (Bloqueados en 1.00 por defecto)
@@ -136,12 +136,18 @@ function evaluarOferta() {
     let mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mDuracion = 1.00, mSector = 1.00;
     let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00;
 
-    // Variables para base de datos
     let bdRubro = 'general';
     let bdExp = 'general';
     let redFlags = [];
 
-    // ── 4. Lectura EXCLUSIVA si el panel está abierto ──
+    const duracionVal = getVal('duracion');
+
+    // CORRECCIÓN: Si es "por dia", dividimos la base mensual por 30 para calcular sobre 1 día real
+    if (avanzadosActivos && duracionVal === 'un_dia') {
+        mBase = mBase / 30;
+    }
+
+    // ── 4. Lectura si el panel está abierto ──
     if (avanzadosActivos) {
         const rubroVal = getVal('rubro');
         const expVal = getVal('experiencia');
@@ -155,10 +161,9 @@ function evaluarOferta() {
         mContrato = DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00;
         mTrab = DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00;
         mModalidad = DATABASE.mult.modalidad[getVal('modalidad')] || 1.00;
-        mDuracion = DATABASE.mult.duracion[getVal('duracion')] || 1.00;
+        mDuracion = DATABASE.mult.duracion[duracionVal] || 1.00;
         mSector = DATABASE.mult.sector[getVal('sector')] || 1.00;
 
-        // Nuevos multiplicadores
         mTurno = DATABASE.mult.turno[getVal('turno')] || 1.00;
         mEspecializacion = DATABASE.mult.especializacion[getVal('especializacion')] || 1.00;
         mExpMineria = DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00;
@@ -171,7 +176,7 @@ function evaluarOferta() {
         if (isChecked('tarea_supervision_op')) redFlags.push('Supervisión de la operación productiva');
     }
 
-    // ── 5. Cálculo Matemático Combinado ──
+    // ── 5. Cálculo Matemático ──
     const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
     const fmt = n => Math.round(n).toLocaleString('es-CL');
@@ -188,12 +193,12 @@ function evaluarOferta() {
     if (diferencia >= -50000) {
         resDiv.style.backgroundColor = '#d4edda';
         resDiv.style.borderLeft = '6px solid #28a745';
-        html += `<p>✅ <strong>Sueldo Competitivo:</strong> El monto ofrecido está alineado con el mercado técnico para este perfil.</p>`;
+        html += `<p>✅ <strong>Sueldo Competitivo:</strong> El monto ofrecido está al nivel del mercado técnico analizado.</p>`;
     } else {
         resDiv.style.backgroundColor = '#fff3cd';
         resDiv.style.borderLeft = '6px solid #ffc107';
-        html += `<p>⚠️ <strong>Sueldo bajo el mercado:</strong> El sueldo estimado es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
-                 <small>El ofrecido ($${fmt(sueldoOfrecido)}) está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
+        html += `<p>⚠️ <strong>Sueldo bajo el mercado:</strong> El valor de mercado estimado es <strong>$${fmt(sueldoJusto)}</strong> líquidos.<br>
+                 <small>El valor ingresado ($${fmt(sueldoOfrecido)}) está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
     }
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
@@ -201,7 +206,7 @@ function evaluarOferta() {
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse">`;
 
     const filas = [
-        ['Sueldo base', `$${fmt(mBase)}`],
+        [duracionVal === 'un_dia' ? 'Sueldo base (Por día)' : 'Sueldo base', `$${fmt(mBase)}`],
         ['Región', `×${mRegion.toFixed(2)}`]
     ];
 
@@ -212,7 +217,7 @@ function evaluarOferta() {
         if (mContrato !== 1.00) filas.push(['Tipo de contrato', `×${mContrato.toFixed(2)}`]);
         if (mTrab !== 1.00) filas.push(['Trabajadores a cargo', `×${mTrab.toFixed(2)}`]);
         if (mModalidad !== 1.00) filas.push(['Modalidad', `×${mModalidad.toFixed(2)}`]);
-        if (mTurno !== 1.00) filas.push(['Sistema de turnos', `×${mTurno.toFixed(2)}`]);
+        if (mTurno !== 1.00) filas.push(['Sistema de jornada/turno', `×${mTurno.toFixed(2)}`]);
         if (mDuracion !== 1.00) filas.push(['Duración del servicio', `×${mDuracion.toFixed(2)}`]);
         if (mEspecializacion !== 1.00) filas.push(['Resolución/Certificación', `×${mEspecializacion.toFixed(2)}`]);
         if (mExpMineria !== 1.00) filas.push(['Experiencia en minería', `×${mExpMineria.toFixed(2)}`]);
@@ -227,7 +232,7 @@ function evaluarOferta() {
     });
 
     html += `<tr style="border-top:1px solid #ccc">
-        <td style="padding:5px 6px;font-weight:bold">Sueldo sugerido</td>
+        <td style="padding:5px 6px;font-weight:bold">${duracionVal === 'un_dia' ? 'Sugerido por día' : 'Sueldo sugerido mensual'}</td>
         <td style="padding:5px 6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td>
     </tr>`;
     html += `</table>`;
@@ -240,42 +245,33 @@ function evaluarOferta() {
         html += `<ul style="color:#721c24;font-size:0.85rem;margin:6px 0 0 0;padding-left:20px">`;
         redFlags.forEach(f => { html += `<li>${f}</li>`; });
         html += `</ul>`;
-        html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del Experto en Prevención. Considera negociar una compensación adicional.</p>`;
+        html += `<p style="color:#721c24;font-size:0.82rem;margin:8px 0 0">Estas tareas exceden el ámbito legal del cargo de Experto en Prevención. Considera negociar una compensación adicional o rechazar responsabilidades civiles ajenas.</p>`;
     }
 
-    // ── 7. Preguntas de Negociación ──
+    // ── 7. Preguntas de Entrevista ──
     const preguntas = [];
-
     if (!avanzadosActivos) {
         preguntas.push({
             icono: '📄',
-            pregunta: '¿Cuál es el tipo de contrato, jornada y modalidad de trabajo?',
-            detalle: 'Un contrato a plazo fijo, trabajo en terreno o turnos de faena (7x7 / 14x14) justifican negociar un diferencial sustancial a tu favor.'
+            pregunta: '¿Cuál es el tipo de contrato, jornada y sistema de turnos?',
+            detalle: 'Un contrato esporádico o regirse por el Artículo 22 (sin límite horario) justifican la exigencia de un valor mayor.'
         });
         preguntas.push({
             icono: '👷',
-            pregunta: '¿Cuántos trabajadores tendría bajo mi asesoría directa?',
-            detalle: 'A mayor cantidad de trabajadores, mayor responsabilidad legal y civil, lo que debe reflejarse en la renta.'
-        });
-        preguntas.push({
-            icono: '🚩',
-            pregunta: '¿El cargo incluye funciones ajenas al Experto en Prevención?',
-            detalle: 'Según el <strong>DS N°44</strong>, tareas como administrar bodegas o pagar sueldos constituyen multifuncionalidad no remunerada.'
+            pregunta: '¿Cuántos trabajadores están expuestos bajo mi responsabilidad?',
+            detalle: 'A mayor masa laboral activa, mayor es la carga penal y civil asignada ante contingencias.'
         });
     }
 
     preguntas.push({
         icono: '🍽️',
-        pregunta: '¿La empresa costea alimentación, alojamiento o traslados?',
-        detalle: 'Especialmente en roles mineros o de faena, si la empresa no entrega casino, campamento o vuelos de acercamiento, el sueldo líquido debe cubrir esos altos costos operativos.'
+        pregunta: '¿La oferta incluye asignaciones operativas directas?',
+        detalle: 'Si no cubren viáticos mínimos de traslado, alojamiento o alimentación en faenas alejadas, dichos costos deben indexarse sumándose al piso salarial pretendido.'
     });
 
     if (preguntas.length > 0) {
         html += `<hr style="border:none;border-top:1px solid #ccc;margin:14px 0">`;
-        html += `<p style="font-size:0.85rem;font-weight:bold;color:#2c3e50;margin:0 0 4px">💬 Prepárate para la entrevista</p>`;
-        if (!avanzadosActivos) {
-            html += `<p style="font-size:0.78rem;color:#888;margin:0 0 10px">Usa los <a href="#" onclick="toggleAvanzados(); return false;" style="color:#2980b9;">filtros avanzados</a> para detallar certificaciones como Sernageomin, o pregunta esto en tu entrevista:</p>`;
-        }
+        html += `<p style="font-size:0.85rem;font-weight:bold;color:#2c3e50;margin:0 0 4px">💬 Puntos clave para la entrevista</p>`;
         preguntas.forEach(p => {
             html += `<div style="background:#f0f4f8;border-left:3px solid #2980b9;border-radius:5px;padding:8px 10px;margin-bottom:7px">
                         <p style="margin:0;font-size:0.85rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
@@ -286,7 +282,7 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // ── 8. Guardar consulta en Supabase ──
+    // ── 8. Persistencia en Supabase ──
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
         window.supabaseClient.from('consultas_salariales').insert([
@@ -300,12 +296,8 @@ function evaluarOferta() {
                 sueldo_sugerido: Math.round(sueldoJusto)
             }
         ]).select().then(({ data, error }) => {
-            if (error) {
-                console.error('Error guardando en Supabase:', error);
-            } else {
-                if (typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
-                    dibujarDatos();
-                }
+            if (!error && typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
+                dibujarDatos();
             }
         });
     }
