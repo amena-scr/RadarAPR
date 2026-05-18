@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.9 — Cálculo de Valor por Hora y Jornadas Parciales (42hrs/168hrs)
+ * Versión: 1.2.0 — Cálculo Dinámico de Jornadas Parciales (Tiempo Parcial / Por Horas)
  * Base normativa: INE 2026 / DS 44 / Ley 16.744 / Código del Trabajo Art. 7 y 8
  */
 
@@ -36,9 +36,9 @@ const DATABASE = {
         experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
 
         // ── FILTROS AVANZADOS ──
-        contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 0.66, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
+        // CORRECCIÓN: tiempo_parcial ahora es 1.00 porque la fracción se calcula exacto con las horas
+        contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
 
-        // ── Duración de Servicio Ajustada ──
         duracion: { indefinida: 1.00, por_mes: 1.20, un_dia: 1.15, por_horas: 1.15 },
 
         trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
@@ -193,19 +193,19 @@ function evaluarOferta() {
     const duracionVal = getVal('duracion');
     const contratoVal = getVal('tipo_contrato');
 
-    let esPorHora = false;
+    let esPorHoraOPartial = false;
     let horasSemana = 1;
     let valorHoraSugerido = 0;
 
-    // Lógica para Cálculo de Fracción (Día vs Hora)
+    // Lógica Unificada para Cálculo de Fracción (Día vs Hora vs Tiempo Parcial)
     if (avanzadosActivos) {
         if (duracionVal === 'un_dia') {
             mBase = mBase / 30; // Tarifa diaria pura
-        } else if (duracionVal === 'por_horas') {
-            esPorHora = true;
+        } else if (duracionVal === 'por_horas' || contratoVal === 'tiempo_parcial') {
+            esPorHoraOPartial = true;
             horasSemana = Number(getVal('horas_semana')) || 20; // Recibe valor del input
             let mBaseHora = mBase / 168; // 168 hrs al mes exactas (42 hrs semanales x 4 semanas)
-            mBase = mBaseHora * (horasSemana * 4); // Proyección a total mensual según horas
+            mBase = mBaseHora * (horasSemana * 4); // Proyección a total mensual proporcional
         }
     }
 
@@ -267,12 +267,12 @@ function evaluarOferta() {
     html += `<p style="font-size:0.82rem;color:#555;margin:0 0 6px"><strong>Factores matemáticos aplicados:</strong></p>`;
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse">`;
 
-    // Tabla dinámica que identifica si es mensual, por día o por horas
+    // Tabla dinámica que identifica si es mensual, por día o proporcional por horas
     const filas = [];
     if (duracionVal === 'un_dia') {
         filas.push(['Sueldo base (Por día)', `$${fmt(mBase)}`]);
-    } else if (duracionVal === 'por_horas') {
-        filas.push([`Sueldo base (Proyección de ${horasSemana} hrs/sem)`, `$${fmt(mBase)}`]);
+    } else if (esPorHoraOPartial) {
+        filas.push([`Sueldo base (Proporción por ${horasSemana} hrs/sem)`, `$${fmt(mBase)}`]);
     } else {
         filas.push(['Sueldo base', `$${fmt(mBase)}`]);
     }
@@ -302,15 +302,15 @@ function evaluarOferta() {
 
     html += `<tr style="border-top:1px solid #ccc">
         <td style="padding:5px 6px;font-weight:bold">${duracionVal === 'un_dia' ? 'Sugerido por día' :
-            duracionVal === 'por_horas' ? 'Sugerido total mensual' :
+            esPorHoraOPartial ? 'Sugerido total mensual' :
                 'Sueldo sugerido mensual'
         }</td>
         <td style="padding:5px 6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td>
     </tr>`;
 
     // ── Alerta especial del Valor por Hora ──
-    if (esPorHora) {
-        valorHoraSugerido = sueldoJusto / (horasSemana * 4); // Se divide por las horas totales proyectadas al mes (horasSemana * 4 semanas)
+    if (esPorHoraOPartial) {
+        valorHoraSugerido = sueldoJusto / (horasSemana * 4); // Se divide por las horas totales proyectadas al mes
         html += `<tr style="background-color: #e8f4fd;">
             <td style="padding:5px 6px;font-weight:bold;color:#1a5276; border-bottom-left-radius: 4px;">▶ Sugerido por Hora</td>
             <td style="padding:5px 6px;text-align:right;font-weight:bold;color:#1a5276;font-size:0.95rem; border-bottom-right-radius: 4px;">$${fmt(valorHoraSugerido)} / hr</td>
@@ -411,21 +411,24 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCiudades();
     }
 
-    // 2. Lógica para mostrar las Horas de forma dinámica al elegir "Por horas"
+    // 2. Lógica UNIFICADA para mostrar las Horas de forma dinámica
     const duracionSelect = document.getElementById('duracion');
+    const contratoSelect = document.getElementById('tipo_contrato');
     const contenedorHoras = document.getElementById('contenedor_horas');
-    if (duracionSelect && contenedorHoras) {
-        duracionSelect.addEventListener('change', () => {
-            if (duracionSelect.value === 'por_horas') {
-                contenedorHoras.style.display = 'block';
-            } else {
-                contenedorHoras.style.display = 'none';
-            }
-        });
+
+    function verificarCuadroHoras() {
+        if (!contenedorHoras) return;
+        const requiereHoras =
+            (duracionSelect && duracionSelect.value === 'por_horas') ||
+            (contratoSelect && contratoSelect.value === 'tiempo_parcial');
+
+        contenedorHoras.style.display = requiereHoras ? 'block' : 'none';
     }
 
+    if (duracionSelect) duracionSelect.addEventListener('change', verificarCuadroHoras);
+    if (contratoSelect) contratoSelect.addEventListener('change', verificarCuadroHoras);
+
     // 3. Lógica para actualizar el tooltip del Tipo de Contrato
-    const contratoSelect = document.getElementById('tipo_contrato');
     const infoIcon = document.getElementById('info_contrato');
     if (contratoSelect && infoIcon) {
         contratoSelect.addEventListener('change', () => {
