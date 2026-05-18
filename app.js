@@ -357,8 +357,8 @@ function evaluarOferta() {
                 ciudad: ciudad,
                 rubro: rubro,
                 experiencia: exp,
-                sueldo_ofrecido: Math.round(sueldoOfrecido),
-                sueldo_sugerido: sueldoJusto
+                sueldo_ofrecido: Math.round(sueldoOfrecido),//Redondeado por seguridad
+                sueldo_sugerido: Math.round(sueldoJusto)//Correccion: Se redondea para evitar el error de "bigint"
             }
         ]).select().then(({ data, error }) => {
             if (error) {
