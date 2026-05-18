@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.6 — Optimización UI de Contratos y Tooltips
+ * Versión: 1.1.7 — Ciudades Dinámicas y Selectores Limpios
  * Base normativa: INE 2026 / DS 44 / Ley 16.744 / Código del Trabajo Art. 7 y 8
  */
 
@@ -15,7 +15,7 @@ const DATABASE = {
     },
 
     mult: {
-        // ── Región (16 regiones de Chile) ──
+        // ── Región ──
         region: {
             arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30,
             coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95,
@@ -25,61 +25,31 @@ const DATABASE = {
 
         // ── Rubro / Sector Económico ──
         rubro: {
-            mineria_cielo_abierto: 1.45,
-            mineria_subterranea: 1.55,
-            mineria_salares: 1.50,
-            petroleo_gas: 1.45,
-            energias_renovables: 1.35,
-            montaje_industrial: 1.35,
-            obras_civiles: 1.30,
-            edificacion_altura: 1.25,
-            puertos_maritimos: 1.25,
-            transporte_terrestre: 1.20,
-            centros_distribucion: 1.15,
-            forestal_madera: 1.15,
-            barrio_industrial: 1.10,
-            agroindustria_pesca: 1.10,
-            manufactura_consumo: 1.05,
-            salud_educacion: 1.05,
-            comercio_retail: 1.00,
-            turismo_gastronomia: 0.95,
-            servicios_publicos: 0.90,
-            municipalidad: 0.85
+            mineria_cielo_abierto: 1.45, mineria_subterranea: 1.55, mineria_salares: 1.50,
+            petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35,
+            obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25,
+            transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15,
+            agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05,
+            comercio_retail: 1.00, turismo_gastronomia: 0.95
         },
 
         experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
 
         // ── FILTROS AVANZADOS ──
-        contrato: {
-            indefinido: 1.00,
-            plazo_fijo: 1.08,
-            obra_faena: 1.15,
-            tiempo_parcial: 0.66,
-            teletrabajo: 1.00,
-            temporada: 1.10,
-            honorarios: 1.22
-        },
-
-        // Duraciones optimizadas
-        duracion: {
-            indefinida: 1.00,
-            un_mes: 1.20,
-            un_dia: 1.15
-        },
-
+        contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 0.66, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
+        duracion: { indefinida: 1.00, un_mes: 1.20, un_dia: 1.15 },
         trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
-        sector: { privado: 1.00, publico_general: 0.88, publico_salud: 0.90, publico_educacion: 0.82 },
+
+        // Sector simplificado
+        sector: { privado: 1.00, publico: 0.88 },
+
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
         turno: {
-            lunes_viernes_normal: 1.00,
-            lunes_viernes_art22: 1.15,
-            turno_5x2: 1.05,
-            turno_4x3: 1.08,
-            turno_nocturno: 1.12,
-            turno_7x7: 1.15,
-            turno_14x14: 1.20
+            lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, turno_5x2: 1.05,
+            turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20,
+            otra_excepcional: 1.15
         },
         especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
@@ -87,11 +57,11 @@ const DATABASE = {
 };
 
 // ============================================================
-// DICCIONARIO DE TOOLTIPS (Información Flotante)
+// DICCIONARIOS Y CONTROL DE INTERFAZ
 // ============================================================
 const INFO_CONTRATOS = {
     indefinido: "Sin fecha de término.",
-    plazo_fijo: "Duración 1 año.",
+    plazo_fijo: "Duración de 1 año o menos.",
     obra_faena: "Duración 30 días o menos / Mientras dura el servicio.",
     tiempo_parcial: "Plazo fijo o indefinido, menos de 30 hrs semanales.",
     teletrabajo: "Funciones fuera de la empresa.",
@@ -99,9 +69,24 @@ const INFO_CONTRATOS = {
     honorarios: "Boleta de Honorarios."
 };
 
-// ============================================================
-// CONTROL DE INTERFAZ
-// ============================================================
+const CIUDADES_POR_REGION = {
+    arica: [{ val: 'arica', txt: 'Arica' }],
+    tarapaca: [{ val: 'iquique', txt: 'Iquique' }],
+    antofagasta: [{ val: 'antofagasta', txt: 'Antofagasta' }, { val: 'calama', txt: 'Calama' }],
+    atacama: [{ val: 'copiapo', txt: 'Copiapó' }],
+    coquimbo: [{ val: 'la_serena', txt: 'La Serena' }, { val: 'coquimbo', txt: 'Coquimbo' }],
+    valparaiso: [{ val: 'valparaiso', txt: 'Valparaíso' }, { val: 'vina_del_mar', txt: 'Viña del Mar' }],
+    metropolitana: [{ val: 'santiago', txt: 'Santiago' }],
+    ohiggins: [{ val: 'rancagua', txt: 'Rancagua' }],
+    maule: [{ val: 'talca', txt: 'Talca' }],
+    nuble: [{ val: 'chillan', txt: 'Chillán' }],
+    biobio: [{ val: 'concepcion', txt: 'Concepción' }],
+    araucania: [{ val: 'temuco', txt: 'Temuco' }],
+    los_rios: [{ val: 'valdivia', txt: 'Valdivia' }],
+    los_lagos: [{ val: 'puerto_montt', txt: 'Puerto Montt' }],
+    aysen: [{ val: 'coyhaique', txt: 'Coyhaique' }],
+    magallanes: [{ val: 'punta_arenas', txt: 'Punta Arenas' }]
+};
 
 function toggleAvanzados() {
     const panel = document.getElementById('seccion_avanzada');
@@ -109,6 +94,24 @@ function toggleAvanzados() {
     const open = panel.style.display === 'block';
     panel.style.display = open ? 'none' : 'block';
     if (btn) btn.classList.toggle('open', !open);
+}
+
+function actualizarCiudades() {
+    const regionSelect = document.getElementById('region');
+    const ciudadSelect = document.getElementById('ciudad');
+    if (!regionSelect || !ciudadSelect) return;
+
+    const region = regionSelect.value;
+    ciudadSelect.innerHTML = '<option value="" selected>Seleccione una ciudad (Opcional)</option>';
+
+    if (CIUDADES_POR_REGION[region]) {
+        CIUDADES_POR_REGION[region].forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.val;
+            opt.textContent = c.txt;
+            ciudadSelect.appendChild(opt);
+        });
+    }
 }
 
 // ============================================================
@@ -129,7 +132,7 @@ function evaluarOferta() {
 
     const getVal = id => {
         const el = document.getElementById(id);
-        return el ? el.value : null;
+        return el && el.value !== "" ? el.value : null;
     };
     const isChecked = id => {
         const el = document.getElementById(id);
@@ -164,19 +167,19 @@ function evaluarOferta() {
         bdRubro = rubroVal || 'general';
         bdExp = expVal || 'general';
 
-        mRubro = DATABASE.mult.rubro[rubroVal] || 1.00;
-        mExp = DATABASE.mult.experiencia[expVal] || 1.00;
-        mZona = DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00;
+        mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
+        mExp = expVal ? (DATABASE.mult.experiencia[expVal] || 1.00) : 1.00;
+        mZona = getVal('zona_extrema') ? (DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00) : 1.00;
 
-        mContrato = DATABASE.mult.contrato[contratoVal] || 1.00;
-        mTrab = DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00;
-        mModalidad = DATABASE.mult.modalidad[getVal('modalidad')] || 1.00;
-        mDuracion = DATABASE.mult.duracion[duracionVal] || 1.00;
-        mSector = DATABASE.mult.sector[getVal('sector')] || 1.00;
+        mContrato = contratoVal ? (DATABASE.mult.contrato[contratoVal] || 1.00) : 1.00;
+        mTrab = getVal('trabajadores_cargo') ? (DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00) : 1.00;
+        mModalidad = getVal('modalidad') ? (DATABASE.mult.modalidad[getVal('modalidad')] || 1.00) : 1.00;
+        mDuracion = duracionVal ? (DATABASE.mult.duracion[duracionVal] || 1.00) : 1.00;
+        mSector = getVal('sector') ? (DATABASE.mult.sector[getVal('sector')] || 1.00) : 1.00;
 
-        mTurno = DATABASE.mult.turno[getVal('turno')] || 1.00;
-        mEspecializacion = DATABASE.mult.especializacion[getVal('especializacion')] || 1.00;
-        mExpMineria = DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00;
+        mTurno = getVal('turno') ? (DATABASE.mult.turno[getVal('turno')] || 1.00) : 1.00;
+        mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
+        mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
         if (isChecked('tarea_bodega')) redFlags.push('Administrar bodega o materiales');
         if (isChecked('tarea_rrhh')) redFlags.push('Control de asistencia o remuneraciones');
@@ -330,23 +333,33 @@ function evaluarOferta() {
 // EVENTOS ADICIONALES (Tooltips y Mapas)
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Lógica para actualizar el tooltip del Tipo de Contrato dinámicamente
+    // 1. Llenar ciudades al cargar e interceptar el cambio de región
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) {
+        regionSelect.addEventListener('change', actualizarCiudades);
+        actualizarCiudades(); // Ejecuta una vez para llenar la región por defecto
+    }
+
+    // 2. Lógica para actualizar el tooltip del Tipo de Contrato dinámicamente
     const contratoSelect = document.getElementById('tipo_contrato');
     const infoIcon = document.getElementById('info_contrato');
 
     if (contratoSelect && infoIcon) {
-        // Actualizar al cambiar la opción
         contratoSelect.addEventListener('change', () => {
-            infoIcon.title = INFO_CONTRATOS[contratoSelect.value];
+            if (INFO_CONTRATOS[contratoSelect.value]) {
+                infoIcon.title = INFO_CONTRATOS[contratoSelect.value];
+            } else {
+                infoIcon.title = "Información del contrato";
+            }
         });
 
-        // Mostrar un alert en móviles al hacer click sobre el ícono "i"
         infoIcon.addEventListener('click', () => {
-            alert("Detalle del contrato:\n\n" + INFO_CONTRATOS[contratoSelect.value]);
+            const desc = INFO_CONTRATOS[contratoSelect.value];
+            if (desc) alert("Detalle del contrato:\n\n" + desc);
         });
     }
 
-    // Lógica para actualizar el mapa si se cambia la ciudad (viene de la versión anterior)
+    // 3. Lógica para actualizar el mapa si se cambia la ciudad (viene de mapa.js)
     const ciudadSelect = document.getElementById('ciudad');
     if (ciudadSelect) {
         ciudadSelect.addEventListener('change', () => {
