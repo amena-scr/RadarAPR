@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión: 1.1.7 — Ciudades Dinámicas y Selectores Limpios
+ * Versión: 1.1.8 — Base de Ciudades Completa y Ajuste de Turnos
  * Base normativa: INE 2026 / DS 44 / Ley 16.744 / Código del Trabajo Art. 7 y 8
  */
 
@@ -40,15 +40,18 @@ const DATABASE = {
         duracion: { indefinida: 1.00, un_mes: 1.20, un_dia: 1.15 },
         trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
-
-        // Sector simplificado
         sector: { privado: 1.00, publico: 0.88 },
-
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
 
+        // ── TURNOS ACTUALIZADOS ──
         turno: {
-            lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, turno_5x2: 1.05,
-            turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20,
+            lunes_viernes_normal: 1.00,
+            lunes_viernes_art22: 1.15,
+            un_dia_semana: 1.00, // Reemplazado 5x2
+            turno_4x3: 1.08,
+            turno_nocturno: 1.12,
+            turno_7x7: 1.15,
+            turno_14x14: 1.20,
             otra_excepcional: 1.15
         },
         especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
@@ -69,23 +72,56 @@ const INFO_CONTRATOS = {
     honorarios: "Boleta de Honorarios."
 };
 
+// LISTA COMPLETA DE CIUDADES DE MAPA.JS
 const CIUDADES_POR_REGION = {
-    arica: [{ val: 'arica', txt: 'Arica' }],
-    tarapaca: [{ val: 'iquique', txt: 'Iquique' }],
-    antofagasta: [{ val: 'antofagasta', txt: 'Antofagasta' }, { val: 'calama', txt: 'Calama' }],
-    atacama: [{ val: 'copiapo', txt: 'Copiapó' }],
-    coquimbo: [{ val: 'la_serena', txt: 'La Serena' }, { val: 'coquimbo', txt: 'Coquimbo' }],
-    valparaiso: [{ val: 'valparaiso', txt: 'Valparaíso' }, { val: 'vina_del_mar', txt: 'Viña del Mar' }],
-    metropolitana: [{ val: 'santiago', txt: 'Santiago' }],
-    ohiggins: [{ val: 'rancagua', txt: 'Rancagua' }],
-    maule: [{ val: 'talca', txt: 'Talca' }],
-    nuble: [{ val: 'chillan', txt: 'Chillán' }],
-    biobio: [{ val: 'concepcion', txt: 'Concepción' }],
-    araucania: [{ val: 'temuco', txt: 'Temuco' }],
-    los_rios: [{ val: 'valdivia', txt: 'Valdivia' }],
-    los_lagos: [{ val: 'puerto_montt', txt: 'Puerto Montt' }],
-    aysen: [{ val: 'coyhaique', txt: 'Coyhaique' }],
-    magallanes: [{ val: 'punta_arenas', txt: 'Punta Arenas' }]
+    arica: [
+        { val: 'arica', txt: 'Arica' }, { val: 'putre', txt: 'Putre' }, { val: 'camarones', txt: 'Camarones' }, { val: 'general_lagos', txt: 'General Lagos' }
+    ],
+    tarapaca: [
+        { val: 'iquique', txt: 'Iquique' }, { val: 'alto_hospicio', txt: 'Alto Hospicio' }, { val: 'pozo_almonte', txt: 'Pozo Almonte' }, { val: 'pica', txt: 'Pica' }, { val: 'colchane', txt: 'Colchane' }, { val: 'huara', txt: 'Huara' }, { val: 'camiña', txt: 'Camiña' }
+    ],
+    antofagasta: [
+        { val: 'antofagasta', txt: 'Antofagasta' }, { val: 'calama', txt: 'Calama' }, { val: 'taltal', txt: 'Taltal' }, { val: 'mejillones', txt: 'Mejillones' }, { val: 'tocopilla', txt: 'Tocopilla' }, { val: 'sierra_gorda', txt: 'Sierra Gorda' }, { val: 'san_pedro_atacama', txt: 'San Pedro de Atacama' }, { val: 'ollague', txt: 'Ollagüe' }, { val: 'maria_elena', txt: 'María Elena' }
+    ],
+    atacama: [
+        { val: 'copiapo', txt: 'Copiapó' }, { val: 'vallenar', txt: 'Vallenar' }, { val: 'caldera', txt: 'Caldera' }, { val: 'chañaral', txt: 'Chañaral' }, { val: 'diego_almagro', txt: 'Diego de Almagro' }, { val: 'huasco', txt: 'Huasco' }, { val: 'freirina', txt: 'Freirina' }, { val: 'tierra_amarilla', txt: 'Tierra Amarilla' }, { val: 'alto_del_carmen', txt: 'Alto del Carmen' }
+    ],
+    coquimbo: [
+        { val: 'la_serena', txt: 'La Serena' }, { val: 'coquimbo', txt: 'Coquimbo' }, { val: 'ovalle', txt: 'Ovalle' }, { val: 'illapel', txt: 'Illapel' }, { val: 'vicuña', txt: 'Vicuña' }, { val: 'salamanca', txt: 'Salamanca' }, { val: 'los_vilos', txt: 'Los Vilos' }, { val: 'combarbala', txt: 'Combarbalá' }, { val: 'andacollo', txt: 'Andacollo' }, { val: 'canela', txt: 'Canela' }, { val: 'monte_patria', txt: 'Monte Patria' }, { val: 'punitaqui', txt: 'Punitaqui' }, { val: 'rio_hurtado', txt: 'Río Hurtado' }, { val: 'paiguano', txt: 'Paihuano' }
+    ],
+    valparaiso: [
+        { val: 'valparaiso', txt: 'Valparaíso' }, { val: 'vina_del_mar', txt: 'Viña del Mar' }, { val: 'quillota', txt: 'Quillota' }, { val: 'san_antonio', txt: 'San Antonio' }, { val: 'san_felipe', txt: 'San Felipe' }, { val: 'los_andes', txt: 'Los Andes' }, { val: 'marga_marga', txt: 'Marga Marga' }, { val: 'quintero', txt: 'Quintero' }, { val: 'villa_alemana', txt: 'Villa Alemana' }, { val: 'quilpue', txt: 'Quilpué' }, { val: 'la_ligua', txt: 'La Ligua' }, { val: 'limache', txt: 'Limache' }
+    ],
+    metropolitana: [
+        { val: 'santiago', txt: 'Santiago' }, { val: 'puente_alto', txt: 'Puente Alto' }, { val: 'san_bernardo', txt: 'San Bernardo' }, { val: 'maipu', txt: 'Maipú' }, { val: 'la_florida', txt: 'La Florida' }, { val: 'colina', txt: 'Colina' }, { val: 'melipilla', txt: 'Melipilla' }, { val: 'talagante', txt: 'Talagante' }, { val: 'buin', txt: 'Buin' }, { val: 'quilicura', txt: 'Quilicura' }, { val: 'pudahuel', txt: 'Pudahuel' }, { val: 'lampa', txt: 'Lampa' }
+    ],
+    ohiggins: [
+        { val: 'rancagua', txt: 'Rancagua' }, { val: 'san_fernando', txt: 'San Fernando' }, { val: 'pichilemu', txt: 'Pichilemu' }, { val: 'rengo', txt: 'Rengo' }, { val: 'san_vicente', txt: 'San Vicente' }, { val: 'machali', txt: 'Machalí' }, { val: 'graneros', txt: 'Graneros' }, { val: 'mostazal', txt: 'Mostazal' }, { val: 'chimbarongo', txt: 'Chimbarongo' }, { val: 'santa_cruz', txt: 'Santa Cruz' }
+    ],
+    maule: [
+        { val: 'talca', txt: 'Talca' }, { val: 'curico', txt: 'Curicó' }, { val: 'linares', txt: 'Linares' }, { val: 'cauquenes', txt: 'Cauquenes' }, { val: 'constitucion', txt: 'Constitución' }, { val: 'san_javier', txt: 'San Javier' }, { val: 'molina', txt: 'Molina' }, { val: 'parral', txt: 'Parral' }, { val: 'san_clemente', txt: 'San Clemente' }
+    ],
+    nuble: [
+        { val: 'chillan', txt: 'Chillán' }, { val: 'san_carlos', txt: 'San Carlos' }, { val: 'bulnes', txt: 'Bulnes' }, { val: 'coelemu', txt: 'Coelemu' }, { val: 'yungay', txt: 'Yungay' }, { val: 'quirihue', txt: 'Quirihue' }, { val: 'el_carmen', txt: 'El Carmen' }
+    ],
+    biobio: [
+        { val: 'concepcion', txt: 'Concepción' }, { val: 'talcahuano', txt: 'Talcahuano' }, { val: 'los_angeles', txt: 'Los Ángeles' }, { val: 'coronel', txt: 'Coronel' }, { val: 'chiguayante', txt: 'Chiguayante' }, { val: 'san_pedro_paz', txt: 'San Pedro de la Paz' }, { val: 'penco', txt: 'Penco' }, { val: 'hualpen', txt: 'Hualpén' }, { val: 'tome', txt: 'Tomé' }, { val: 'arauco', txt: 'Arauco' }, { val: 'lebu', txt: 'Lebu' }, { val: 'cañete', txt: 'Cañete' }
+    ],
+    araucania: [
+        { val: 'temuco', txt: 'Temuco' }, { val: 'padre_las_casas', txt: 'Padre Las Casas' }, { val: 'villarrica', txt: 'Villarrica' }, { val: 'angol', txt: 'Angol' }, { val: 'lautaro', txt: 'Lautaro' }, { val: 'victoria', txt: 'Victoria' }, { val: 'pucon', txt: 'Pucón' }, { val: 'nueva_imperial', txt: 'Nueva Imperial' }, { val: 'collipulli', txt: 'Collipulli' }, { val: 'carahue', txt: 'Carahue' }
+    ],
+    los_rios: [
+        { val: 'valdivia', txt: 'Valdivia' }, { val: 'la_union', txt: 'La Unión' }, { val: 'panguipulli', txt: 'Panguipulli' }, { val: 'rio_bueno', txt: 'Río Bueno' }, { val: 'mariquina', txt: 'Mariquina' }, { val: 'lanco', txt: 'Lanco' }, { val: 'los_lagos_com', txt: 'Los Lagos' }, { val: 'paillaco', txt: 'Paillaco' }
+    ],
+    los_lagos: [
+        { val: 'puerto_montt', txt: 'Puerto Montt' }, { val: 'osorno', txt: 'Osorno' }, { val: 'castro', txt: 'Castro' }, { val: 'ancud', txt: 'Ancud' }, { val: 'puerto_varas', txt: 'Puerto Varas' }, { val: 'quellon', txt: 'Quellón' }, { val: 'calbuco', txt: 'Calbuco' }, { val: 'frutillar', txt: 'Frutillar' }, { val: 'purranque', txt: 'Purranque' }, { val: 'chaiten', txt: 'Chaitén' }
+    ],
+    aysen: [
+        { val: 'coyhaique', txt: 'Coyhaique' }, { val: 'puerto_aysen', txt: 'Puerto Aysén' }, { val: 'chile_chico', txt: 'Chile Chico' }, { val: 'cochrane', txt: 'Cochrane' }, { val: 'cisnes', txt: 'Cisnes' }, { val: 'guaitecas', txt: 'Guaitecas' }
+    ],
+    magallanes: [
+        { val: 'punta_arenas', txt: 'Punta Arenas' }, { val: 'puerto_natales', txt: 'Puerto Natales' }, { val: 'porvenir', txt: 'Porvenir' }, { val: 'cabo_hornos', txt: 'Cabo de Hornos' }
+    ]
 };
 
 function toggleAvanzados() {
