@@ -186,25 +186,25 @@ const COORDENADAS_REGIONES = {
     magallanes:    [-53.163, -70.907]
 };
 
-let mapaRadar = null;
+let aRadar = null;
 let marcadorCiudad = null;
 
 /**
- * Muestra u oculta la sección del mapa
+ * Muestra u oculta la sección del a
  */
-function toggleMapa() {
-    const contenedor = document.getElementById('contenedor_mapa');
+function togglea() {
+    const contenedor = document.getElementById('contenedor_a');
     if (!contenedor) return;
     
     const isHidden = contenedor.style.display === 'none';
     contenedor.style.display = isHidden ? 'block' : 'none';
 
     if (isHidden) {
-        if (!mapaRadar) {
-            inicializarMapa();
+        if (!aRadar) {
+            inicializara();
         } else {
             setTimeout(() => {
-                mapaRadar.invalidateSize();
+                aRadar.invalidateSize();
                 marcarCiudadActual();
                 dibujarDatos();
             }, 150);
@@ -213,14 +213,14 @@ function toggleMapa() {
 }
 
 /**
- * Inicializa la instancia del mapa centrado en Chile
+ * Inicializa la instancia del a centrado en Chile
  */
-function inicializarMapa() {
-    mapaRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 4);
+function inicializara() {
+    aRadar = L.('a-radar').setView([-35.6751, -71.5429], 4);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© RadarAPR / OpenStreetMap'
-    }).addTo(mapaRadar);
+    L.tileLayer('https://{s}.tile.openstreet.org/{z}/{x}/{y}.png', {
+        attribution: '© RadarAPR / OpenStreet'
+    }).addTo(aRadar);
 
     marcarCiudadActual();
     dibujarDatos();
@@ -230,7 +230,7 @@ function inicializarMapa() {
  * Pone un marcador azul en la ciudad que el usuario seleccionó en el formulario
  */
 function marcarCiudadActual() {
-    if (!mapaRadar) return;
+    if (!aRadar) return;
 
     const ciudadSelect = document.getElementById('ciudad');
     if (!ciudadSelect) return;
@@ -238,18 +238,18 @@ function marcarCiudadActual() {
     const ciudadValue = ciudadSelect.value;
 
     if (marcadorCiudad) {
-        mapaRadar.removeLayer(marcadorCiudad);
+        aRadar.removeLayer(marcadorCiudad);
         marcadorCiudad = null;
     }
 
     if (COORDENADAS_CIUDADES[ciudadValue]) {
         const coords = COORDENADAS_CIUDADES[ciudadValue];
         
-        marcadorCiudad = L.marker(coords).addTo(mapaRadar)
+        marcadorCiudad = L.marker(coords).addTo(aRadar)
             .bindPopup(`📍 <strong>Oferta evaluada aquí</strong>`)
             .openPopup();
             
-        mapaRadar.setView(coords, 8);
+        aRadar.setView(coords, 8);
     }
 }
 
@@ -257,12 +257,12 @@ function marcarCiudadActual() {
  * Obtiene el historial de Supabase (o localStorage) y dibuja círculos de calor
  */
 async function dibujarDatos() {
-    if (!mapaRadar) return;
+    if (!aRadar) return;
 
     // Limpiar círculos previos
-    mapaRadar.eachLayer((layer) => {
+    aRadar.eachLayer((layer) => {
         if (layer instanceof L.Circle) {
-            mapaRadar.removeLayer(layer);
+            aRadar.removeLayer(layer);
         }
     });
 
@@ -276,16 +276,16 @@ async function dibujarDatos() {
                 .select('region, sueldo_ofrecido');
 
             if (error) {
-                console.error('Error cargando datos desde Supabase para mapa:', error);
+                console.error('Error cargando datos desde Supabase para a:', error);
                 historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
             } else if (data) {
-                historial = data.map(item => ({
+                historial = data.(item => ({
                     region: item.region,
                     ofrecido: item.sueldo_ofrecido
                 }));
             }
         } catch (err) {
-            console.error('Excepción al conectar con Supabase desde mapa.js.obfuscated.js:', err);
+            console.error('Excepción al conectar con Supabase desde a.js.obfuscated.js:', err);
             historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
         }
     } else {
@@ -320,7 +320,7 @@ async function dibujarDatos() {
                 fillColor: color,
                 fillOpacity: 0.4,
                 radius: Math.min(radio, 80000)
-            }).addTo(mapaRadar)
+            }).addTo(aRadar)
               .bindPopup(`
                 <strong>Región:</strong> ${reg.toUpperCase()}<br>
                 <strong>Consultas:</strong> ${data.cantidad}<br>
@@ -330,12 +330,12 @@ async function dibujarDatos() {
     }
 }
 
-// Escuchar cambios en el selector de ciudades del formulario para mover el mapa dinámicamente
+// Escuchar cambios en el selector de ciudades del formulario para mover el a dinámicamente
 document.addEventListener('DOMContentLoaded', () => {
     const ciudadSelect = document.getElementById('ciudad');
     if (ciudadSelect) {
         ciudadSelect.addEventListener('change', () => {
-            const contenedor = document.getElementById('contenedor_mapa');
+            const contenedor = document.getElementById('contenedor_a');
             if (contenedor && contenedor.style.display !== 'none') {
                 marcarCiudadActual();
             }
