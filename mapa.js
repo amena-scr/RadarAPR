@@ -186,25 +186,25 @@ const COORDENADAS_REGIONES = {
     magallanes:    [-53.163, -70.907]
 };
 
-let aRadar = null;
+let mapaRadar = null;
 let marcadorCiudad = null;
 
 /**
- * Muestra u oculta la sección del a
+ * Muestra u oculta la sección del mapa
  */
-function togglea() {
-    const contenedor = document.getElementById('contenedor_a');
+function toggleMapa() {
+    const contenedor = document.getElementById('contenedor_mapa');
     if (!contenedor) return;
     
     const isHidden = contenedor.style.display === 'none';
     contenedor.style.display = isHidden ? 'block' : 'none';
 
     if (isHidden) {
-        if (!aRadar) {
-            inicializara();
+        if (!mapaRadar) {
+            inicializarMapa();
         } else {
             setTimeout(() => {
-                aRadar.invalidateSize();
+                mapaRadar.invalidateSize();
                 marcarCiudadActual();
                 dibujarDatos();
             }, 150);
@@ -213,14 +213,14 @@ function togglea() {
 }
 
 /**
- * Inicializa la instancia del a centrado en Chile
+ * Inicializa la instancia del mapa centrado en Chile
  */
-function inicializara() {
-    aRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 4);
+function inicializarMapa() {
+    mapaRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 4);
 
-    L.tileLayer('https://{s}.tile.openstreet.org/{z}/{x}/{y}.png', {
-        attribution: '© RadarAPR / OpenStreet'
-    }).addTo(aRadar);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© RadarAPR / OpenStreetMap'
+    }).addTo(mapaRadar);
 
     marcarCiudadActual();
     dibujarDatos();
@@ -230,7 +230,7 @@ function inicializara() {
  * Pone un marcador azul en la ciudad que el usuario seleccionó en el formulario
  */
 function marcarCiudadActual() {
-    if (!aRadar) return;
+    if (!mapaRadar) return;
 
     const ciudadSelect = document.getElementById('ciudad');
     if (!ciudadSelect) return;
@@ -238,18 +238,18 @@ function marcarCiudadActual() {
     const ciudadValue = ciudadSelect.value;
 
     if (marcadorCiudad) {
-        aRadar.removeLayer(marcadorCiudad);
+        mapaRadar.removeLayer(marcadorCiudad);
         marcadorCiudad = null;
     }
 
     if (COORDENADAS_CIUDADES[ciudadValue]) {
         const coords = COORDENADAS_CIUDADES[ciudadValue];
         
-        marcadorCiudad = L.marker(coords).addTo(aRadar)
+        marcadorCiudad = L.marker(coords).addTo(mapaRadar)
             .bindPopup(`📍 <strong>Oferta evaluada aquí</strong>`)
             .openPopup();
             
-        aRadar.setView(coords, 8);
+        mapaRadar.setView(coords, 8);
     }
 }
 
@@ -257,12 +257,12 @@ function marcarCiudadActual() {
  * Obtiene el historial de Supabase (o localStorage) y dibuja círculos de calor
  */
 async function dibujarDatos() {
-    if (!aRadar) return;
+    if (!mapaRadar) return;
 
     // Limpiar círculos previos
-    aRadar.eachLayer((layer) => {
+    mapaRadar.eachLayer((layer) => {
         if (layer instanceof L.Circle) {
-            aRadar.removeLayer(layer);
+            mapaRadar.removeLayer(layer);
         }
     });
 
@@ -276,7 +276,7 @@ async function dibujarDatos() {
                 .select('region, sueldo_ofrecido');
 
             if (error) {
-                console.error('Error cargando datos desde Supabase para a:', error);
+                console.error('Error cargando datos desde Supabase para mapa:', error);
                 historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
             } else if (data) {
                 historial = data.map(item => ({
@@ -320,7 +320,7 @@ async function dibujarDatos() {
                 fillColor: color,
                 fillOpacity: 0.4,
                 radius: Math.min(radio, 80000)
-            }).addTo(aRadar)
+            }).addTo(mapaRadar)
               .bindPopup(`
                 <strong>Región:</strong> ${reg.toUpperCase()}<br>
                 <strong>Consultas:</strong> ${data.cantidad}<br>
@@ -330,12 +330,12 @@ async function dibujarDatos() {
     }
 }
 
-// Escuchar cambios en el selector de ciudades del formulario para mover el a dinámicamente
+// Escuchar cambios en el selector de ciudades del formulario para mover el mapa dinámicamente
 document.addEventListener('DOMContentLoaded', () => {
     const ciudadSelect = document.getElementById('ciudad');
     if (ciudadSelect) {
         ciudadSelect.addEventListener('change', () => {
-            const contenedor = document.getElementById('contenedor_a');
+            const contenedor = document.getElementById('contenedor_mapa');
             if (contenedor && contenedor.style.display !== 'none') {
                 marcarCiudadActual();
             }
