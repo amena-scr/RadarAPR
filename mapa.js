@@ -216,7 +216,7 @@ function togglea() {
  * Inicializa la instancia del a centrado en Chile
  */
 function inicializara() {
-    aRadar = L.('a-radar').setView([-35.6751, -71.5429], 4);
+    aRadar = L.map('mapa-radar').setView([-35.6751, -71.5429], 4);
 
     L.tileLayer('https://{s}.tile.openstreet.org/{z}/{x}/{y}.png', {
         attribution: '© RadarAPR / OpenStreet'
@@ -279,13 +279,13 @@ async function dibujarDatos() {
                 console.error('Error cargando datos desde Supabase para a:', error);
                 historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
             } else if (data) {
-                historial = data.(item => ({
+                historial = data.map(item => ({
                     region: item.region,
                     ofrecido: item.sueldo_ofrecido
                 }));
             }
         } catch (err) {
-            console.error('Excepción al conectar con Supabase desde a.js.obfuscated.js:', err);
+            console.error('Excepción al conectar con Supabase desde mapa.js:', err);
             historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
         }
     } else {
