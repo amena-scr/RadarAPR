@@ -285,7 +285,7 @@ async function dibujarDatos() {
                 }));
             }
         } catch (err) {
-            console.error('Excepción al conectar con Supabase desde mapa.js.obfuscated.js:', err);
+            console.error('Excepción al conectar con Supabase desde mapa.js:', err);
             historial = JSON.parse(localStorage.getItem('radar_logs') || '[]');
         }
     } else {
