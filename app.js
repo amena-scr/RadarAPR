@@ -376,6 +376,14 @@ function evaluarOferta() {
         });
     }
 
+
+    html += `<div style="margin-top: 20px;">
+                <button type="button" class="btn-pdf" onclick="descargarPDF()" style="background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; width: 100%; transition: background 0.3s;">
+                    📄 Descargar Reporte en PDF
+                </button>
+             </div>`;
+
+
     resDiv.innerHTML = html;
 
     // ── Persistencia en Supabase ──
@@ -455,3 +463,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// ============================================================
+// FUNCIÓN PARA EXPORTAR A PDF
+// ============================================================
+function descargarPDF() {
+    const elemento = document.getElementById('resultado_analisis');
+    if (!elemento) return;
+
+    // 1. Clonar el elemento para modificarlo sin afectar la vista web
+    const clon = elemento.cloneNode(true);
+
+    // 2. Eliminar el botón del PDF para que no se imprima
+    const boton = clon.querySelector('.btn-pdf');
+    if (boton) boton.parentElement.remove();
+
+    // 3. Añadir un título oficial al reporte impreso
+    const cabecera = document.createElement('div');
+    cabecera.innerHTML = `
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 5px;">RadarAPR 📡</h2>
+        <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 20px;">Reporte de Inteligencia Salarial, contacto: alejandromenagahona@gmail.com</h4>
+    `;
+    clon.insertBefore(cabecera, clon.firstChild);
+
+    // 4. Configurar opciones del PDF
+    const opciones = {
+        margin: 15,
+        filename: 'Reporte_Salarial_RadarAPR.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 5. Generar y guardar
+    html2pdf().set(opciones).from(clon).save();
+}
