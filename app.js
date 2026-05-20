@@ -465,41 +465,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
-// FUNCIÓN PARA EXPORTAR A PDF (CORREGIDA)
+// FUNCIÓN PARA EXPORTAR A PDF (VERSIÓN ANTI-BLANCO Y SCROLL BUG)
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
     if (!elemento) return;
 
-    // 1. Ocultar el botón para que no salga en el PDF usando la etiqueta oficial de html2canvas
-    const botonContainer = elemento.querySelector('.btn-pdf').parentElement;
-    if (botonContainer) {
-        botonContainer.setAttribute('data-html2canvas-ignore', 'true');
+    // 1. En lugar de ignorarlo, ocultamos el botón temporalmente con CSS
+    const botonPDF = elemento.querySelector('.btn-pdf');
+    if (botonPDF) botonPDF.style.display = 'none';
+
+    // 2. Inyectamos el título oficial
+    let cabecera = document.getElementById('titulo-temporal-pdf');
+    if (!cabecera) {
+        cabecera = document.createElement('div');
+        cabecera.id = 'titulo-temporal-pdf';
+        cabecera.innerHTML = `
+            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 5px; font-family: Arial, sans-serif;">RadarAPR 📡</h2>
+            <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 20px; font-family: Arial, sans-serif;">Reporte de Inteligencia Salarial</h4>
+        `;
+        elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
-    // 2. Crear y añadir un título oficial temporalmente al reporte
-    const cabecera = document.createElement('div');
-    cabecera.id = 'titulo-temporal-pdf';
-    cabecera.innerHTML = `
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 5px; font-family: sans-serif;">RadarAPR 📡</h2>
-        <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 20px; font-family: sans-serif;">Reporte de Inteligencia Salarial</h4>
-    `;
-    // Insertarlo al principio del div de resultados
-    elemento.insertBefore(cabecera, elemento.firstChild);
-
-    // 3. Configurar opciones del PDF
+    // 3. Opciones con la CORRECCIÓN DEL SCROLL
     const opciones = {
-        margin:       15,
+        margin:       10,
         filename:     'Reporte_Salarial_RadarAPR.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true,
+            scrollY: 0, // <-- ESTO SOLUCIONA EL PDF EN BLANCO
+            scrollX: 0  // <-- ESTO SOLUCIONA EL PDF EN BLANCO
+        },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 4. Generar el PDF y limpiar cuando termine
+    // 4. Generar el PDF y luego restaurar la página a la normalidad
     html2pdf().set(opciones).from(elemento).save().then(() => {
-        // Eliminar el título temporal una vez que la "foto" para el PDF se haya tomado
-        const tempTitle = document.getElementById('titulo-temporal-pdf');
-        if (tempTitle) tempTitle.remove();
+        // Volver a mostrar el botón de descarga en la página web
+        if (botonPDF) botonPDF.style.display = 'block'; // o 'flex' si tuvieras otros estilos
+        // Eliminar el título para que no quede en la web
+        if (cabecera) cabecera.remove();
     });
 }
