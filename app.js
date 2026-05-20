@@ -463,37 +463,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
 // ============================================================
-// FUNCIÓN PARA EXPORTAR A PDF
+// FUNCIÓN PARA EXPORTAR A PDF (CORREGIDA)
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
     if (!elemento) return;
 
-    // 1. Clonar el elemento para modificarlo sin afectar la vista web
-    const clon = elemento.cloneNode(true);
+    // 1. Ocultar el botón para que no salga en el PDF usando la etiqueta oficial de html2canvas
+    const botonContainer = elemento.querySelector('.btn-pdf').parentElement;
+    if (botonContainer) {
+        botonContainer.setAttribute('data-html2canvas-ignore', 'true');
+    }
 
-    // 2. Eliminar el botón del PDF para que no se imprima
-    const boton = clon.querySelector('.btn-pdf');
-    if (boton) boton.parentElement.remove();
-
-    // 3. Añadir un título oficial al reporte impreso
+    // 2. Crear y añadir un título oficial temporalmente al reporte
     const cabecera = document.createElement('div');
+    cabecera.id = 'titulo-temporal-pdf';
     cabecera.innerHTML = `
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 5px;">RadarAPR 📡</h2>
-        <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 20px;">Reporte de Inteligencia Salarial, contacto: alejandromenagahona@gmail.com</h4>
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 5px; font-family: sans-serif;">RadarAPR 📡</h2>
+        <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 20px; font-family: sans-serif;">Reporte de Inteligencia Salarial</h4>
     `;
-    clon.insertBefore(cabecera, clon.firstChild);
+    // Insertarlo al principio del div de resultados
+    elemento.insertBefore(cabecera, elemento.firstChild);
 
-    // 4. Configurar opciones del PDF
+    // 3. Configurar opciones del PDF
     const opciones = {
-        margin: 15,
-        filename: 'Reporte_Salarial_RadarAPR.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin:       15,
+        filename:     'Reporte_Salarial_RadarAPR.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 5. Generar y guardar
-    html2pdf().set(opciones).from(clon).save();
+    // 4. Generar el PDF y limpiar cuando termine
+    html2pdf().set(opciones).from(elemento).save().then(() => {
+        // Eliminar el título temporal una vez que la "foto" para el PDF se haya tomado
+        const tempTitle = document.getElementById('titulo-temporal-pdf');
+        if (tempTitle) tempTitle.remove();
+    });
 }
