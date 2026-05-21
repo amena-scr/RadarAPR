@@ -1,6 +1,5 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión RESTAURADA - FILTROS SIEMPRE VISIBLES, PDF Y TAG MANAGER INTEGRADO
  */
 
 // ============================================================
@@ -17,7 +16,7 @@ const DATABASE = {
         },
         experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
-        trabajadores: { sin_cargo: 1.00, hasta_50: 1.10, hasta_200: 1.20, hasta_500: 1.32, mas_500: 1.45 },
+        trabajadores: { t_1_9: 1.00, t_10_49: 1.10, t_50_199: 1.20, t_200_mas: 1.35 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico: 0.88 },
         zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
@@ -75,8 +74,20 @@ function evaluarOferta() {
         return;
     }
 
-    const formacion = document.getElementById('formacion').value;
-    const region = document.getElementById('region').value;
+    const formacionEl = document.getElementById('formacion');
+    const regionEl = document.getElementById('region');
+    
+    if (!formacionEl || formacionEl.value === "") {
+        alert("⚠️ Por favor, selecciona el Nivel de Formación.");
+        return;
+    }
+    if (!regionEl || regionEl.value === "") {
+        alert("⚠️ Por favor, selecciona la Región del Cargo.");
+        return;
+    }
+
+    const formacion = formacionEl.value;
+    const region = regionEl.value;
     const sueldoOfrecido = Number(sueldoInput.value);
 
     const getVal = id => { const el = document.getElementById(id); return el && el.value !== "" ? el.value : null; };
@@ -131,13 +142,13 @@ function evaluarOferta() {
     mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
     mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
-    const checkFlag = (id, activa, inactiva) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(inactiva); };
-    checkFlag('tarea_bodega', 'Administrar bodega o materiales', '¿Es obligatorio administrar bodega o entregar materiales?');
-    checkFlag('tarea_rrhh', 'Control de asistencia o remuneraciones', '¿Tendré responsabilidades en control de asistencia o RRHH?');
-    checkFlag('tarea_logistica', 'Coordinación logística o despachos', '¿Debo coordinar temas de logística o despachos?');
-    checkFlag('tarea_contabilidad', 'Funciones contables o finanzas', '¿Me asignarán funciones contables o caja chica?');
-    checkFlag('tarea_conduccion', 'Conducción de vehículos empresa', '¿Es requisito conducir vehículos y asumir la responsabilidad civil?');
-    checkFlag('tarea_supervision_op', 'Supervisión de la operación', '¿Seré responsable de supervisar la producción además de mi rol?');
+    const checkFlag = (id, activa, preguntaRec) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(preguntaRec); };
+    checkFlag('tarea_bodega', 'Administrar bodega o materiales', '¿Podría confirmar que no estaré a cargo de administrar la bodega o entregar materiales?');
+    checkFlag('tarea_rrhh', 'Control de asistencia o remuneraciones', '¿Me pueden asegurar que mi rol no incluirá control de asistencia o remuneraciones?');
+    checkFlag('tarea_logistica', 'Coordinación logística o despachos', '¿Habrá responsabilidades de coordinación logística o despachos asignadas a este puesto?');
+    checkFlag('tarea_contabilidad', 'Funciones contables o finanzas', '¿Está contemplado que asuma funciones contables o de tesorería/caja?');
+    checkFlag('tarea_conduccion', 'Conducción de vehículos empresa', '¿Será requisito conducir vehículos de la empresa y asumir responsabilidades civiles adicionales por ello?');
+    checkFlag('tarea_supervision_op', 'Supervisión de la operación', '¿El cargo requiere supervisar la operación productiva además de las labores de prevención?');
 
     const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
@@ -183,28 +194,36 @@ function evaluarOferta() {
     if (redFlags.length > 0) {
         resDiv.style.backgroundColor = '#f8d7da'; resDiv.style.borderLeft = '6px solid #dc3545';
         html += `<hr style="border:none;border-top:1px solid #f5c6cb;margin:12px 0">`;
-        html += `<p style="color:#721c24;margin:0">🚩 <strong>Alerta de Multifuncionalidad (DS N°44):</strong></p>`;
+        html += `<p style="color:#721c24;margin:0;font-weight:bold;">🚩 Funciones que NO corresponden al rol (Alerta):</p>`;
         html += `<ul style="color:#721c24;font-size:0.85rem;margin:6px 0 0 0;padding-left:20px">`;
         redFlags.forEach(f => { html += `<li>${f}</li>`; });
         html += `</ul>`;
     }
 
     const preguntas = [];
+    
+    // Recomendaciones Generales de Entrevista
+    preguntas.push({
+        icono: '💡', pregunta: 'Recomendaciones Estratégicas para la Entrevista',
+        detalle: '• <strong>Prepárate para negociar:</strong> Si la oferta está por debajo, usa estos datos como respaldo de mercado.<br>• <strong>Valora los beneficios extra:</strong> Pregunta por bonos, viáticos, alimentación o seguro de salud que puedan compensar el sueldo base.<br>• <strong>Claridad en el rol:</strong> Asegúrate de que las expectativas de tu cargo estén alineadas estrictamente con la prevención de riesgos (Decreto 44).'
+    });
+
+    // Preguntas estructuradas para el reclutador
     if (redFlagsNoSeleccionadas.length > 0) {
         preguntas.push({
-            icono: '🛡️', pregunta: 'Aclarar límites de tu cargo preventivo',
-            detalle: 'Sugerimos aclarar esto en entrevista:<br><ul style="margin:6px 0 0;padding-left:18px;font-size:0.78rem;color:#444">' +
-                     redFlagsNoSeleccionadas.map(f => `<li>${f}</li>`).join('') + '</ul>'
+            icono: '❓', pregunta: 'Preguntas Clave para el Reclutador',
+            detalle: 'Te sugerimos realizar estas preguntas específicas durante la entrevista para delimitar tus responsabilidades legales y evitar sobrecarga multifuncional:<br><ul style="margin:8px 0 0;padding-left:18px;font-size:0.8rem;color:#444">' +
+                     redFlagsNoSeleccionadas.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('') + '</ul>'
         });
     }
 
     if (preguntas.length > 0) {
         html += `<hr style="border:none;border-top:1px solid #ccc;margin:14px 0">`;
-        html += `<p style="font-size:0.85rem;font-weight:bold;color:#2c3e50;margin:0 0 4px">💬 Preguntas sugeridas para la entrevista</p>`;
+        html += `<p style="font-size:0.9rem;font-weight:bold;color:#2c3e50;margin:0 0 10px">💬 Preparación para tu Entrevista</p>`;
         preguntas.forEach(p => {
-            html += `<div style="background:#f0f4f8;border-left:3px solid #2980b9;border-radius:5px;padding:8px 10px;margin-bottom:7px">
-                        <p style="margin:0;font-size:0.85rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
-                        <p style="margin:4px 0 0;font-size:0.78rem;color:#555">${p.detalle}</p>
+            html += `<div style="background:#f0f4f8;border-left:4px solid #2980b9;border-radius:5px;padding:10px 12px;margin-bottom:10px">
+                        <p style="margin:0;font-size:0.88rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
+                        <p style="margin:6px 0 0;font-size:0.82rem;color:#555;line-height:1.4;">${p.detalle}</p>
                      </div>`;
         });
     }

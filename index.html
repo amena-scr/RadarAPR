@@ -17,7 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* Estilos base y responsivos */
         .seccion-titulo {
             display: block;
             font-weight: bold;
@@ -35,21 +34,9 @@
             box-sizing: border-box;
             margin-bottom: 5px;
         }
-        /* Ajuste específico para agrupar cantidad y unidad */
-        .input-group-duracion { 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
-        }
-        .input-group-duracion input[type="number"] {
-            width: 80px; 
-            text-align: center;
-            margin-bottom: 0;
-        }
-        .input-group-duracion select {
-            flex: 1; 
-            margin-bottom: 0;
-        }
+        .input-group-duracion { display: flex; gap: 10px; align-items: center; }
+        .input-group-duracion input[type="number"] { width: 80px; text-align: center; margin-bottom: 0; }
+        .input-group-duracion select { flex: 1; margin-bottom: 0; }
 
         @media (max-width: 480px) {
             .input-group-duracion { gap: 8px; }
@@ -59,8 +46,7 @@
 </head>
 
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXFLK95L"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXFLK95L" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container">
         <header>
             <h1>RadarAPR 📡</h1>
@@ -74,12 +60,14 @@
 
             <label class="seccion-titulo">Nivel de Formación</label>
             <select id="formacion">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
                 <option value="tecnico">Técnico en Prevención</option>
                 <option value="ingeniero">Ingeniero en Prevención</option>
             </select>
 
             <label class="seccion-titulo">Región del Cargo</label>
             <select id="region">
+                <option value="" selected disabled>-- Seleccione una región --</option>
                 <option value="arica">XV - Arica y Parinacota</option>
                 <option value="tarapaca">I - Tarapacá</option>
                 <option value="antofagasta">II - Antofagasta</option>
@@ -222,11 +210,10 @@
             <label class="seccion-titulo">Trabajadores a Cargo / Dotación</label>
             <select id="trabajadores_cargo">
                 <option value="" selected disabled>-- Seleccione una opción --</option>
-                <option value="sin_cargo">0 a 25 trabajadores</option>
-                <option value="hasta_50">26 a 50 trabajadores</option>
-                <option value="hasta_200">51 a 200 trabajadores</option>
-                <option value="hasta_500">201 a 500 trabajadores</option>
-                <option value="mas_500">Más de 500 trabajadores</option>
+                <option value="t_1_9">1 a 9 trabajadores</option>
+                <option value="t_10_49">10 a 49 trabajadores</option>
+                <option value="t_50_199">50 a 199 trabajadores</option>
+                <option value="t_200_mas">200 o más trabajadores</option>
             </select>
 
             <label class="seccion-titulo">Sector Institucional</label>
@@ -236,17 +223,17 @@
                 <option value="publico">Pública</option>
             </select>
 
-            <label class="seccion-titulo" style="color: var(--danger)">Escáner de Banderas Rojas 🚩</label>
-            <div class="banderas-box" style="background: #fff3cd; padding: 15px; border-radius: 6px; border: 1px solid #ffeeba;">
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_bodega"><label for="tarea_bodega">Administrar bodega o materiales</label></div>
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_rrhh"><label for="tarea_rrhh">Control de asistencia o remuneraciones</label></div>
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_logistica"><label for="tarea_logistica">Coordinación logística o despachos</label></div>
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_contabilidad"><label for="tarea_contabilidad">Funciones contables o de finanzas</label></div>
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_conduccion"><label for="tarea_conduccion">Conducción de vehículos empresa</label></div>
-                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_supervision_op"><label for="tarea_supervision_op">Supervisión de la operación</label></div>
+            <label class="seccion-titulo" style="color: #c0392b; margin-top: 20px;">Funciones que no corresponden a prevencionista</label>
+            <div class="banderas-box" style="background: #fff3cd; padding: 12px 15px; border-radius: 6px; border: 1px solid #ffeeba; font-size: 0.85rem;">
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_bodega" style="width: auto; margin: 0;"><label for="tarea_bodega" style="margin: 0; line-height: 1.1;">Administrar bodega o materiales</label></div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_rrhh" style="width: auto; margin: 0;"><label for="tarea_rrhh" style="margin: 0; line-height: 1.1;">Control de asistencia o remuneraciones</label></div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_logistica" style="width: auto; margin: 0;"><label for="tarea_logistica" style="margin: 0; line-height: 1.1;">Coordinación logística o despachos</label></div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_contabilidad" style="width: auto; margin: 0;"><label for="tarea_contabilidad" style="margin: 0; line-height: 1.1;">Funciones contables o de finanzas</label></div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_conduccion" style="width: auto; margin: 0;"><label for="tarea_conduccion" style="margin: 0; line-height: 1.1;">Conducción de vehículos empresa</label></div>
+                <div style="margin-bottom: 0px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_supervision_op" style="width: auto; margin: 0;"><label for="tarea_supervision_op" style="margin: 0; line-height: 1.1;">Supervisión de la operación</label></div>
             </div>
 
-            <button type="button" class="btn-principal" style="width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; margin-top: 20px; cursor: pointer;" onclick="evaluarOferta()">Analizar Oferta</button>
+            <button type="button" class="btn-principal" style="width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; margin-top: 25px; cursor: pointer;" onclick="evaluarOferta()">Analizar Oferta</button>
 
             <button type="button" style="width: 100%; padding: 12px; background: #e8f4fd; color: #2980b9; border: 1px solid #2980b9; border-radius: 6px; font-weight: bold; font-size: 1rem; margin-top: 15px; cursor: pointer;" onclick="toggleMapa()">
                 🗺️ Ver mapa de ofertas analizadas
