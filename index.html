@@ -5,21 +5,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RadarAPR - Inteligencia Salarial</title>
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TXFLK95L');</script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        .input-group-duracion { display: flex; gap: 10px; align-items: center; }
+        /* Estilos base y responsivos */
+        .seccion-titulo {
+            display: block;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+        /* Ajuste específico para agrupar cantidad y unidad */
+        .input-group-duracion { 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+        }
+        .input-group-duracion input[type="number"] {
+            width: 80px; 
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .input-group-duracion select {
+            flex: 1; 
+            margin-bottom: 0;
+        }
+
         @media (max-width: 480px) {
-            .input-group-duracion { flex-direction: column; gap: 5px !important; }
-            .input-group-duracion input, .input-group-duracion select { width: 100%; margin-bottom: 0; }
+            .input-group-duracion { gap: 8px; }
+            .input-group-duracion input[type="number"] { width: 70px; }
         }
     </style>
 </head>
 
 <body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXFLK95L"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container">
         <header>
             <h1>RadarAPR 📡</h1>
@@ -28,13 +69,16 @@
 
         <main id="app-form">
 
-            <label>Nivel de Formación:</label>
+            <label class="seccion-titulo" style="margin-top: 0;">Sueldo Líquido Ofrecido ($):</label>
+            <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000" style="border: 2px solid #2980b9; background: #f0f8ff;">
+
+            <label class="seccion-titulo">Nivel de Formación</label>
             <select id="formacion">
                 <option value="tecnico">Técnico en Prevención</option>
                 <option value="ingeniero">Ingeniero en Prevención</option>
             </select>
 
-            <label>Región del Cargo:</label>
+            <label class="seccion-titulo">Región del Cargo</label>
             <select id="region">
                 <option value="arica">XV - Arica y Parinacota</option>
                 <option value="tarapaca">I - Tarapacá</option>
@@ -54,169 +98,157 @@
                 <option value="magallanes">XII - Magallanes</option>
             </select>
 
-            <label>Ciudad Específica:</label>
+            <label class="seccion-titulo">Ciudad Específica</label>
             <select id="ciudad">
                 <option value="" selected>Seleccione una ciudad (Opcional)</option>
             </select>
 
-            <label>Sueldo Líquido Ofrecido ($):</label>
-            <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000">
+            <label class="seccion-titulo">Sector Económico</label>
+            <select id="rubro">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <optgroup label="Minería y Energía">
+                    <option value="mineria_cielo_abierto">Minería a Cielo Abierto</option>
+                    <option value="mineria_subterranea">Minería Subterránea</option>
+                    <option value="mineria_salares">Minería No Metálica / Salares</option>
+                    <option value="energias_renovables">Energías Renovables</option>
+                    <option value="petroleo_gas">Petróleo y Gas</option>
+                </optgroup>
+                <optgroup label="Construcción e Infraestructura">
+                    <option value="edificacion_altura">Edificación en Altura</option>
+                    <option value="obras_civiles">Obras Civiles</option>
+                    <option value="montaje_industrial">Montaje Industrial</option>
+                </optgroup>
+                <optgroup label="Logística y Transporte">
+                    <option value="puertos_maritimos">Puertos y Terminales</option>
+                    <option value="transporte_terrestre">Transporte de Carga</option>
+                    <option value="centros_distribucion">Centros de Distribución</option>
+                </optgroup>
+                <optgroup label="Industria y Alimentos">
+                    <option value="agroindustria_pesca">Agroindustria y Pesca</option>
+                    <option value="forestal_madera">Forestal y Madera</option>
+                    <option value="manufactura_consumo">Manufactura de Consumo</option>
+                </optgroup>
+                <optgroup label="Servicios y Retail">
+                    <option value="comercio_retail">Comercio Retail</option>
+                    <option value="salud_educacion">Salud y Educación</option>
+                    <option value="turismo_gastronomia">Turismo y Gastronomía</option>
+                </optgroup>
+            </select>
 
-            <button type="button" class="btn-avanzados"
-                style="display: flex; justify-content: flex-start; align-items: center; gap: 8px; text-align: left;"
-                onclick="toggleAvanzados()">
-                <span id="icon-avanzados">⚙️</span> Detalles del aviso de trabajo
-            </button>
+            <label class="seccion-titulo">Experiencia del Postulante</label>
+            <select id="experiencia">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="junior">0 a 2 años (Junior)</option>
+                <option value="semi_senior">3 a 5 años (Semi-Senior)</option>
+                <option value="senior">Más de 5 años (Senior)</option>
+            </select>
 
-            <div id="seccion_avanzada" style="display: none;">
+            <label class="seccion-titulo">Certificaciones y Experiencia Minera</label>
+            <select id="especializacion">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="ninguna">Sin resolución específica</option>
+                <option value="sns">Resolución Seremi Salud (SNS)</option>
+                <option value="auditor">Auditor Trinorma (ISO 45001/14001/9001)</option>
+                <option value="sernageomin_c">Experto Sernageomin C</option>
+                <option value="sernageomin_b">Experto Sernageomin B</option>
+                <option value="sernageomin_a">Experto Sernageomin A</option>
+            </select>
 
-                <div class="seccion-titulo">Sector Económico</div>
-                <select id="rubro">
+            <select id="exp_mineria" style="margin-top: 5px;">
+                <option value="" selected disabled>-- Experiencia en Minería --</option>
+                <option value="sin_experiencia">Sin experiencia en minería</option>
+                <option value="pequena_mineria">Experiencia en Pequeña Minería / Canteras</option>
+                <option value="mediana_mineria">Experiencia en Mediana Minería</option>
+                <option value="gran_mineria">Experiencia en Gran Minería (Cobre/Litio)</option>
+            </select>
+
+            <label class="seccion-titulo">Tipo de Contrato</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <select id="tipo_contrato" style="flex: 1; margin-bottom: 0;">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <optgroup label="Minería y Energía">
-                        <option value="mineria_cielo_abierto">Minería a Cielo Abierto</option>
-                        <option value="mineria_subterranea">Minería Subterránea</option>
-                        <option value="mineria_salares">Minería No Metálica / Salares</option>
-                        <option value="energias_renovables">Energías Renovables</option>
-                        <option value="petroleo_gas">Petróleo y Gas</option>
-                    </optgroup>
-                    <optgroup label="Construcción e Infraestructura">
-                        <option value="edificacion_altura">Edificación en Altura</option>
-                        <option value="obras_civiles">Obras Civiles</option>
-                        <option value="montaje_industrial">Montaje Industrial</option>
-                    </optgroup>
-                    <optgroup label="Logística y Transporte">
-                        <option value="puertos_maritimos">Puertos y Terminales</option>
-                        <option value="transporte_terrestre">Transporte de Carga</option>
-                        <option value="centros_distribucion">Centros de Distribución</option>
-                    </optgroup>
-                    <optgroup label="Industria y Alimentos">
-                        <option value="agroindustria_pesca">Agroindustria y Pesca</option>
-                        <option value="forestal_madera">Forestal y Madera</option>
-                        <option value="manufactura_consumo">Manufactura de Consumo</option>
-                    </optgroup>
-                    <optgroup label="Servicios y Retail">
-                        <option value="comercio_retail">Comercio Retail</option>
-                        <option value="salud_educacion">Salud y Educación</option>
-                        <option value="turismo_gastronomia">Turismo y Gastronomía</option>
-                    </optgroup>
+                    <option value="indefinido">Contrato Indefinido</option>
+                    <option value="plazo_fijo">Contrato a Plazo Fijo</option>
+                    <option value="obra_faena">Contrato por Obra o Faena</option>
+                    <option value="tiempo_parcial">Contrato a Tiempo Parcial</option>
+                    <option value="teletrabajo">Contrato de Teletrabajo</option>
+                    <option value="temporada">Contrato de Temporada</option>
+                    <option value="honorarios">Contrato de Prestación de Servicios</option>
                 </select>
-
-                <div class="seccion-titulo">Experiencia del Postulante</div>
-                <select id="experiencia">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="junior">0 a 2 años (Junior)</option>
-                    <option value="semi_senior">3 a 5 años (Semi-Senior)</option>
-                    <option value="senior">Más de 5 años (Senior)</option>
-                </select>
-
-                <div class="seccion-titulo">Certificaciones y Experiencia Minera</div>
-                <select id="especializacion">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="ninguna">Sin resolución específica</option>
-                    <option value="sns">Resolución Seremi Salud (SNS)</option>
-                    <option value="auditor">Auditor Trinorma (ISO 45001/14001/9001)</option>
-                    <option value="sernageomin_c">Experto Sernageomin C</option>
-                    <option value="sernageomin_b">Experto Sernageomin B</option>
-                    <option value="sernageomin_a">Experto Sernageomin A</option>
-                </select>
-
-                <select id="exp_mineria" style="margin-top: 10px;">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="sin_experiencia">Sin experiencia en minería</option>
-                    <option value="pequena_mineria">Experiencia en Pequeña Minería / Canteras</option>
-                    <option value="mediana_mineria">Experiencia en Mediana Minería</option>
-                    <option value="gran_mineria">Experiencia en Gran Minería (Cobre/Litio)</option>
-                </select>
-
-                <div class="seccion-titulo">Tipo de Contrato</div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <select id="tipo_contrato" style="flex: 1; margin-bottom: 0;">
-                        <option value="" selected disabled>-- Seleccione una opción --</option>
-                        <option value="indefinido">Contrato Indefinido</option>
-                        <option value="plazo_fijo">Contrato a Plazo Fijo</option>
-                        <option value="obra_faena">Contrato por Obra o Faena</option>
-                        <option value="tiempo_parcial">Contrato a Tiempo Parcial</option>
-                        <option value="teletrabajo">Contrato de Teletrabajo</option>
-                        <option value="temporada">Contrato de Temporada</option>
-                        <option value="honorarios">Contrato de Prestación de Servicios</option>
-                    </select>
-                    <span id="info_contrato" title="Información del contrato" style="cursor: help; font-size: 1.4rem;">ℹ️</span>
-                </div>
-
-                <div class="seccion-titulo" style="margin-top: 15px;">Duración del Servicio a Prestar</div>
-                <div class="input-group-duracion" style="margin-bottom: 5px;">
-                    <input type="number" id="cantidad_duracion" value="1" min="1" placeholder="Ej: 1" style="flex: 1; margin-bottom: 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                    <select id="unidad_duracion" style="flex: 2; margin-bottom: 0;">
-                        <option value="indefinida" selected>Indefinida (Contrato mensual normal)</option>
-                        <option value="horas">Hora(s)</option>
-                        <option value="dias">Día(s)</option>
-                        <option value="semanas">Semana(s)</option>
-                        <option value="meses">Mes(es)</option>
-                        <option value="anos">Año(s)</option>
-                    </select>
-                </div>
-                <p style="font-size: 0.72rem; color: #555; margin: 0 0 15px 0;"><i>*El cálculo total se ajustará al tiempo numérico ingresado.</i></p>
-
-                <div class="seccion-titulo">Jornada y Turnos</div>
-                <select id="turno">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
-                    <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
-                    <option value="un_dia_semana">1 día a la semana</option>
-                    <option value="turno_4x3">Turno 4x3</option>
-                    <option value="turno_nocturno">Turno Nocturno Fijo</option>
-                    <option value="turno_7x7">Turno 7x7 (Faena)</option>
-                    <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
-                    <option value="otra_excepcional">Otra jornada excepcional</option>
-                </select>
-
-                <div class="seccion-titulo">Modalidad y Zona</div>
-                <select id="modalidad">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="oficina">100% Oficina / Administrativo</option>
-                    <option value="mixto">Mixto (Oficina y Terreno)</option>
-                    <option value="terreno">100% Terreno / Faena</option>
-                </select>
-
-                <select id="zona_extrema" style="margin-top: 10px;">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="no_aplica">Zona Geográfica Estándar</option>
-                    <option value="extremo_norte">Zona Extrema Norte (Tarapacá/Antofagasta cordillera)</option>
-                    <option value="extremo_sur">Zona Extrema Sur (Aysén/Magallanes)</option>
-                </select>
-
-                <div class="seccion-titulo">Trabajadores a Cargo / Dotación</div>
-                <select id="trabajadores_cargo">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="sin_cargo">0 a 25 trabajadores</option>
-                    <option value="hasta_50">26 a 50 trabajadores</option>
-                    <option value="hasta_200">51 a 200 trabajadores</option>
-                    <option value="hasta_500">201 a 500 trabajadores</option>
-                    <option value="mas_500">Más de 500 trabajadores</option>
-                </select>
-
-                <div class="seccion-titulo">Sector Institucional</div>
-                <select id="sector">
-                    <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="privado">Privada</option>
-                    <option value="publico">Pública</option>
-                </select>
-
-                <div class="seccion-titulo" style="color: var(--danger)">Escáner de Banderas Rojas 🚩</div>
-                <div class="banderas-box">
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_bodega"><label for="tarea_bodega">Administrar bodega o materiales</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_rrhh"><label for="tarea_rrhh">Control de asistencia o remuneraciones</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_logistica"><label for="tarea_logistica">Coordinación logística o despachos</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_contabilidad"><label for="tarea_contabilidad">Funciones contables o de finanzas</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_conduccion"><label for="tarea_conduccion">Conducción de vehículos empresa</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_supervision_op"><label for="tarea_supervision_op">Supervisión de la operación</label></div>
-                </div>
-
+                <span id="info_contrato" title="Información del contrato" style="cursor: help; font-size: 1.4rem;">ℹ️</span>
             </div>
-            <button type="button" class="btn-principal" onclick="evaluarOferta()">Analizar Oferta</button>
 
-            <button type="button" class="btn-avanzados" style="margin-top: 15px; background: #e8f4fd; border-color: #2980b9; color: #2980b9;" onclick="toggleMapa()">
+            <label class="seccion-titulo">Duración del Servicio a Prestar</label>
+            <div class="input-group-duracion">
+                <input type="number" id="cantidad_duracion" value="1" min="1" placeholder="N°">
+                <select id="unidad_duracion">
+                    <option value="indefinida" selected>Indefinida (Contrato mensual normal)</option>
+                    <option value="horas">Hora(s)</option>
+                    <option value="dias">Día(s)</option>
+                    <option value="semanas">Semana(s)</option>
+                    <option value="meses">Mes(es)</option>
+                    <option value="anos">Año(s)</option>
+                </select>
+            </div>
+            <p style="font-size: 0.72rem; color: #7f8c8d; margin: 2px 0 0 0;"><i>*El cálculo total se ajustará al tiempo ingresado.</i></p>
+
+            <label class="seccion-titulo">Jornada y Turnos</label>
+            <select id="turno">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
+                <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
+                <option value="un_dia_semana">1 día a la semana</option>
+                <option value="turno_4x3">Turno 4x3</option>
+                <option value="turno_nocturno">Turno Nocturno Fijo</option>
+                <option value="turno_7x7">Turno 7x7 (Faena)</option>
+                <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
+                <option value="otra_excepcional">Otra jornada excepcional</option>
+            </select>
+
+            <label class="seccion-titulo">Modalidad y Zona</label>
+            <select id="modalidad">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="oficina">100% Oficina / Administrativo</option>
+                <option value="mixto">Mixto (Oficina y Terreno)</option>
+                <option value="terreno">100% Terreno / Faena</option>
+            </select>
+
+            <select id="zona_extrema" style="margin-top: 5px;">
+                <option value="" selected disabled>-- Zona Geográfica --</option>
+                <option value="no_aplica">Zona Geográfica Estándar</option>
+                <option value="extremo_norte">Zona Extrema Norte (Tarapacá/Antofagasta cordillera)</option>
+                <option value="extremo_sur">Zona Extrema Sur (Aysén/Magallanes)</option>
+            </select>
+
+            <label class="seccion-titulo">Trabajadores a Cargo / Dotación</label>
+            <select id="trabajadores_cargo">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="sin_cargo">0 a 25 trabajadores</option>
+                <option value="hasta_50">26 a 50 trabajadores</option>
+                <option value="hasta_200">51 a 200 trabajadores</option>
+                <option value="hasta_500">201 a 500 trabajadores</option>
+                <option value="mas_500">Más de 500 trabajadores</option>
+            </select>
+
+            <label class="seccion-titulo">Sector Institucional</label>
+            <select id="sector">
+                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="privado">Privada</option>
+                <option value="publico">Pública</option>
+            </select>
+
+            <label class="seccion-titulo" style="color: var(--danger)">Escáner de Banderas Rojas 🚩</label>
+            <div class="banderas-box" style="background: #fff3cd; padding: 15px; border-radius: 6px; border: 1px solid #ffeeba;">
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_bodega"><label for="tarea_bodega">Administrar bodega o materiales</label></div>
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_rrhh"><label for="tarea_rrhh">Control de asistencia o remuneraciones</label></div>
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_logistica"><label for="tarea_logistica">Coordinación logística o despachos</label></div>
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_contabilidad"><label for="tarea_contabilidad">Funciones contables o de finanzas</label></div>
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_conduccion"><label for="tarea_conduccion">Conducción de vehículos empresa</label></div>
+                <div style="margin-bottom: 8px; display: flex; gap: 8px;"><input type="checkbox" id="tarea_supervision_op"><label for="tarea_supervision_op">Supervisión de la operación</label></div>
+            </div>
+
+            <button type="button" class="btn-principal" style="width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; margin-top: 20px; cursor: pointer;" onclick="evaluarOferta()">Analizar Oferta</button>
+
+            <button type="button" style="width: 100%; padding: 12px; background: #e8f4fd; color: #2980b9; border: 1px solid #2980b9; border-radius: 6px; font-weight: bold; font-size: 1rem; margin-top: 15px; cursor: pointer;" onclick="toggleMapa()">
                 🗺️ Ver mapa de ofertas analizadas
             </button>
 
@@ -228,7 +260,7 @@
 
         <section id="resultado_analisis" class="hidden"></section>
 
-        <footer class="footer">
+        <footer class="footer" style="text-align: center; font-size: 0.8rem; color: #7f8c8d; margin-top: 30px;">
             <p>Datos basados en INE 2026 y Normativa Chilena</p>
         </footer>
     </div>

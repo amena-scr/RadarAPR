@@ -1,10 +1,10 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión RESTAURADA ORIGINAL con PDF y Tiempo Custom
+ * Versión RESTAURADA - FILTROS SIEMPRE VISIBLES, PDF Y TAG MANAGER INTEGRADO
  */
 
 // ============================================================
-// BASE DE DATOS TÉCNICA (ORIGINAL)
+// BASE DE DATOS TÉCNICA
 // ============================================================
 const DATABASE = {
     sueldosBase: { tecnico: 750000, ingeniero: 980000 },
@@ -50,14 +50,6 @@ const CIUDADES_POR_REGION = {
     magallanes: [{ val: 'punta_arenas', txt: 'Punta Arenas' }, { val: 'puerto_natales', txt: 'Puerto Natales' }, { val: 'porvenir', txt: 'Porvenir' }, { val: 'cabo_hornos', txt: 'Cabo de Hornos' }]
 };
 
-function toggleAvanzados() {
-    const panel = document.getElementById('seccion_avanzada');
-    const btn = document.querySelector('.btn-avanzados');
-    const open = panel.style.display === 'block';
-    panel.style.display = open ? 'none' : 'block';
-    if (btn) btn.classList.toggle('open', !open);
-}
-
 function actualizarCiudades() {
     const regionSelect = document.getElementById('region');
     const ciudadSelect = document.getElementById('ciudad');
@@ -95,8 +87,6 @@ function evaluarOferta() {
         return el.options[el.selectedIndex].text;
     };
 
-    const avanzadosActivos = document.getElementById('seccion_avanzada').style.display === 'block';
-
     let mBase = DATABASE.sueldosBase[formacion];
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
@@ -110,46 +100,44 @@ function evaluarOferta() {
     let etiquetaDuracion = "Sueldo sugerido (Mensual)";
     let textoFiltroDuracion = "Indefinida / Mensual";
 
-    // NUEVA LÓGICA DE TIEMPOS PERSONALIZADOS
-    if (avanzadosActivos) {
-        const cant = Number(getVal('cantidad_duracion')) || 1;
-        const uni = getVal('unidad_duracion');
+    // LÓGICA DE TIEMPOS PERSONALIZADOS
+    const cant = Number(getVal('cantidad_duracion')) || 1;
+    const uni = getVal('unidad_duracion');
 
-        if (uni !== 'indefinida' && uni !== null) {
-            textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
-            if (uni === 'horas') {
-                mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido por ${cant} hora(s)`; mDuracion = 1.15;
-            } else if (uni === 'dias') {
-                mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido por ${cant} día(s)`; mDuracion = 1.15;
-            } else if (uni === 'semanas') {
-                mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido por ${cant} semana(s)`; mDuracion = 1.10;
-            } else if (uni === 'meses') {
-                mBase = mBase * cant; etiquetaDuracion = `Sugerido por ${cant} mes(es)`; mDuracion = 1.20;
-            } else if (uni === 'anos') {
-                mBase = (mBase * 12) * cant; etiquetaDuracion = `Sugerido por ${cant} año(s)`; mDuracion = 1.00;
-            }
+    if (uni !== 'indefinida' && uni !== null) {
+        textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
+        if (uni === 'horas') {
+            mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido por ${cant} hora(s)`; mDuracion = 1.15;
+        } else if (uni === 'dias') {
+            mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido por ${cant} día(s)`; mDuracion = 1.15;
+        } else if (uni === 'semanas') {
+            mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido por ${cant} semana(s)`; mDuracion = 1.10;
+        } else if (uni === 'meses') {
+            mBase = mBase * cant; etiquetaDuracion = `Sugerido por ${cant} mes(es)`; mDuracion = 1.20;
+        } else if (uni === 'anos') {
+            mBase = (mBase * 12) * cant; etiquetaDuracion = `Sugerido por ${cant} año(s)`; mDuracion = 1.00;
         }
-
-        const rubroVal = getVal('rubro'); bdRubro = rubroVal || 'general'; mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
-        const expVal = getVal('experiencia'); bdExp = expVal || 'general'; mExp = expVal ? (DATABASE.mult.experiencia[expVal] || 1.00) : 1.00;
-        
-        mZona = getVal('zona_extrema') ? (DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00) : 1.00;
-        mContrato = getVal('tipo_contrato') ? (DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00) : 1.00;
-        mTrab = getVal('trabajadores_cargo') ? (DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00) : 1.00;
-        mModalidad = getVal('modalidad') ? (DATABASE.mult.modalidad[getVal('modalidad')] || 1.00) : 1.00;
-        mSector = getVal('sector') ? (DATABASE.mult.sector[getVal('sector')] || 1.00) : 1.00;
-        mTurno = getVal('turno') ? (DATABASE.mult.turno[getVal('turno')] || 1.00) : 1.00;
-        mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
-        mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
-
-        const checkFlag = (id, activa, inactiva) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(inactiva); };
-        checkFlag('tarea_bodega', 'Administrar bodega o materiales', '¿Es obligatorio administrar bodega o entregar materiales?');
-        checkFlag('tarea_rrhh', 'Control de asistencia o remuneraciones', '¿Tendré responsabilidades en control de asistencia o RRHH?');
-        checkFlag('tarea_logistica', 'Coordinación logística o despachos', '¿Debo coordinar temas de logística o despachos?');
-        checkFlag('tarea_contabilidad', 'Funciones contables o finanzas', '¿Me asignarán funciones contables o caja chica?');
-        checkFlag('tarea_conduccion', 'Conducción de vehículos empresa', '¿Es requisito conducir vehículos y asumir la responsabilidad civil?');
-        checkFlag('tarea_supervision_op', 'Supervisión de la operación', '¿Seré responsable de supervisar la producción además de mi rol?');
     }
+
+    const rubroVal = getVal('rubro'); bdRubro = rubroVal || 'general'; mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
+    const expVal = getVal('experiencia'); bdExp = expVal || 'general'; mExp = expVal ? (DATABASE.mult.experiencia[expVal] || 1.00) : 1.00;
+    
+    mZona = getVal('zona_extrema') ? (DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00) : 1.00;
+    mContrato = getVal('tipo_contrato') ? (DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00) : 1.00;
+    mTrab = getVal('trabajadores_cargo') ? (DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00) : 1.00;
+    mModalidad = getVal('modalidad') ? (DATABASE.mult.modalidad[getVal('modalidad')] || 1.00) : 1.00;
+    mSector = getVal('sector') ? (DATABASE.mult.sector[getVal('sector')] || 1.00) : 1.00;
+    mTurno = getVal('turno') ? (DATABASE.mult.turno[getVal('turno')] || 1.00) : 1.00;
+    mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
+    mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
+
+    const checkFlag = (id, activa, inactiva) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(inactiva); };
+    checkFlag('tarea_bodega', 'Administrar bodega o materiales', '¿Es obligatorio administrar bodega o entregar materiales?');
+    checkFlag('tarea_rrhh', 'Control de asistencia o remuneraciones', '¿Tendré responsabilidades en control de asistencia o RRHH?');
+    checkFlag('tarea_logistica', 'Coordinación logística o despachos', '¿Debo coordinar temas de logística o despachos?');
+    checkFlag('tarea_contabilidad', 'Funciones contables o finanzas', '¿Me asignarán funciones contables o caja chica?');
+    checkFlag('tarea_conduccion', 'Conducción de vehículos empresa', '¿Es requisito conducir vehículos y asumir la responsabilidad civil?');
+    checkFlag('tarea_supervision_op', 'Supervisión de la operación', '¿Seré responsable de supervisar la producción además de mi rol?');
 
     const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
@@ -175,17 +163,15 @@ function evaluarOferta() {
     html += `<li><strong>Formación:</strong> ${getSelectedText('formacion')}</li>`;
     html += `<li><strong>Región:</strong> ${getSelectedText('region')}</li>`;
     html += `<li><strong>Ciudad:</strong> ${getSelectedText('ciudad')}</li>`;
-    if (avanzadosActivos) {
-        html += `<li><strong>Duración:</strong> ${textoFiltroDuracion}</li>`;
-        html += `<li><strong>Sector:</strong> ${getSelectedText('rubro')}</li>`;
-        html += `<li><strong>Experiencia:</strong> ${getSelectedText('experiencia')}</li>`;
-        html += `<li><strong>Contrato:</strong> ${getSelectedText('tipo_contrato')}</li>`;
-        html += `<li><strong>Modalidad:</strong> ${getSelectedText('modalidad')}</li>`;
-        html += `<li><strong>Turno:</strong> ${getSelectedText('turno')}</li>`;
-        html += `<li><strong>Especialización:</strong> ${getSelectedText('especializacion')}</li>`;
-        html += `<li><strong>Exp. Minería:</strong> ${getSelectedText('exp_mineria')}</li>`;
-        html += `<li><strong>Dotación:</strong> ${getSelectedText('trabajadores_cargo')}</li>`;
-    }
+    html += `<li><strong>Duración:</strong> ${textoFiltroDuracion}</li>`;
+    html += `<li><strong>Sector:</strong> ${getSelectedText('rubro')}</li>`;
+    html += `<li><strong>Experiencia:</strong> ${getSelectedText('experiencia')}</li>`;
+    html += `<li><strong>Contrato:</strong> ${getSelectedText('tipo_contrato')}</li>`;
+    html += `<li><strong>Modalidad:</strong> ${getSelectedText('modalidad')}</li>`;
+    html += `<li><strong>Turno:</strong> ${getSelectedText('turno')}</li>`;
+    html += `<li><strong>Especialización:</strong> ${getSelectedText('especializacion')}</li>`;
+    html += `<li><strong>Exp. Minería:</strong> ${getSelectedText('exp_mineria')}</li>`;
+    html += `<li><strong>Dotación:</strong> ${getSelectedText('trabajadores_cargo')}</li>`;
     html += `</ul>`;
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
@@ -204,10 +190,7 @@ function evaluarOferta() {
     }
 
     const preguntas = [];
-    if (!avanzadosActivos) {
-        preguntas.push({ icono: '📄', pregunta: '¿Cuál es el tipo de contrato, jornada y sistema de turnos?', detalle: 'Condiciones esporádicas justifican valores mayores.' });
-    }
-    if (avanzadosActivos && redFlagsNoSeleccionadas.length > 0) {
+    if (redFlagsNoSeleccionadas.length > 0) {
         preguntas.push({
             icono: '🛡️', pregunta: 'Aclarar límites de tu cargo preventivo',
             detalle: 'Sugerimos aclarar esto en entrevista:<br><ul style="margin:6px 0 0;padding-left:18px;font-size:0.78rem;color:#444">' +
@@ -234,7 +217,16 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // Conexión Supabase (ORIGINAL INTACTA)
+    // EVENTO GOOGLE TAG MANAGER: Analizar Oferta
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+        'event': 'analisis_realizado',
+        'formacion': formacion,
+        'region': getSelectedText('region'),
+        'sueldo_ofrecido': sueldoOfrecido
+    });
+
+    // Conexión Supabase
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
         window.supabaseClient.from('consultas_salariales').insert([{
@@ -286,30 +278,30 @@ function descargarPDF() {
         if (botonPDF) botonPDF.style.display = 'block'; 
         if (cabecera) cabecera.remove();
         elemento.style.backgroundColor = colorFondoOriginal; 
+        
+        // EVENTO GOOGLE TAG MANAGER: Descargar PDF
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            'event': 'descarga_pdf_reporte'
+        });
     });
 }
 
 // ============================================================
-// EVENTOS ADICIONALES ORIGINALES (MAPA Y CIUDADES INTACTOS)
+// EVENTOS INICIALES (CIUDADES Y MAPA)
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Llenar ciudades al cargar e interceptar el cambio de región
     const regionSelect = document.getElementById('region');
     if (regionSelect) {
         regionSelect.addEventListener('change', actualizarCiudades);
         actualizarCiudades();
     }
 
-    // 2. Lógica para actualizar el tooltip del Tipo de Contrato
     const contratoSelect = document.getElementById('tipo_contrato');
     const infoIcon = document.getElementById('info_contrato');
     if (contratoSelect && infoIcon) {
         contratoSelect.addEventListener('change', () => {
-            if (INFO_CONTRATOS[contratoSelect.value]) {
-                infoIcon.title = INFO_CONTRATOS[contratoSelect.value];
-            } else {
-                infoIcon.title = "Información del contrato";
-            }
+            infoIcon.title = INFO_CONTRATOS[contratoSelect.value] ? INFO_CONTRATOS[contratoSelect.value] : "Información del contrato";
         });
         infoIcon.addEventListener('click', () => {
             const desc = INFO_CONTRATOS[contratoSelect.value];
@@ -317,7 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Lógica para el mapa al cambiar ciudad
     const ciudadSelect = document.getElementById('ciudad');
     if (ciudadSelect) {
         ciudadSelect.addEventListener('change', () => {
