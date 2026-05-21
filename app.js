@@ -218,6 +218,9 @@ function evaluarOferta() {
     }
 
     if (preguntas.length > 0) {
+        // === SALTO DE PÁGINA PARA QUE EL PDF NO LO CORTE ===
+        html += `<div class="html2pdf__page-break"></div>`; 
+        
         html += `<hr style="border:none;border-top:1px solid #ccc;margin:14px 0">`;
         html += `<p style="font-size:0.9rem;font-weight:bold;color:#2c3e50;margin:0 0 10px">💬 Preparación para tu Entrevista</p>`;
         preguntas.forEach(p => {
@@ -260,7 +263,7 @@ function evaluarOferta() {
 }
 
 // ============================================================
-// EXPORTADOR A PDF (FECHA, HORA Y FONDO BLANCO)
+// EXPORTADOR A PDF (CONFIGURADO CON PAGINACIÓN INTELIGENTE)
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
@@ -285,10 +288,12 @@ function descargarPDF() {
         elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
+    // === AQUÍ ACTIVAMOS LA PAGINACIÓN Y LOS MÁRGENES (pagebreak) ===
     const opciones = {
-        margin:       10,
+        margin:       [10, 10, 10, 10], // Margen arriba, izquierda, abajo, derecha
         filename:     'Reporte_Salarial_RadarAPR.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }, // Evita que corte el texto a la mitad
         html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0, backgroundColor: '#ffffff' },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
