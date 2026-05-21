@@ -11,92 +11,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* ESTILOS RESPONSIVOS GARANTIZADOS */
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        select, input[type="number"], input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        .seccion-titulo {
-            font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        .btn-principal {
-            background-color: #27ae60;
-            color: white;
-            margin-top: 20px;
-        }
-        .btn-avanzados {
-            background-color: #e8f4fd;
-            color: #2980b9;
-            border: 1px solid #2980b9;
-        }
-        .banderas-box {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #ffeeba;
-        }
-        .checkbox-item {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        .checkbox-item input {
-            margin-top: 3px;
-            width: auto;
-        }
-        /* Ajustes para móviles */
+        .input-group-duracion { display: flex; gap: 10px; align-items: center; }
         @media (max-width: 480px) {
-            .container { padding: 15px; }
-            h1 { font-size: 1.5rem; }
-            .subtitle { font-size: 0.9rem; }
-            .input-group-duracion { flex-direction: column; gap: 0 !important; }
-            .input-group-duracion select { margin-top: 5px; }
+            .input-group-duracion { flex-direction: column; gap: 5px !important; }
+            .input-group-duracion input, .input-group-duracion select { width: 100%; margin-bottom: 0; }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <header style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: #2c3e50; margin-bottom: 5px;">RadarAPR 📡</h1>
-            <p class="subtitle" style="color: #7f8c8d; margin-top: 0;">Estima el sueldo de una oferta laboral y prepárate para negociar</p>
+        <header>
+            <h1>RadarAPR 📡</h1>
+            <p class="subtitle">Estima el sueldo de una oferta laboral y te prepara para negociar la entrevista</p>
         </header>
 
         <main id="app-form">
+
             <label>Nivel de Formación:</label>
             <select id="formacion">
                 <option value="tecnico">Técnico en Prevención</option>
@@ -108,9 +39,20 @@
                 <option value="arica">XV - Arica y Parinacota</option>
                 <option value="tarapaca">I - Tarapacá</option>
                 <option value="antofagasta">II - Antofagasta</option>
-                <option value="metropolitana" selected>RM - Región Metropolitana</option>
+                <option value="atacama">III - Atacama</option>
+                <option value="coquimbo">IV - Coquimbo</option>
                 <option value="valparaiso">V - Valparaíso</option>
-                </select>
+                <option value="metropolitana">RM - Región Metropolitana</option>
+                <option value="ohiggins">VI - O'Higgins</option>
+                <option value="maule">VII - Maule</option>
+                <option value="nuble">XVI - Ñuble</option>
+                <option value="biobio">VIII - Biobío</option>
+                <option value="araucania">IX - Araucanía</option>
+                <option value="los_rios">XIV - Los Ríos</option>
+                <option value="los_lagos">X - Los Lagos</option>
+                <option value="aysen">XI - Aysén</option>
+                <option value="magallanes">XII - Magallanes</option>
+            </select>
 
             <label>Ciudad Específica:</label>
             <select id="ciudad">
@@ -120,19 +62,44 @@
             <label>Sueldo Líquido Ofrecido ($):</label>
             <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000">
 
-            <button type="button" class="btn-avanzados" onclick="toggleAvanzados()" style="display: flex; justify-content: flex-start; align-items: center; gap: 8px;">
-                <span id="icon-avanzados">⚙️</span> Configuración Avanzada y Red Flags
+            <button type="button" class="btn-avanzados"
+                style="display: flex; justify-content: flex-start; align-items: center; gap: 8px; text-align: left;"
+                onclick="toggleAvanzados()">
+                <span id="icon-avanzados">⚙️</span> Detalles del aviso de trabajo
             </button>
 
-            <div id="seccion_avanzada" style="display: none; margin-top: 15px;">
+            <div id="seccion_avanzada" style="display: none;">
 
                 <div class="seccion-titulo">Sector Económico</div>
                 <select id="rubro">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="mineria_cielo_abierto">Minería a Cielo Abierto</option>
-                    <option value="obras_civiles">Obras Civiles y Construcción</option>
-                    <option value="comercio_retail">Comercio Retail y Servicios</option>
-                    <option value="salud_educacion">Salud y Educación</option>
+                    <optgroup label="Minería y Energía">
+                        <option value="mineria_cielo_abierto">Minería a Cielo Abierto</option>
+                        <option value="mineria_subterranea">Minería Subterránea</option>
+                        <option value="mineria_salares">Minería No Metálica / Salares</option>
+                        <option value="energias_renovables">Energías Renovables</option>
+                        <option value="petroleo_gas">Petróleo y Gas</option>
+                    </optgroup>
+                    <optgroup label="Construcción e Infraestructura">
+                        <option value="edificacion_altura">Edificación en Altura</option>
+                        <option value="obras_civiles">Obras Civiles</option>
+                        <option value="montaje_industrial">Montaje Industrial</option>
+                    </optgroup>
+                    <optgroup label="Logística y Transporte">
+                        <option value="puertos_maritimos">Puertos y Terminales</option>
+                        <option value="transporte_terrestre">Transporte de Carga</option>
+                        <option value="centros_distribucion">Centros de Distribución</option>
+                    </optgroup>
+                    <optgroup label="Industria y Alimentos">
+                        <option value="agroindustria_pesca">Agroindustria y Pesca</option>
+                        <option value="forestal_madera">Forestal y Madera</option>
+                        <option value="manufactura_consumo">Manufactura de Consumo</option>
+                    </optgroup>
+                    <optgroup label="Servicios y Retail">
+                        <option value="comercio_retail">Comercio Retail</option>
+                        <option value="salud_educacion">Salud y Educación</option>
+                        <option value="turismo_gastronomia">Turismo y Gastronomía</option>
+                    </optgroup>
                 </select>
 
                 <div class="seccion-titulo">Experiencia del Postulante</div>
@@ -143,18 +110,43 @@
                     <option value="senior">Más de 5 años (Senior)</option>
                 </select>
 
-                <div class="seccion-titulo">Tipo de Contrato</div>
-                <select id="tipo_contrato">
+                <div class="seccion-titulo">Certificaciones y Experiencia Minera</div>
+                <select id="especializacion">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
-                    <option value="indefinido">Contrato Indefinido</option>
-                    <option value="plazo_fijo">Contrato a Plazo Fijo</option>
-                    <option value="obra_faena">Contrato por Obra o Faena</option>
-                    <option value="honorarios">Prestación de Servicios (Honorarios)</option>
+                    <option value="ninguna">Sin resolución específica</option>
+                    <option value="sns">Resolución Seremi Salud (SNS)</option>
+                    <option value="auditor">Auditor Trinorma (ISO 45001/14001/9001)</option>
+                    <option value="sernageomin_c">Experto Sernageomin C</option>
+                    <option value="sernageomin_b">Experto Sernageomin B</option>
+                    <option value="sernageomin_a">Experto Sernageomin A</option>
                 </select>
 
-                <div class="seccion-titulo">Duración del Servicio a Prestar</div>
-                <div class="input-group-duracion" style="display: flex; gap: 10px;">
-                    <input type="number" id="cantidad_duracion" value="1" min="1" placeholder="Ej: 1" style="flex: 1; margin-bottom: 0;">
+                <select id="exp_mineria" style="margin-top: 10px;">
+                    <option value="" selected disabled>-- Seleccione una opción --</option>
+                    <option value="sin_experiencia">Sin experiencia en minería</option>
+                    <option value="pequena_mineria">Experiencia en Pequeña Minería / Canteras</option>
+                    <option value="mediana_mineria">Experiencia en Mediana Minería</option>
+                    <option value="gran_mineria">Experiencia en Gran Minería (Cobre/Litio)</option>
+                </select>
+
+                <div class="seccion-titulo">Tipo de Contrato</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <select id="tipo_contrato" style="flex: 1; margin-bottom: 0;">
+                        <option value="" selected disabled>-- Seleccione una opción --</option>
+                        <option value="indefinido">Contrato Indefinido</option>
+                        <option value="plazo_fijo">Contrato a Plazo Fijo</option>
+                        <option value="obra_faena">Contrato por Obra o Faena</option>
+                        <option value="tiempo_parcial">Contrato a Tiempo Parcial</option>
+                        <option value="teletrabajo">Contrato de Teletrabajo</option>
+                        <option value="temporada">Contrato de Temporada</option>
+                        <option value="honorarios">Contrato de Prestación de Servicios</option>
+                    </select>
+                    <span id="info_contrato" title="Información del contrato" style="cursor: help; font-size: 1.4rem;">ℹ️</span>
+                </div>
+
+                <div class="seccion-titulo" style="margin-top: 15px;">Duración del Servicio a Prestar</div>
+                <div class="input-group-duracion" style="margin-bottom: 5px;">
+                    <input type="number" id="cantidad_duracion" value="1" min="1" placeholder="Ej: 1" style="flex: 1; margin-bottom: 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
                     <select id="unidad_duracion" style="flex: 2; margin-bottom: 0;">
                         <option value="indefinida" selected>Indefinida (Contrato mensual normal)</option>
                         <option value="horas">Hora(s)</option>
@@ -164,38 +156,81 @@
                         <option value="anos">Año(s)</option>
                     </select>
                 </div>
-                <p style="font-size: 0.75rem; color: #7f8c8d; margin-top: 5px;">*El cálculo total se ajustará al tiempo ingresado.</p>
+                <p style="font-size: 0.72rem; color: #555; margin: 0 0 15px 0;"><i>*El cálculo total se ajustará al tiempo numérico ingresado.</i></p>
 
                 <div class="seccion-titulo">Jornada y Turnos</div>
                 <select id="turno">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
                     <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
-                    <option value="turno_7x7">Turno 7x7 (Faena)</option>
+                    <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
+                    <option value="un_dia_semana">1 día a la semana</option>
+                    <option value="turno_4x3">Turno 4x3</option>
                     <option value="turno_nocturno">Turno Nocturno Fijo</option>
+                    <option value="turno_7x7">Turno 7x7 (Faena)</option>
+                    <option value="turno_14x14">Turno 14x14 (Faena Extrema)</option>
+                    <option value="otra_excepcional">Otra jornada excepcional</option>
                 </select>
 
                 <div class="seccion-titulo">Modalidad y Zona</div>
                 <select id="modalidad">
                     <option value="" selected disabled>-- Seleccione una opción --</option>
                     <option value="oficina">100% Oficina / Administrativo</option>
+                    <option value="mixto">Mixto (Oficina y Terreno)</option>
                     <option value="terreno">100% Terreno / Faena</option>
                 </select>
 
-                <div class="seccion-titulo" style="color: #c0392b;">Escáner de Banderas Rojas 🚩</div>
+                <select id="zona_extrema" style="margin-top: 10px;">
+                    <option value="" selected disabled>-- Seleccione una opción --</option>
+                    <option value="no_aplica">Zona Geográfica Estándar</option>
+                    <option value="extremo_norte">Zona Extrema Norte (Tarapacá/Antofagasta cordillera)</option>
+                    <option value="extremo_sur">Zona Extrema Sur (Aysén/Magallanes)</option>
+                </select>
+
+                <div class="seccion-titulo">Trabajadores a Cargo / Dotación</div>
+                <select id="trabajadores_cargo">
+                    <option value="" selected disabled>-- Seleccione una opción --</option>
+                    <option value="sin_cargo">0 a 25 trabajadores</option>
+                    <option value="hasta_50">26 a 50 trabajadores</option>
+                    <option value="hasta_200">51 a 200 trabajadores</option>
+                    <option value="hasta_500">201 a 500 trabajadores</option>
+                    <option value="mas_500">Más de 500 trabajadores</option>
+                </select>
+
+                <div class="seccion-titulo">Sector Institucional</div>
+                <select id="sector">
+                    <option value="" selected disabled>-- Seleccione una opción --</option>
+                    <option value="privado">Privada</option>
+                    <option value="publico">Pública</option>
+                </select>
+
+                <div class="seccion-titulo" style="color: var(--danger)">Escáner de Banderas Rojas 🚩</div>
                 <div class="banderas-box">
                     <div class="checkbox-item"><input type="checkbox" id="tarea_bodega"><label for="tarea_bodega">Administrar bodega o materiales</label></div>
                     <div class="checkbox-item"><input type="checkbox" id="tarea_rrhh"><label for="tarea_rrhh">Control de asistencia o remuneraciones</label></div>
                     <div class="checkbox-item"><input type="checkbox" id="tarea_logistica"><label for="tarea_logistica">Coordinación logística o despachos</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_contabilidad"><label for="tarea_contabilidad">Funciones contables o finanzas</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_conduccion"><label for="tarea_conduccion">Conducir vehículos empresa</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="tarea_supervision_op"><label for="tarea_supervision_op">Supervisión de operación</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="tarea_contabilidad"><label for="tarea_contabilidad">Funciones contables o de finanzas</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="tarea_conduccion"><label for="tarea_conduccion">Conducción de vehículos empresa</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="tarea_supervision_op"><label for="tarea_supervision_op">Supervisión de la operación</label></div>
                 </div>
+
+            </div>
+            <button type="button" class="btn-principal" onclick="evaluarOferta()">Analizar Oferta</button>
+
+            <button type="button" class="btn-avanzados" style="margin-top: 15px; background: #e8f4fd; border-color: #2980b9; color: #2980b9;" onclick="toggleMapa()">
+                🗺️ Ver mapa de ofertas analizadas
+            </button>
+
+            <div id="contenedor_mapa" style="display: none; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 1.5px solid #d0e1f0;">
+                <div id="mapa-radar" style="height: 350px; width: 100%;"></div>
             </div>
 
-            <button type="button" class="btn-principal" onclick="evaluarOferta()">Analizar Oferta</button>
         </main>
 
-        <section id="resultado_analisis" style="display: none;"></section>
+        <section id="resultado_analisis" class="hidden"></section>
+
+        <footer class="footer">
+            <p>Datos basados en INE 2026 y Normativa Chilena</p>
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
