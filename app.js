@@ -1,6 +1,5 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión COMPACTA - ZONA EXTREMA AUTOMÁTICA Y AJUSTE DE MESES
  */
 
 // ============================================================
@@ -65,7 +64,8 @@ function actualizarCiudades() {
     const ciudadSelect = document.getElementById('ciudad');
     if (!regionSelect || !ciudadSelect) return;
     const region = regionSelect.value;
-    ciudadSelect.innerHTML = '<option value="" selected>Seleccione una ciudad (Opcional)</option>';
+    // Eliminado el texto (Opcional)
+    ciudadSelect.innerHTML = '<option value="" selected>Seleccione una ciudad</option>';
     if (CIUDADES_POR_REGION[region]) {
         CIUDADES_POR_REGION[region].forEach(c => {
             const opt = document.createElement('option');
@@ -115,7 +115,7 @@ function evaluarOferta() {
         return el.options[el.selectedIndex].text;
     };
 
-    // CONVERSIÓN A LÍQUIDO: Tomamos la base bruta de MiFuturo y aplicamos ~20% de descuento legal
+    // CONVERSIÓN A LÍQUIDO
     let mBase = DATABASE.sueldosBase[formacion][experiencia] * 0.80; 
     
     const mRegion = DATABASE.mult.region[region] || 1.00;
@@ -123,7 +123,7 @@ function evaluarOferta() {
     let mRubro = 1.00, mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mSector = 1.00;
     let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00, mDuracion = 1.00;
 
-    // LÓGICA AUTOMÁTICA DE ZONA EXTREMA (Sin botón HTML)
+    // LÓGICA AUTOMÁTICA DE ZONA EXTREMA
     let mZona = 1.00;
     let textoZona = "Estándar";
     if (['aysen', 'magallanes'].includes(region)) {
@@ -146,7 +146,6 @@ function evaluarOferta() {
     if (uni !== 'indefinida' && uni !== null) {
         textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
         
-        // CORRECCIÓN: Si es meses o años, NO SE MULTIPLICA por la cantidad de meses, se entrega el valor de 1 mes.
         if (uni === 'horas') { 
             mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} hora(s)`; mDuracion = 1.15; 
         } else if (uni === 'dias') { 
@@ -202,7 +201,7 @@ function evaluarOferta() {
     html += `<li><strong>Formación:</strong> ${getSelectedText('formacion')}</li>`;
     html += `<li><strong>Región:</strong> ${getSelectedText('region')}</li>`;
     html += `<li><strong>Ciudad:</strong> ${getSelectedText('ciudad')}</li>`;
-    if (mZona !== 1.00) html += `<li><strong>Zona:</strong> ${textoZona}</li>`; // Muestra en el reporte si la detectó
+    if (mZona !== 1.00) html += `<li><strong>Zona:</strong> ${textoZona}</li>`;
     html += `<li><strong>Duración:</strong> ${textoFiltroDuracion}</li>`;
     html += `<li><strong>Sector:</strong> ${getSelectedText('rubro')}</li>`;
     html += `<li><strong>Experiencia:</strong> ${getSelectedText('experiencia')}</li>`;
@@ -303,7 +302,7 @@ function descargarPDF() {
         cabecera = document.createElement('div');
         cabecera.id = 'titulo-temporal-pdf';
         cabecera.innerHTML = `
-            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 2px; font-family: Arial, sans-serif; font-size: 1.2rem;">RadarAPR 📡</h2>
+            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 2px; font-family: Arial, sans-serif; font-size: 1.2rem;">Radar<span style="font-size: 0.85em; color: #e74c3c;">APR</span> 📡</h2>
             <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 2px; font-family: Arial, sans-serif; font-size: 0.9rem;">Reporte de Inteligencia Salarial</h4>
             <p style="color: #95a5a6; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 0.75rem; font-family: Arial, sans-serif;">Análisis generado el: ${fechaActual}</p>
         `;

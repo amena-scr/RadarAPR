@@ -49,14 +49,14 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXFLK95L" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container">
         <header>
-            <h1>RadarAPR 📡</h1>
+            <h1 style="color: #2c3e50;">Radar<span style="font-size: 0.8em; color: #e74c3c;">APR</span> 📡</h1>
             <p class="subtitle">Estima el sueldo de una oferta laboral y te prepara para negociar la entrevista</p>
         </header>
 
         <main id="app-form">
 
             <label class="seccion-titulo" style="margin-top: 0;">Sueldo Líquido Ofrecido ($):</label>
-            <input type="number" id="sueldo_ofrecido" placeholder="" style="border: 2px solid #2980b9; background: #f0f8ff;">
+            <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000" style="border: 2px solid #2980b9; background: #f0f8ff;">
 
             <label class="seccion-titulo">Nivel de formación requerida</label>
             <select id="formacion">
@@ -114,7 +114,7 @@
 
             <label class="seccion-titulo">Ciudad Específica</label>
             <select id="ciudad">
-                <option value="" selected>Seleccione una ciudad (Opcional)</option>
+                <option value="" selected>Seleccione una ciudad</option>
             </select>
 
             <label class="seccion-titulo">Sector Económico</label>
@@ -215,8 +215,8 @@
                 <option value="t_200_mas">200 o más trabajadores</option>
             </select>
 
-            <label class="seccion-titulo" style="color: #c0392b; margin-top: 20px;">Atento si te piden estas funciones</label>
-            <div class="banderas-box" style="background: #fff3cd; padding: 12px 15px; border-radius: 6px; border: 1px solid #ffeeba; font-size: 0.85rem;">
+            <label class="seccion-titulo" style="color: #2c3e50; margin-top: 20px;">Marca si alguna de estas funciones se mencionan en la oferta laboral o entrevista.</label>
+            <div class="banderas-box" style="background: #f0f8ff; padding: 12px 15px; border-radius: 6px; border: 2px solid #2980b9; font-size: 0.85rem;">
                 <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_bodega" style="width: auto; margin: 0;"><label for="tarea_bodega" style="margin: 0; line-height: 1.1;">Administrar bodega o materiales</label></div>
                 <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_rrhh" style="width: auto; margin: 0;"><label for="tarea_rrhh" style="margin: 0; line-height: 1.1;">Control de asistencia o remuneraciones</label></div>
                 <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_logistica" style="width: auto; margin: 0;"><label for="tarea_logistica" style="margin: 0; line-height: 1.1;">Coordinación logística o despachos</label></div>
