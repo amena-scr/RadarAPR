@@ -56,16 +56,16 @@
         <main id="app-form">
 
             <label class="seccion-titulo" style="margin-top: 0;">Sueldo Líquido Ofrecido ($):</label>
-            <input type="number" id="sueldo_ofrecido" placeholder="" style="border: 2px solid #2980b9; background: #f0f8ff;">
+            <input type="number" id="sueldo_ofrecido" placeholder="Ej: 950000" style="border: 2px solid #2980b9; background: #f0f8ff;">
 
-            <label class="seccion-titulo">Nivel de Formación</label>
+            <label class="seccion-titulo">Nivel de formación requerida</label>
             <select id="formacion">
                 <option value="" selected disabled>-- Seleccione una opción --</option>
                 <option value="tecnico">Técnico en Prevención</option>
                 <option value="ingeniero">Ingeniero en Prevención</option>
             </select>
 
-            <label class="seccion-titulo">Región del Cargo</label>
+            <label class="seccion-titulo">Región de la oferta</label>
             <select id="region">
                 <option value="" selected disabled>-- Seleccione una región --</option>
                 <option value="arica">XV - Arica y Parinacota</option>
@@ -106,15 +106,16 @@
                     <option value="obras_civiles">Obras Civiles</option>
                     <option value="montaje_industrial">Montaje Industrial</option>
                 </optgroup>
+                <optgroup label="Industria y Laboratorios">
+                    <option value="laboratorio_quimico">Laboratorio Químico y Muestrera</option>
+                    <option value="agroindustria_pesca">Agroindustria y Pesca</option>
+                    <option value="forestal_madera">Forestal y Madera</option>
+                    <option value="manufactura_consumo">Manufactura de Consumo</option>
+                </optgroup>
                 <optgroup label="Logística y Transporte">
                     <option value="puertos_maritimos">Puertos y Terminales</option>
                     <option value="transporte_terrestre">Transporte de Carga</option>
                     <option value="centros_distribucion">Centros de Distribución</option>
-                </optgroup>
-                <optgroup label="Industria y Alimentos">
-                    <option value="agroindustria_pesca">Agroindustria y Pesca</option>
-                    <option value="forestal_madera">Forestal y Madera</option>
-                    <option value="manufactura_consumo">Manufactura de Consumo</option>
                 </optgroup>
                 <optgroup label="Servicios y Retail">
                     <option value="comercio_retail">Comercio Retail</option>
@@ -123,7 +124,7 @@
                 </optgroup>
             </select>
 
-            <label class="seccion-titulo">Experiencia del Postulante</label>
+            <label class="seccion-titulo">Experiencia requerida</label>
             <select id="experiencia">
                 <option value="" selected disabled>-- Seleccione una opción --</option>
                 <option value="junior">0 a 2 años (Junior)</option>
@@ -177,13 +178,14 @@
                     <option value="anos">Año(s)</option>
                 </select>
             </div>
-            <p style="font-size: 0.72rem; color: #7f8c8d; margin: 2px 0 0 0;"><i>*El cálculo total se ajustará al tiempo ingresado.</i></p>
+            <p style="font-size: 0.72rem; color: #7f8c8d; margin: 2px 0 0 0;"><i>*Si eliges meses/años, se sugerirá el valor por 1 mes.</i></p>
 
             <label class="seccion-titulo">Jornada y Turnos</label>
             <select id="turno">
                 <option value="" selected disabled>-- Seleccione una opción --</option>
                 <option value="lunes_viernes_normal">Lunes a Viernes (Horario Normal)</option>
                 <option value="lunes_viernes_art22">Lunes a Viernes (Art. 22)</option>
+                <option value="turno_dia_noche">Turno Día y Noche</option>
                 <option value="un_dia_semana">1 día a la semana</option>
                 <option value="turno_4x3">Turno 4x3</option>
                 <option value="turno_nocturno">Turno Nocturno Fijo</option>
@@ -192,24 +194,16 @@
                 <option value="otra_excepcional">Otra jornada excepcional</option>
             </select>
 
-            <label class="seccion-titulo">Modalidad y Zona</label>
+            <label class="seccion-titulo">Modalidad y Dotación</label>
             <select id="modalidad">
-                <option value="" selected disabled>-- Seleccione una opción --</option>
+                <option value="" selected disabled>-- Modalidad de Trabajo --</option>
                 <option value="oficina">100% Oficina / Administrativo</option>
                 <option value="mixto">Mixto (Oficina y Terreno)</option>
                 <option value="terreno">100% Terreno / Faena</option>
             </select>
 
-            <select id="zona_extrema" style="margin-top: 5px;">
-                <option value="" selected disabled>-- Zona Geográfica --</option>
-                <option value="no_aplica">Zona Geográfica Estándar</option>
-                <option value="extremo_norte">Zona Extrema Norte (Tarapacá/Antofagasta cordillera)</option>
-                <option value="extremo_sur">Zona Extrema Sur (Aysén/Magallanes)</option>
-            </select>
-
-            <label class="seccion-titulo">Trabajadores a Cargo / Dotación</label>
-            <select id="trabajadores_cargo">
-                <option value="" selected disabled>-- Seleccione una opción --</option>
+            <select id="trabajadores_cargo" style="margin-top: 5px;">
+                <option value="" selected disabled>-- Trabajadores Expuestos --</option>
                 <option value="t_1_9">1 a 9 trabajadores</option>
                 <option value="t_10_49">10 a 49 trabajadores</option>
                 <option value="t_50_199">50 a 199 trabajadores</option>
@@ -223,7 +217,7 @@
                 <option value="publico">Pública</option>
             </select>
 
-            <label class="seccion-titulo" style="color: #c0392b; margin-top: 20px;">Funciones que no corresponden a prevencionista</label>
+            <label class="seccion-titulo" style="color: #c0392b; margin-top: 20px;">Atento si te piden estas funciones</label>
             <div class="banderas-box" style="background: #fff3cd; padding: 12px 15px; border-radius: 6px; border: 1px solid #ffeeba; font-size: 0.85rem;">
                 <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_bodega" style="width: auto; margin: 0;"><label for="tarea_bodega" style="margin: 0; line-height: 1.1;">Administrar bodega o materiales</label></div>
                 <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tarea_rrhh" style="width: auto; margin: 0;"><label for="tarea_rrhh" style="margin: 0; line-height: 1.1;">Control de asistencia o remuneraciones</label></div>

@@ -1,13 +1,12 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión COMPACTA - 1 SOLA HOJA PDF - BASES MiFuturo.cl CON CONVERSIÓN A LÍQUIDO
+ * Versión COMPACTA - ZONA EXTREMA AUTOMÁTICA Y AJUSTE DE MESES
  */
 
 // ============================================================
 // BASE DE DATOS TÉCNICA
 // ============================================================
 const DATABASE = {
-    // Bases anidadas (Carrera -> Experiencia) con valores BRUTOS de MiFuturo.cl
     sueldosBase: { 
         tecnico: {
             junior: 775000,
@@ -25,14 +24,14 @@ const DATABASE = {
             arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
         },
         rubro: {
-            mineria_cielo_abierto: 1.45, mineria_subterranea: 1.55, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95
+            mineria_cielo_abierto: 1.45, mineria_subterranea: 1.55, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95,
+            laboratorio_quimico: 1.15
         },
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
         trabajadores: { t_1_9: 1.00, t_10_49: 1.10, t_50_199: 1.20, t_200_mas: 1.35 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico: 0.88 },
-        zona_extrema: { no_aplica: 1.00, extremo_norte: 1.15, extremo_sur: 1.20 },
-        turno: { lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, un_dia_semana: 1.00, turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20, otra_excepcional: 1.15 },
+        turno: { lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, un_dia_semana: 1.00, turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20, otra_excepcional: 1.15, turno_dia_noche: 1.15 },
         especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
     }
@@ -91,15 +90,15 @@ function evaluarOferta() {
     const expEl = document.getElementById('experiencia');
     
     if (!formacionEl || formacionEl.value === "") {
-        alert("⚠️ Por favor, selecciona el Nivel de Formación.");
+        alert("⚠️ Por favor, selecciona el Nivel de formación requerida.");
         return;
     }
     if (!regionEl || regionEl.value === "") {
-        alert("⚠️ Por favor, selecciona la Región del Cargo.");
+        alert("⚠️ Por favor, selecciona la Región de la oferta.");
         return;
     }
     if (!expEl || expEl.value === "") {
-        alert("⚠️ Por favor, selecciona la Experiencia del Postulante para calcular la base salarial.");
+        alert("⚠️ Por favor, selecciona la Experiencia requerida para calcular la base salarial.");
         return;
     }
 
@@ -121,9 +120,19 @@ function evaluarOferta() {
     
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
-    let mRubro = 1.00, mZona = 1.00;
-    let mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mSector = 1.00;
+    let mRubro = 1.00, mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mSector = 1.00;
     let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00, mDuracion = 1.00;
+
+    // LÓGICA AUTOMÁTICA DE ZONA EXTREMA (Sin botón HTML)
+    let mZona = 1.00;
+    let textoZona = "Estándar";
+    if (['aysen', 'magallanes'].includes(region)) {
+        mZona = 1.20;
+        textoZona = "Extremo Sur (Auto)";
+    } else if (['arica', 'tarapaca', 'antofagasta', 'atacama'].includes(region)) {
+        mZona = 1.15;
+        textoZona = "Extremo Norte (Auto)";
+    }
 
     let bdRubro = 'general';
     let redFlags = [], redFlagsNoSeleccionadas = [];
@@ -136,16 +145,23 @@ function evaluarOferta() {
 
     if (uni !== 'indefinida' && uni !== null) {
         textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
-        if (uni === 'horas') { mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} hora(s)`; mDuracion = 1.15; }
-        else if (uni === 'dias') { mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} día(s)`; mDuracion = 1.15; }
-        else if (uni === 'semanas') { mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} semana(s)`; mDuracion = 1.10; }
-        else if (uni === 'meses') { mBase = mBase * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} mes(es)`; mDuracion = 1.20; }
-        else if (uni === 'anos') { mBase = (mBase * 12) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} año(s)`; mDuracion = 1.00; }
+        
+        // CORRECCIÓN: Si es meses o años, NO SE MULTIPLICA por la cantidad de meses, se entrega el valor de 1 mes.
+        if (uni === 'horas') { 
+            mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} hora(s)`; mDuracion = 1.15; 
+        } else if (uni === 'dias') { 
+            mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} día(s)`; mDuracion = 1.15; 
+        } else if (uni === 'semanas') { 
+            mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} semana(s)`; mDuracion = 1.10; 
+        } else if (uni === 'meses') { 
+            etiquetaDuracion = `Sugerido Líquido (Mensual)`; mDuracion = 1.20; 
+        } else if (uni === 'anos') { 
+            etiquetaDuracion = `Sugerido Líquido (Mensual)`; mDuracion = 1.00; 
+        }
     }
 
     const rubroVal = getVal('rubro'); bdRubro = rubroVal || 'general'; mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
     
-    mZona = getVal('zona_extrema') ? (DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00) : 1.00;
     mContrato = getVal('tipo_contrato') ? (DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00) : 1.00;
     mTrab = getVal('trabajadores_cargo') ? (DATABASE.mult.trabajadores[getVal('trabajadores_cargo')] || 1.00) : 1.00;
     mModalidad = getVal('modalidad') ? (DATABASE.mult.modalidad[getVal('modalidad')] || 1.00) : 1.00;
@@ -186,6 +202,7 @@ function evaluarOferta() {
     html += `<li><strong>Formación:</strong> ${getSelectedText('formacion')}</li>`;
     html += `<li><strong>Región:</strong> ${getSelectedText('region')}</li>`;
     html += `<li><strong>Ciudad:</strong> ${getSelectedText('ciudad')}</li>`;
+    if (mZona !== 1.00) html += `<li><strong>Zona:</strong> ${textoZona}</li>`; // Muestra en el reporte si la detectó
     html += `<li><strong>Duración:</strong> ${textoFiltroDuracion}</li>`;
     html += `<li><strong>Sector:</strong> ${getSelectedText('rubro')}</li>`;
     html += `<li><strong>Experiencia:</strong> ${getSelectedText('experiencia')}</li>`;
