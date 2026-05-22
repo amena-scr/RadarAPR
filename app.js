@@ -1,12 +1,25 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
+ * Versión COMPACTA - 1 SOLA HOJA PDF - BASES MiFuturo.cl CON CONVERSIÓN A LÍQUIDO
  */
 
 // ============================================================
 // BASE DE DATOS TÉCNICA
 // ============================================================
 const DATABASE = {
-    sueldosBase: { tecnico: 750000, ingeniero: 980000 },
+    // Bases anidadas (Carrera -> Experiencia) con valores BRUTOS de MiFuturo.cl
+    sueldosBase: { 
+        tecnico: {
+            junior: 775000,
+            semi_senior: 900000,
+            senior: 1140000
+        }, 
+        ingeniero: {
+            junior: 1000000,
+            semi_senior: 1266666,
+            senior: 1680000
+        } 
+    },
     mult: {
         region: {
             arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
@@ -14,7 +27,6 @@ const DATABASE = {
         rubro: {
             mineria_cielo_abierto: 1.45, mineria_subterranea: 1.55, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95
         },
-        experiencia: { junior: 1.00, semi_senior: 1.25, senior: 1.50 },
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
         trabajadores: { t_1_9: 1.00, t_10_49: 1.10, t_50_199: 1.20, t_200_mas: 1.35 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
@@ -76,6 +88,7 @@ function evaluarOferta() {
 
     const formacionEl = document.getElementById('formacion');
     const regionEl = document.getElementById('region');
+    const expEl = document.getElementById('experiencia');
     
     if (!formacionEl || formacionEl.value === "") {
         alert("⚠️ Por favor, selecciona el Nivel de Formación.");
@@ -85,9 +98,14 @@ function evaluarOferta() {
         alert("⚠️ Por favor, selecciona la Región del Cargo.");
         return;
     }
+    if (!expEl || expEl.value === "") {
+        alert("⚠️ Por favor, selecciona la Experiencia del Postulante para calcular la base salarial.");
+        return;
+    }
 
     const formacion = formacionEl.value;
     const region = regionEl.value;
+    const experiencia = expEl.value;
     const sueldoOfrecido = Number(sueldoInput.value);
 
     const getVal = id => { const el = document.getElementById(id); return el && el.value !== "" ? el.value : null; };
@@ -98,40 +116,34 @@ function evaluarOferta() {
         return el.options[el.selectedIndex].text;
     };
 
-    let mBase = DATABASE.sueldosBase[formacion];
+    // CONVERSIÓN A LÍQUIDO: Tomamos la base bruta de MiFuturo y aplicamos ~20% de descuento legal
+    let mBase = DATABASE.sueldosBase[formacion][experiencia] * 0.80; 
+    
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
-    let mRubro = 1.00, mExp = 1.00, mZona = 1.00;
+    let mRubro = 1.00, mZona = 1.00;
     let mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mSector = 1.00;
     let mTurno = 1.00, mEspecializacion = 1.00, mExpMineria = 1.00, mDuracion = 1.00;
 
-    let bdRubro = 'general', bdExp = 'general';
+    let bdRubro = 'general';
     let redFlags = [], redFlagsNoSeleccionadas = [];
     
-    let etiquetaDuracion = "Sueldo sugerido (Mensual)";
+    let etiquetaDuracion = "Sueldo Líquido sugerido (Mensual)";
     let textoFiltroDuracion = "Indefinida / Mensual";
 
-    // LÓGICA DE TIEMPOS PERSONALIZADOS
     const cant = Number(getVal('cantidad_duracion')) || 1;
     const uni = getVal('unidad_duracion');
 
     if (uni !== 'indefinida' && uni !== null) {
         textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
-        if (uni === 'horas') {
-            mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido por ${cant} hora(s)`; mDuracion = 1.15;
-        } else if (uni === 'dias') {
-            mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido por ${cant} día(s)`; mDuracion = 1.15;
-        } else if (uni === 'semanas') {
-            mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido por ${cant} semana(s)`; mDuracion = 1.10;
-        } else if (uni === 'meses') {
-            mBase = mBase * cant; etiquetaDuracion = `Sugerido por ${cant} mes(es)`; mDuracion = 1.20;
-        } else if (uni === 'anos') {
-            mBase = (mBase * 12) * cant; etiquetaDuracion = `Sugerido por ${cant} año(s)`; mDuracion = 1.00;
-        }
+        if (uni === 'horas') { mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} hora(s)`; mDuracion = 1.15; }
+        else if (uni === 'dias') { mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} día(s)`; mDuracion = 1.15; }
+        else if (uni === 'semanas') { mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} semana(s)`; mDuracion = 1.10; }
+        else if (uni === 'meses') { mBase = mBase * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} mes(es)`; mDuracion = 1.20; }
+        else if (uni === 'anos') { mBase = (mBase * 12) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} año(s)`; mDuracion = 1.00; }
     }
 
     const rubroVal = getVal('rubro'); bdRubro = rubroVal || 'general'; mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
-    const expVal = getVal('experiencia'); bdExp = expVal || 'general'; mExp = expVal ? (DATABASE.mult.experiencia[expVal] || 1.00) : 1.00;
     
     mZona = getVal('zona_extrema') ? (DATABASE.mult.zona_extrema[getVal('zona_extrema')] || 1.00) : 1.00;
     mContrato = getVal('tipo_contrato') ? (DATABASE.mult.contrato[getVal('tipo_contrato')] || 1.00) : 1.00;
@@ -143,34 +155,34 @@ function evaluarOferta() {
     mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
     const checkFlag = (id, activa, preguntaRec) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(preguntaRec); };
-    checkFlag('tarea_bodega', 'Administrar bodega o materiales', '¿Podría confirmar que no estaré a cargo de administrar la bodega o entregar materiales?');
-    checkFlag('tarea_rrhh', 'Control de asistencia o remuneraciones', '¿Me pueden asegurar que mi rol no incluirá control de asistencia o remuneraciones?');
-    checkFlag('tarea_logistica', 'Coordinación logística o despachos', '¿Habrá responsabilidades de coordinación logística o despachos asignadas a este puesto?');
-    checkFlag('tarea_contabilidad', 'Funciones contables o finanzas', '¿Está contemplado que asuma funciones contables o de tesorería/caja?');
-    checkFlag('tarea_conduccion', 'Conducción de vehículos empresa', '¿Será requisito conducir vehículos de la empresa y asumir responsabilidades civiles adicionales por ello?');
-    checkFlag('tarea_supervision_op', 'Supervisión de la operación', '¿El cargo requiere supervisar la operación productiva además de las labores de prevención?');
+    checkFlag('tarea_bodega', 'Administrar bodega', '¿Podría confirmar que no estaré a cargo de administrar bodega?');
+    checkFlag('tarea_rrhh', 'Control de asistencia', '¿Me aseguran que mi rol no incluirá control de asistencia?');
+    checkFlag('tarea_logistica', 'Coordinación logística', '¿Habrá responsabilidades de logística asignadas al puesto?');
+    checkFlag('tarea_contabilidad', 'Funciones contables', '¿Está contemplado que asuma funciones contables o caja?');
+    checkFlag('tarea_conduccion', 'Conducir vehículos', '¿Será requisito conducir vehículos de la empresa?');
+    checkFlag('tarea_supervision_op', 'Supervisar operación', '¿El cargo requiere supervisar la operación productiva?');
 
-    const sueldoJusto = mBase * mRegion * mRubro * mExp * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
+    const sueldoJusto = mBase * mRegion * mRubro * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
     const fmt = n => Math.round(n).toLocaleString('es-CL');
 
     const resDiv = document.getElementById('resultado_analisis');
-    resDiv.style.display = 'block'; resDiv.style.marginTop = '25px'; resDiv.style.padding = '20px'; resDiv.style.borderRadius = '8px';
+    resDiv.style.display = 'block'; resDiv.style.marginTop = '20px'; resDiv.style.padding = '12px'; resDiv.style.borderRadius = '8px';
 
-    let html = `<h4 style="margin-top:0">📊 Análisis de la Oferta</h4>`;
+    let html = `<h4 style="margin:0 0 5px 0">📊 Análisis de la Oferta (Valores Líquidos estimados)</h4>`;
 
     if (diferencia >= -50000) {
-        resDiv.style.backgroundColor = '#d4edda'; resDiv.style.borderLeft = '6px solid #28a745';
-        html += `<p>✅ <strong>Valor Competitivo:</strong> El monto ofrecido está al nivel del mercado para la duración especificada.</p>`;
+        resDiv.style.backgroundColor = '#d4edda'; resDiv.style.borderLeft = '5px solid #28a745';
+        html += `<p style="margin:5px 0; font-size:0.85rem;">✅ <strong>Valor Competitivo:</strong> El monto ofrecido está al nivel del mercado para la duración especificada.</p>`;
     } else {
-        resDiv.style.backgroundColor = '#fff3cd'; resDiv.style.borderLeft = '6px solid #ffc107';
-        html += `<p>⚠️ <strong>Valor bajo el mercado:</strong> El valor estimado es <strong>$${fmt(sueldoJusto)}</strong>.<br>
-                 <small>La oferta ingresada está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
+        resDiv.style.backgroundColor = '#fff3cd'; resDiv.style.borderLeft = '5px solid #ffc107';
+        html += `<p style="margin:5px 0; font-size:0.85rem;">⚠️ <strong>Bajo el mercado:</strong> Sugerido <strong>$${fmt(sueldoJusto)}</strong>.<br>
+                 <small>La oferta está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
     }
 
-    html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
-    html += `<p style="font-size:0.85rem;color:#555;margin:0 0 6px"><strong>📌 Filtros y Parámetros Seleccionados:</strong></p>`;
-    html += `<ul style="font-size:0.8rem; color:#333; margin:0 0 15px 0; padding-left:20px; column-count: 2; column-gap: 20px;">`;
+    html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
+    html += `<p style="font-size:0.75rem;color:#555;margin:0 0 4px"><strong>📌 Filtros Seleccionados:</strong></p>`;
+    html += `<ul style="font-size:0.75rem; color:#333; margin:0 0 8px 0; padding-left:15px; column-count: 2; column-gap: 15px;">`;
     html += `<li><strong>Formación:</strong> ${getSelectedText('formacion')}</li>`;
     html += `<li><strong>Región:</strong> ${getSelectedText('region')}</li>`;
     html += `<li><strong>Ciudad:</strong> ${getSelectedText('ciudad')}</li>`;
@@ -180,66 +192,60 @@ function evaluarOferta() {
     html += `<li><strong>Contrato:</strong> ${getSelectedText('tipo_contrato')}</li>`;
     html += `<li><strong>Modalidad:</strong> ${getSelectedText('modalidad')}</li>`;
     html += `<li><strong>Turno:</strong> ${getSelectedText('turno')}</li>`;
-    html += `<li><strong>Especialización:</strong> ${getSelectedText('especializacion')}</li>`;
-    html += `<li><strong>Exp. Minería:</strong> ${getSelectedText('exp_mineria')}</li>`;
+    html += `<li><strong>Esp.:</strong> ${getSelectedText('especializacion')}</li>`;
+    html += `<li><strong>Minería:</strong> ${getSelectedText('exp_mineria')}</li>`;
     html += `<li><strong>Dotación:</strong> ${getSelectedText('trabajadores_cargo')}</li>`;
     html += `</ul>`;
 
-    html += `<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">`;
-    html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse; margin-bottom: 10px;">`;
-    html += `<tr><td style="padding:8px 6px;font-weight:bold">${etiquetaDuracion}</td>
-                 <td style="padding:8px 6px;text-align:right;font-weight:bold;color:#d35400;font-size:1.05rem">$${fmt(sueldoJusto)}</td></tr>`;
+    html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
+    html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse; margin-bottom: 5px;">`;
+    html += `<tr><td style="padding:4px;font-weight:bold">${etiquetaDuracion}</td>
+                 <td style="padding:4px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td></tr>`;
     html += `</table>`;
 
     if (redFlags.length > 0) {
-        resDiv.style.backgroundColor = '#f8d7da'; resDiv.style.borderLeft = '6px solid #dc3545';
-        html += `<hr style="border:none;border-top:1px solid #f5c6cb;margin:12px 0">`;
-        html += `<p style="color:#721c24;margin:0;font-weight:bold;">🚩 Funciones que NO corresponden al rol (Alerta):</p>`;
-        html += `<ul style="color:#721c24;font-size:0.85rem;margin:6px 0 0 0;padding-left:20px">`;
+        resDiv.style.backgroundColor = '#f8d7da'; resDiv.style.borderLeft = '5px solid #dc3545';
+        html += `<hr style="border:none;border-top:1px solid #f5c6cb;margin:8px 0">`;
+        html += `<p style="color:#721c24;margin:0;font-weight:bold;font-size:0.8rem;">🚩 Alerta de Funciones ajenas al rol:</p>`;
+        html += `<ul style="color:#721c24;font-size:0.75rem;margin:4px 0 0 0;padding-left:15px">`;
         redFlags.forEach(f => { html += `<li>${f}</li>`; });
         html += `</ul>`;
     }
 
     const preguntas = [];
     
-    // Recomendaciones Generales de Entrevista
     preguntas.push({
-        icono: '💡', pregunta: 'Recomendaciones Estratégicas para la Entrevista',
-        detalle: '• <strong>Prepárate para negociar:</strong> Si la oferta está por debajo, usa estos datos como respaldo de mercado.<br>• <strong>Valora los beneficios extra:</strong> Pregunta por bonos, viáticos, alimentación o seguro de salud que puedan compensar el sueldo base.<br>• <strong>Claridad en el rol:</strong> Asegúrate de que las expectativas de tu cargo estén alineadas estrictamente con la prevención de riesgos (Decreto 44).'
+        icono: '💡', pregunta: 'Recomendaciones Estratégicas',
+        detalle: '• <strong>Negocia:</strong> Usa este dato como respaldo.<br>• <strong>Beneficios:</strong> Consulta por bonos, viáticos o seguros.<br>• <strong>Claridad:</strong> Asegura que el rol se limite a Prevención.'
     });
 
-    // Preguntas estructuradas para el reclutador
     if (redFlagsNoSeleccionadas.length > 0) {
         preguntas.push({
-            icono: '❓', pregunta: 'Preguntas Clave para el Reclutador',
-            detalle: 'Te sugerimos realizar estas preguntas específicas durante la entrevista para delimitar tus responsabilidades legales y evitar sobrecarga multifuncional:<br><ul style="margin:8px 0 0;padding-left:18px;font-size:0.8rem;color:#444">' +
-                     redFlagsNoSeleccionadas.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('') + '</ul>'
+            icono: '❓', pregunta: 'Preguntas para el Reclutador (Limitar rol)',
+            detalle: '<ul style="margin:4px 0 0;padding-left:15px;font-size:0.75rem;color:#444">' +
+                     redFlagsNoSeleccionadas.map(f => `<li style="margin-bottom: 2px;">${f}</li>`).join('') + '</ul>'
         });
     }
 
     if (preguntas.length > 0) {
-        // === SALTO DE PÁGINA PARA QUE EL PDF NO LO CORTE ===
-        html += `<div class="html2pdf__page-break"></div>`; 
-        
-        html += `<hr style="border:none;border-top:1px solid #ccc;margin:14px 0">`;
-        html += `<p style="font-size:0.9rem;font-weight:bold;color:#2c3e50;margin:0 0 10px">💬 Preparación para tu Entrevista</p>`;
+        html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
+        html += `<p style="font-size:0.8rem;font-weight:bold;color:#2c3e50;margin:0 0 6px">💬 Preparación de Entrevista</p>`;
         preguntas.forEach(p => {
-            html += `<div style="background:#f0f4f8;border-left:4px solid #2980b9;border-radius:5px;padding:10px 12px;margin-bottom:10px">
-                        <p style="margin:0;font-size:0.88rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
-                        <p style="margin:6px 0 0;font-size:0.82rem;color:#555;line-height:1.4;">${p.detalle}</p>
+            html += `<div style="background:#f0f4f8;border-left:3px solid #2980b9;border-radius:4px;padding:6px 8px;margin-bottom:6px">
+                        <p style="margin:0;font-size:0.8rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
+                        <p style="margin:4px 0 0;font-size:0.75rem;color:#555;line-height:1.3;">${p.detalle}</p>
                      </div>`;
         });
     }
 
-    html += `<div style="margin-top: 20px;">
-                <button type="button" class="btn-pdf" onclick="descargarPDF()" style="background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; width: 100%; transition: background 0.3s;">
+    html += `<div style="margin-top: 15px;">
+                <button type="button" class="btn-pdf" onclick="descargarPDF()" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; width: 100%; transition: background 0.3s;">
                     📄 Descargar Reporte en PDF
                 </button>
              </div>`;
 
     resDiv.innerHTML = html;
 
-    // EVENTO GOOGLE TAG MANAGER: Analizar Oferta
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
         'event': 'analisis_realizado',
@@ -248,12 +254,11 @@ function evaluarOferta() {
         'sueldo_ofrecido': sueldoOfrecido
     });
 
-    // Conexión Supabase
     if (window.supabaseClient) {
         const ciudad = document.getElementById('ciudad') ? document.getElementById('ciudad').value : '';
         window.supabaseClient.from('consultas_salariales').insert([{
             formacion: formacion, region: region, ciudad: ciudad, rubro: bdRubro,
-            experiencia: bdExp, sueldo_ofrecido: Math.round(sueldoOfrecido), sueldo_sugerido: Math.round(sueldoJusto)
+            experiencia: experiencia, sueldo_ofrecido: Math.round(sueldoOfrecido), sueldo_sugerido: Math.round(sueldoJusto)
         }]).select().then(({ data, error }) => {
             if (!error && typeof dibujarDatos === 'function' && document.getElementById('contenedor_mapa').style.display !== 'none') {
                 dibujarDatos();
@@ -263,7 +268,7 @@ function evaluarOferta() {
 }
 
 // ============================================================
-// EXPORTADOR A PDF (CONFIGURADO CON PAGINACIÓN INTELIGENTE)
+// EXPORTADOR A PDF
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
@@ -281,19 +286,17 @@ function descargarPDF() {
         cabecera = document.createElement('div');
         cabecera.id = 'titulo-temporal-pdf';
         cabecera.innerHTML = `
-            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 2px; font-family: Arial, sans-serif;">RadarAPR 📡</h2>
-            <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 5px; font-family: Arial, sans-serif;">Reporte de Inteligencia Salarial</h4>
-            <p style="color: #95a5a6; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 0.85rem; font-family: Arial, sans-serif;">Análisis generado el: ${fechaActual}</p>
+            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 2px; font-family: Arial, sans-serif; font-size: 1.2rem;">RadarAPR 📡</h2>
+            <h4 style="color: #7f8c8d; text-align: center; margin-top: 0; margin-bottom: 2px; font-family: Arial, sans-serif; font-size: 0.9rem;">Reporte de Inteligencia Salarial</h4>
+            <p style="color: #95a5a6; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 0.75rem; font-family: Arial, sans-serif;">Análisis generado el: ${fechaActual}</p>
         `;
         elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
-    // === AQUÍ ACTIVAMOS LA PAGINACIÓN Y LOS MÁRGENES (pagebreak) ===
     const opciones = {
-        margin:       [10, 10, 10, 10], // Margen arriba, izquierda, abajo, derecha
+        margin:       5, 
         filename:     'Reporte_Salarial_RadarAPR.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }, // Evita que corte el texto a la mitad
         html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0, backgroundColor: '#ffffff' },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -303,7 +306,6 @@ function descargarPDF() {
         if (cabecera) cabecera.remove();
         elemento.style.backgroundColor = colorFondoOriginal; 
         
-        // EVENTO GOOGLE TAG MANAGER: Descargar PDF
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
             'event': 'descarga_pdf_reporte'
