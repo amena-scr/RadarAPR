@@ -119,7 +119,7 @@ function evaluarOferta() {
     };
 
     // CONVERSIÓN A LÍQUIDO: Tomamos la base bruta y aplicamos ~20% de descuento legal
-    let mBase = DATABASE.sueldosBase[formacion][experiencia] * 0.80; 
+    let mBase = DATABASE.sueldosBase[formacion][experiencia] * 1.00; 
     
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
