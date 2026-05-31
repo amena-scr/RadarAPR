@@ -16,13 +16,13 @@ const DATABASE = {
         }, 
         ingeniero: {
             junior: 1100000,
-            semi_senior: 1500000,
-            senior: 2000000
+            semi_senior: 1300000,
+            senior: 1600000
         } 
     },
     mult: {
         region: {
-            arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
+            arica: 1.10, tarapaca: 1.35, antofagasta: 1.40, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
         },
         rubro: {
             // Suavizados los factores de minería para equilibrar la nueva base alta
