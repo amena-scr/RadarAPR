@@ -1,40 +1,25 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión CALIBRADA - Ajuste de Bases Brutas y Suavizado de Multiplicadores Mineros
+ * Versión CALIBRADA - Banderas Rojas y PDF Dinámico
  */
 
 // ============================================================
 // BASE DE DATOS TÉCNICA
 // ============================================================
 const DATABASE = {
-    // Bases anidadas (Carrera -> Experiencia) con los nuevos valores Brutos ajustados
     sueldosBase: { 
-        tecnico: {
-            junior: 650000,
-            semi_senior: 845000,
-            senior: 1098500
-        }, 
-        ingeniero: {
-            junior: 900000,
-            semi_senior: 1170000,
-            senior: 1521000
-        } 
+        tecnico: { junior: 650000, semi_senior: 845000, senior: 1098500 }, 
+        ingeniero: { junior: 900000, semi_senior: 1170000, senior: 1521000 } 
     },
     mult: {
-        region: {
-            arica: 1.10, tarapaca: 1.35, antofagasta: 1.40, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
-        },
-        rubro: {
-            // Suavizados los factores de minería para equilibrar la nueva base alta
-            mineria_cielo_abierto: 1.35, mineria_subterranea: 1.45, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95,
-            laboratorio_quimico: 1.15
-        },
+        region: { arica: 1.10, tarapaca: 1.15, antofagasta: 1.25, atacama: 1.15, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30 },
+        rubro: { mineria_cielo_abierto: 1.35, mineria_subterranea: 1.45, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95, laboratorio_quimico: 1.15 },
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
         trabajadores: { t_1_9: 1.00, t_10_49: 1.10, t_50_199: 1.20, t_200_mas: 1.35 },
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico: 0.88 },
         turno: { lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, un_dia_semana: 1.00, turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20, otra_excepcional: 1.15, turno_dia_noche: 1.15 },
-        especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.25 }, // Sernageomin A ajustado a 1.25
+        especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.25 },
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
     }
 };
@@ -118,9 +103,7 @@ function evaluarOferta() {
         return el.options[el.selectedIndex].text;
     };
 
-    // CONVERSIÓN A LÍQUIDO: Tomamos la base bruta y aplicamos ~20% de descuento legal
     let mBase = DATABASE.sueldosBase[formacion][experiencia] * 1.00; 
-    
     const mRegion = DATABASE.mult.region[region] || 1.00;
 
     let mRubro = 1.00, mContrato = 1.00, mTrab = 1.00, mModalidad = 1.00, mSector = 1.00;
@@ -140,7 +123,7 @@ function evaluarOferta() {
     let bdRubro = 'general';
     let redFlags = [], redFlagsNoSeleccionadas = [];
     
-    let etiquetaDuracion = "Sueldo Líquido sugerido (Mensual)";
+    let etiquetaDuracion = "Sugerido (Mensual)";
     let textoFiltroDuracion = "Indefinida / Mensual";
 
     const cant = Number(getVal('cantidad_duracion')) || 1;
@@ -148,18 +131,11 @@ function evaluarOferta() {
 
     if (uni !== 'indefinida' && uni !== null) {
         textoFiltroDuracion = `${cant} ${getSelectedText('unidad_duracion')}`;
-        
-        if (uni === 'horas') { 
-            mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} hora(s)`; mDuracion = 1.15; 
-        } else if (uni === 'dias') { 
-            mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} día(s)`; mDuracion = 1.15; 
-        } else if (uni === 'semanas') { 
-            mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido Líquido por ${cant} semana(s)`; mDuracion = 1.10; 
-        } else if (uni === 'meses') { 
-            etiquetaDuracion = `Sugerido Líquido (Mensual)`; mDuracion = 1.20; 
-        } else if (uni === 'anos') { 
-            etiquetaDuracion = `Sugerido Líquido (Mensual)`; mDuracion = 1.00; 
-        }
+        if (uni === 'horas') { mBase = (mBase / 168) * cant; etiquetaDuracion = `Sugerido por ${cant} hora(s)`; mDuracion = 1.15; }
+        else if (uni === 'dias') { mBase = (mBase / 30) * cant; etiquetaDuracion = `Sugerido por ${cant} día(s)`; mDuracion = 1.15; }
+        else if (uni === 'semanas') { mBase = (mBase / 4) * cant; etiquetaDuracion = `Sugerido por ${cant} semana(s)`; mDuracion = 1.10; }
+        else if (uni === 'meses') { etiquetaDuracion = `Sugerido (Mensual)`; mDuracion = 1.20; }
+        else if (uni === 'anos') { etiquetaDuracion = `Sugerido (Mensual)`; mDuracion = 1.00; }
     }
 
     const rubroVal = getVal('rubro'); bdRubro = rubroVal || 'general'; mRubro = rubroVal ? (DATABASE.mult.rubro[rubroVal] || 1.00) : 1.00;
@@ -172,13 +148,14 @@ function evaluarOferta() {
     mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
     mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
+    // NUEVAS BANDERAS ROJAS
     const checkFlag = (id, activa, preguntaRec) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(preguntaRec); };
-    checkFlag('tarea_bodega', 'Administrar bodega', '¿Podría confirmar que no estaré a cargo de administrar bodega?');
-    checkFlag('tarea_rrhh', 'Control de asistencia', '¿Me aseguran que mi rol no incluirá control de asistencia?');
-    checkFlag('tarea_logistica', 'Coordinación logística', '¿Habrá responsabilidades de logística asignadas al puesto?');
-    checkFlag('tarea_contabilidad', 'Funciones contables', '¿Está contemplado que asuma funciones contables o caja?');
-    checkFlag('tarea_conduccion', 'Conducir vehículos', '¿Será requisito conducir vehículos de la empresa?');
-    checkFlag('tarea_supervision_op', 'Supervisar operación', '¿El cargo requiere supervisar la operación productiva?');
+    checkFlag('tarea_ambiental', 'Gestión Ambiental / Residuos', '¿El cargo exige responsabilidad sobre ventanilla única o residuos peligrosos?');
+    checkFlag('tarea_bodega', 'Administrar bodega y EPP', '¿Seré yo el responsable del control de inventario y entrega física de EPP?');
+    checkFlag('tarea_rrhh', 'Control de asistencia / RRHH', '¿Se espera que asuma tareas administrativas de RRHH o control de asistencia?');
+    checkFlag('tarea_operaciones', 'Jefatura / Supervisión Operativa', '¿Tendré personal a cargo con metas directas de producción u obra?');
+    checkFlag('tarea_calidad', 'Sistemas de Calidad (ISO 9001)', '¿Se exigirá implementar sistemas de Calidad sin que sea un cargo HSEQ?');
+    checkFlag('tarea_irl', 'Impartir la IRL (ex ODI)', '¿La instrucción de la Información sobre Riesgos Laborales recaerá en mí en lugar de la jefatura directa?');
 
     const sueldoJusto = mBase * mRegion * mRubro * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
@@ -187,15 +164,14 @@ function evaluarOferta() {
     const resDiv = document.getElementById('resultado_analisis');
     resDiv.style.display = 'block'; resDiv.style.marginTop = '20px'; resDiv.style.padding = '12px'; resDiv.style.borderRadius = '8px';
 
-    let html = `<h4 style="margin:0 0 5px 0">📊 Análisis de la Oferta (Valores Líquidos estimados)</h4>`;
+    let html = `<h4 style="margin:0 0 5px 0">📊 Análisis de la Oferta (Valores Líquidos)</h4>`;
 
     if (diferencia >= -50000) {
         resDiv.style.backgroundColor = '#d4edda'; resDiv.style.borderLeft = '5px solid #28a745';
-        html += `<p style="margin:5px 0; font-size:0.85rem;">✅ <strong>Valor Competitivo:</strong> El monto ofrecido está al nivel del mercado para la duración especificada.</p>`;
+        html += `<p style="margin:5px 0; font-size:0.85rem;">✅ <strong>Valor Competitivo:</strong> El monto ofrecido está al nivel del mercado.</p>`;
     } else {
         resDiv.style.backgroundColor = '#fff3cd'; resDiv.style.borderLeft = '5px solid #ffc107';
-        html += `<p style="margin:5px 0; font-size:0.85rem;">⚠️ <strong>Bajo el mercado:</strong> Sugerido <strong>$${fmt(sueldoJusto)}</strong>.<br>
-                 <small>La oferta está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo.</small></p>`;
+        html += `<p style="margin:5px 0; font-size:0.85rem;">⚠️ <strong>Bajo el mercado:</strong> La oferta está <strong>$${fmt(Math.abs(diferencia))}</strong> por debajo de nuestra sugerencia.</p>`;
     }
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
@@ -217,9 +193,13 @@ function evaluarOferta() {
     html += `</ul>`;
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
-    html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse; margin-bottom: 5px;">`;
-    html += `<tr><td style="padding:4px;font-weight:bold">${etiquetaDuracion}</td>
-                 <td style="padding:4px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td></tr>`;
+    
+    // TABLA COMPARATIVA FINAL (Incluye Ofrecido vs Sugerido)
+    html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse; margin-bottom: 5px; background: #fff; border-radius: 4px; overflow: hidden;">`;
+    html += `<tr><td style="padding:6px;color:#555; border-bottom: 1px solid #eee;">Sueldo Líquido Ofrecido</td>
+                 <td style="padding:6px;text-align:right;color:#555; border-bottom: 1px solid #eee;">$${fmt(sueldoOfrecido)}</td></tr>`;
+    html += `<tr><td style="padding:6px;font-weight:bold; color: #2c3e50;">${etiquetaDuracion}</td>
+                 <td style="padding:6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td></tr>`;
     html += `</table>`;
 
     if (redFlags.length > 0) {
@@ -265,6 +245,14 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
+    // Almacenamos temporalmente los datos para el nombre del PDF
+    window.datosReporteActual = {
+        sueldo: sueldoOfrecido,
+        formacion: getSelectedText('formacion'),
+        certificacion: getSelectedText('especializacion'),
+        rubro: getSelectedText('rubro')
+    };
+
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
         'event': 'analisis_realizado',
@@ -287,7 +275,7 @@ function evaluarOferta() {
 }
 
 // ============================================================
-// EXPORTADOR A PDF
+// EXPORTADOR A PDF CON NOMBRE DINÁMICO
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
@@ -299,9 +287,12 @@ function descargarPDF() {
     const colorFondoOriginal = elemento.style.backgroundColor;
     elemento.style.backgroundColor = '#ffffff';
 
+    const fechaHoy = new Date();
+    const fechaFormat = `${String(fechaHoy.getDate()).padStart(2, '0')}-${String(fechaHoy.getMonth() + 1).padStart(2, '0')}-${fechaHoy.getFullYear()}`;
+    const fechaActual = fechaHoy.toLocaleString('es-CL');
+
     let cabecera = document.getElementById('titulo-temporal-pdf');
     if (!cabecera) {
-        const fechaActual = new Date().toLocaleString('es-CL');
         cabecera = document.createElement('div');
         cabecera.id = 'titulo-temporal-pdf';
         cabecera.innerHTML = `
@@ -312,9 +303,23 @@ function descargarPDF() {
         elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
+    // CONSTRUCCIÓN DEL NOMBRE DEL ARCHIVO
+    let nombreArchivo = "Reporte_RadarAPR.pdf";
+    if (window.datosReporteActual) {
+        const d = window.datosReporteActual;
+        const nSueldo = d.sueldo;
+        const nFormacion = d.formacion.replace(/\s+/g, '_');
+        const nCert = d.certificacion === "Sin resolución específica" ? "Sin_Resolucion" : d.certificacion.replace(/\s+/g, '_').substring(0, 15);
+        const nRubro = d.rubro.replace(/\s+/g, '_').substring(0, 20);
+        
+        nombreArchivo = `Reporte_RadarAPR_${fechaFormat}_$${nSueldo}_${nFormacion}_${nCert}_${nRubro}.pdf`;
+        // Limpiamos caracteres inválidos para nombres de archivos
+        nombreArchivo = nombreArchivo.replace(/[\\/:\*\?"<>\|]/g, ''); 
+    }
+
     const opciones = {
         margin:       5, 
-        filename:     'Reporte_Salarial_RadarAPR.pdf',
+        filename:     nombreArchivo,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0, backgroundColor: '#ffffff' },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
