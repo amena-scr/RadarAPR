@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión CALIBRADA - Banderas Rojas y PDF Dinámico
+ * Versión CALIBRADA - Argumentos Legales en PDF, Nombre Corto y Beneficios Ajustados
  */
 
 // ============================================================
@@ -121,7 +121,7 @@ function evaluarOferta() {
     }
 
     let bdRubro = 'general';
-    let redFlags = [], redFlagsNoSeleccionadas = [];
+    let redFlags = [];
     
     let etiquetaDuracion = "Sugerido (Mensual)";
     let textoFiltroDuracion = "Indefinida / Mensual";
@@ -148,14 +148,17 @@ function evaluarOferta() {
     mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
     mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
-    // NUEVAS BANDERAS ROJAS
-    const checkFlag = (id, activa, preguntaRec) => { if (isChecked(id)) redFlags.push(activa); else redFlagsNoSeleccionadas.push(preguntaRec); };
-    checkFlag('tarea_ambiental', 'Gestión Ambiental / Residuos', '¿El cargo exige responsabilidad sobre ventanilla única o residuos peligrosos?');
-    checkFlag('tarea_bodega', 'Administrar bodega y EPP', '¿Seré yo el responsable del control de inventario y entrega física de EPP?');
-    checkFlag('tarea_rrhh', 'Control de asistencia / RRHH', '¿Se espera que asuma tareas administrativas de RRHH o control de asistencia?');
-    checkFlag('tarea_operaciones', 'Jefatura / Supervisión Operativa', '¿Tendré personal a cargo con metas directas de producción u obra?');
-    checkFlag('tarea_calidad', 'Sistemas de Calidad (ISO 9001)', '¿Se exigirá implementar sistemas de Calidad sin que sea un cargo HSEQ?');
-    checkFlag('tarea_irl', 'Impartir la IRL (ex ODI)', '¿La instrucción de la Información sobre Riesgos Laborales recaerá en mí en lugar de la jefatura directa?');
+    // BANDERAS ROJAS CON ARGUMENTO LEGAL
+    const checkFlag = (id, funcion, argumento) => { 
+        if (isChecked(id)) redFlags.push({ funcion: funcion, argumento: argumento }); 
+    };
+    
+    checkFlag('tarea_ambiental', 'Gestión Ambiental / Residuos', 'La Ley 16.744 cubre salud ocupacional. Asumir gestión ambiental (Ley 19.300/SMA) exige responsabilidades civiles que ameritan ajustar el valor a un rol HSEQ.');
+    checkFlag('tarea_bodega', 'Administrar bodega y EPP', 'El deber técnico es seleccionar y fiscalizar el estándar del EPP. El control de stock, compras y entrega física es una tarea logística y administrativa.');
+    checkFlag('tarea_rrhh', 'Control de asistencia / RRHH', 'Las tareas de oficinista en desmedro de la supervisión en terreno exponen legalmente a la empresa ante la Dirección del Trabajo o la Seremi de Salud.');
+    checkFlag('tarea_operaciones', 'Jefatura / Supervisión Operativa', 'El DS 40 define al APR como asesor. Asumir mando operativo con metas de producción genera un conflicto de interés incompatible con las decisiones de seguridad.');
+    checkFlag('tarea_calidad', 'Sistemas de Calidad (ISO 9001)', 'La implementación y auditoría de Calidad requiere competencias y tiempo adicionales. Debe ser remunerado bajo la figura de encargado HSEQ.');
+    checkFlag('tarea_irl', 'Impartir la IRL (ex ODI)', 'Según el DS 44, la obligación de aplicar la IRL recae sobre el empleador mediante la jefatura a cargo. El prevencionista asesora, pero no imparte la instrucción.');
 
     const sueldoJusto = mBase * mRegion * mRubro * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
@@ -202,12 +205,15 @@ function evaluarOferta() {
                  <td style="padding:6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td></tr>`;
     html += `</table>`;
 
+    // RENDERIZAR BANDERAS ROJAS CON ARGUMENTO
     if (redFlags.length > 0) {
         resDiv.style.backgroundColor = '#f8d7da'; resDiv.style.borderLeft = '5px solid #dc3545';
         html += `<hr style="border:none;border-top:1px solid #f5c6cb;margin:8px 0">`;
-        html += `<p style="color:#721c24;margin:0;font-weight:bold;font-size:0.8rem;">🚩 Alerta de Funciones ajenas al rol:</p>`;
-        html += `<ul style="color:#721c24;font-size:0.75rem;margin:4px 0 0 0;padding-left:15px">`;
-        redFlags.forEach(f => { html += `<li>${f}</li>`; });
+        html += `<p style="color:#721c24;margin:0;font-weight:bold;font-size:0.8rem;">🚩 Alerta de funciones encomendadas que no corresponden:</p>`;
+        html += `<ul style="color:#721c24;font-size:0.75rem;margin:6px 0 0 0;padding-left:15px">`;
+        redFlags.forEach(f => { 
+            html += `<li style="margin-bottom: 6px;"><strong>${f.funcion}:</strong> <span style="color:#666;">${f.argumento}</span></li>`; 
+        });
         html += `</ul>`;
     }
 
@@ -215,16 +221,8 @@ function evaluarOferta() {
     
     preguntas.push({
         icono: '💡', pregunta: 'Recomendaciones Estratégicas',
-        detalle: '• <strong>Negocia:</strong> Usa este dato como respaldo.<br>• <strong>Beneficios:</strong> Consulta por bonos, viáticos o seguros.<br>• <strong>Claridad:</strong> Asegura que el rol se limite a Prevención.'
+        detalle: '• <strong>Negocia:</strong> Usa el sueldo sugerido en este reporte como respaldo de mercado.<br>• <strong>Beneficios:</strong> Consulta si el cargo cuenta con bonos, <strong>almuerzo</strong>, <strong>pasajes para traslado entre regiones</strong> o si disponen de <strong>buses de acercamiento al lugar de trabajo</strong>.<br>• <strong>Claridad:</strong> Asegura que tu rol y contrato se limite a Prevención de Riesgos.'
     });
-
-    if (redFlagsNoSeleccionadas.length > 0) {
-        preguntas.push({
-            icono: '❓', pregunta: 'Preguntas para el Reclutador (Limitar rol)',
-            detalle: '<ul style="margin:4px 0 0;padding-left:15px;font-size:0.75rem;color:#444">' +
-                     redFlagsNoSeleccionadas.map(f => `<li style="margin-bottom: 2px;">${f}</li>`).join('') + '</ul>'
-        });
-    }
 
     if (preguntas.length > 0) {
         html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
@@ -232,7 +230,7 @@ function evaluarOferta() {
         preguntas.forEach(p => {
             html += `<div style="background:#f0f4f8;border-left:3px solid #2980b9;border-radius:4px;padding:6px 8px;margin-bottom:6px">
                         <p style="margin:0;font-size:0.8rem;font-weight:bold;color:#1a5276">${p.icono} ${p.pregunta}</p>
-                        <p style="margin:4px 0 0;font-size:0.75rem;color:#555;line-height:1.3;">${p.detalle}</p>
+                        <p style="margin:4px 0 0;font-size:0.75rem;color:#555;line-height:1.4;">${p.detalle}</p>
                      </div>`;
         });
     }
@@ -248,7 +246,7 @@ function evaluarOferta() {
     // Almacenamos temporalmente los datos para el nombre del PDF
     window.datosReporteActual = {
         sueldo: sueldoOfrecido,
-        formacion: getSelectedText('formacion'),
+        formacion: formacion, // 'tecnico' o 'ingeniero' (Nombre corto)
         certificacion: getSelectedText('especializacion'),
         rubro: getSelectedText('rubro')
     };
@@ -303,12 +301,12 @@ function descargarPDF() {
         elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
-    // CONSTRUCCIÓN DEL NOMBRE DEL ARCHIVO
+    // CONSTRUCCIÓN DEL NOMBRE DEL ARCHIVO (CON NOMBRE CORTO PARA FORMACIÓN)
     let nombreArchivo = "Reporte_RadarAPR.pdf";
     if (window.datosReporteActual) {
         const d = window.datosReporteActual;
         const nSueldo = d.sueldo;
-        const nFormacion = d.formacion.replace(/\s+/g, '_');
+        const nFormacion = d.formacion === 'tecnico' ? 'Tecnico' : 'Ingeniero';
         const nCert = d.certificacion === "Sin resolución específica" ? "Sin_Resolucion" : d.certificacion.replace(/\s+/g, '_').substring(0, 15);
         const nRubro = d.rubro.replace(/\s+/g, '_').substring(0, 20);
         
