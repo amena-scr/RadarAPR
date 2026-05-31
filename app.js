@@ -1,21 +1,23 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
+ * Versión CALIBRADA - Ajuste de Bases Brutas y Suavizado de Multiplicadores Mineros
  */
 
 // ============================================================
 // BASE DE DATOS TÉCNICA
 // ============================================================
 const DATABASE = {
+    // Bases anidadas (Carrera -> Experiencia) con los nuevos valores Brutos ajustados
     sueldosBase: { 
         tecnico: {
-            junior: 775000,
-            semi_senior: 900000,
-            senior: 1140000
+            junior: 850000,
+            semi_senior: 1125000,
+            senior: 1437500
         }, 
         ingeniero: {
-            junior: 1000000,
-            semi_senior: 1266666,
-            senior: 1680000
+            junior: 1187500,
+            semi_senior: 1687500,
+            senior: 2187500
         } 
     },
     mult: {
@@ -23,7 +25,8 @@ const DATABASE = {
             arica: 1.10, tarapaca: 1.35, antofagasta: 1.50, atacama: 1.30, coquimbo: 1.05, valparaiso: 1.05, metropolitana: 1.00, ohiggins: 0.95, maule: 0.90, nuble: 0.88, biobio: 0.95, araucania: 0.88, los_rios: 0.90, los_lagos: 0.92, aysen: 1.20, magallanes: 1.30
         },
         rubro: {
-            mineria_cielo_abierto: 1.45, mineria_subterranea: 1.55, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95,
+            // Suavizados los factores de minería para equilibrar la nueva base alta
+            mineria_cielo_abierto: 1.35, mineria_subterranea: 1.45, mineria_salares: 1.50, petroleo_gas: 1.45, energias_renovables: 1.35, montaje_industrial: 1.35, obras_civiles: 1.30, edificacion_altura: 1.25, puertos_maritimos: 1.25, transporte_terrestre: 1.20, centros_distribucion: 1.15, forestal_madera: 1.15, agroindustria_pesca: 1.10, manufactura_consumo: 1.05, salud_educacion: 1.05, comercio_retail: 1.00, turismo_gastronomia: 0.95,
             laboratorio_quimico: 1.15
         },
         contrato: { indefinido: 1.00, plazo_fijo: 1.08, obra_faena: 1.15, tiempo_parcial: 1.00, teletrabajo: 1.00, temporada: 1.10, honorarios: 1.22 },
@@ -31,7 +34,7 @@ const DATABASE = {
         modalidad: { oficina: 1.00, mixto: 1.12, terreno: 1.25 },
         sector: { privado: 1.00, publico: 0.88 },
         turno: { lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, un_dia_semana: 1.00, turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20, otra_excepcional: 1.15, turno_dia_noche: 1.15 },
-        especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.35 },
+        especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.25 }, // Sernageomin A ajustado a 1.25
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
     }
 };
@@ -64,7 +67,7 @@ function actualizarCiudades() {
     const ciudadSelect = document.getElementById('ciudad');
     if (!regionSelect || !ciudadSelect) return;
     const region = regionSelect.value;
-    // Eliminado el texto (Opcional)
+    
     ciudadSelect.innerHTML = '<option value="" selected>Seleccione una ciudad</option>';
     if (CIUDADES_POR_REGION[region]) {
         CIUDADES_POR_REGION[region].forEach(c => {
@@ -115,7 +118,7 @@ function evaluarOferta() {
         return el.options[el.selectedIndex].text;
     };
 
-    // CONVERSIÓN A LÍQUIDO
+    // CONVERSIÓN A LÍQUIDO: Tomamos la base bruta y aplicamos ~20% de descuento legal
     let mBase = DATABASE.sueldosBase[formacion][experiencia] * 0.80; 
     
     const mRegion = DATABASE.mult.region[region] || 1.00;
