@@ -10,14 +10,14 @@ const DATABASE = {
     // Bases anidadas (Carrera -> Experiencia) con los nuevos valores Brutos ajustados
     sueldosBase: { 
         tecnico: {
-            junior: 850000,
-            semi_senior: 1125000,
-            senior: 1437500
+            junior: 650000,
+            semi_senior: 900000,
+            senior: 1200000
         }, 
         ingeniero: {
-            junior: 1187500,
-            semi_senior: 1687500,
-            senior: 2187500
+            junior: 1100000,
+            semi_senior: 1500000,
+            senior: 2000000
         } 
     },
     mult: {
