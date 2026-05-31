@@ -11,13 +11,13 @@ const DATABASE = {
     sueldosBase: { 
         tecnico: {
             junior: 650000,
-            semi_senior: 900000,
-            senior: 1200000
+            semi_senior: 845000,
+            senior: 1098500
         }, 
         ingeniero: {
-            junior: 1100000,
-            semi_senior: 1300000,
-            senior: 1600000
+            junior: 900000,
+            semi_senior: 1170000,
+            senior: 1521000
         } 
     },
     mult: {
