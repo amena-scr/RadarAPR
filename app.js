@@ -1,6 +1,6 @@
 /**
  * RadarAPR - Motor de Cálculo Salarial y Validación Legal
- * Versión CALIBRADA - Argumentos Legales en PDF, Nombre Corto y Beneficios Ajustados
+ * Versión 1.0 CALIBRADA - Argumentos Legales en PDF, Nombre Corto, Beneficios Ajustados y Footer de Feedback
  */
 
 // ============================================================
@@ -234,6 +234,14 @@ function evaluarOferta() {
                      </div>`;
         });
     }
+
+    // AÑADIDO: PIE DE PÁGINA PARA EL REPORTE PDF
+    html += `<hr style="border:none;border-top:1px solid #eee;margin:15px 0 10px 0">`;
+    html += `<div style="text-align: center; font-size: 0.75rem; color: #7f8c8d; background: #f9f9f9; padding: 10px; border-radius: 6px;">
+                <p style="margin: 0; font-weight: bold; color: #2c3e50;">Radar<span style="color: #e74c3c;">APR</span> 📡</p>
+                <p style="margin: 4px 0;">Fuente de Datos: Mi Futuro, Instituto Nacional de Estudios territoriales y Normativa Chilena de Seguridad y Salud en el Trabajo - junio 2026 -V1.0</p>
+                <p style="margin: 4px 0 0; font-weight: bold;">Contacto y sugerencias: <a href="mailto:trabajoalemena@gmail.com" style="color: #2980b9; text-decoration: none;">trabajoalemena@gmail.com</a></p>
+             </div>`;
 
     html += `<div style="margin-top: 15px;">
                 <button type="button" class="btn-pdf" onclick="descargarPDF()" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; width: 100%; transition: background 0.3s;">
