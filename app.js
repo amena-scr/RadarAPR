@@ -21,7 +21,40 @@ const DATABASE = {
         turno: { lunes_viernes_normal: 1.00, lunes_viernes_art22: 1.15, un_dia_semana: 1.00, turno_4x3: 1.08, turno_nocturno: 1.12, turno_7x7: 1.15, turno_14x14: 1.20, otra_excepcional: 1.15, turno_dia_noche: 1.15 },
         especializacion: { ninguna: 1.00, sns: 1.05, auditor: 1.08, sernageomin_c: 1.10, sernageomin_b: 1.20, sernageomin_a: 1.25 },
         exp_mineria: { sin_experiencia: 1.00, pequena_mineria: 1.05, mediana_mineria: 1.10, gran_mineria: 1.15 }
-    }
+    },
+
+    // INYECCIÓN DE LA NUEVA BASE DE DATOS DE SERVICIOS
+    servicios_hitos_2026: [
+        { categoria: "Base (DS 44)", concepto: "Reglamento Interno", valor_minimo_clp: 280000, valor_maximo_clp: 400000 },
+        { categoria: "Base (DS 44)", concepto: "Reglamento Especial Subcontrato", valor_minimo_clp: 250000, valor_maximo_clp: 370000 },
+        { categoria: "Base (DS 44)", concepto: "Sistema Gestión SST", valor_minimo_clp: 280000, valor_maximo_clp: 500000 },
+        { categoria: "Base (DS 44)", concepto: "Programa de Trabajo", valor_minimo_clp: 250000, valor_maximo_clp: 400000 },
+        { categoria: "Base (DS 44)", concepto: "Matriz IPER", valor_minimo_clp: 340000, valor_maximo_clp: 500000 },
+        { categoria: "Base (DS 44)", concepto: "Programa Seguridad Máquinas (PPSMEHM)", valor_minimo_clp: 280000, valor_maximo_clp: 430000 },
+        { categoria: "Base (DS 44)", concepto: "Plan GRD-RRD", valor_minimo_clp: 320000, valor_maximo_clp: 1000000 },
+        { categoria: "Ley Karin", concepto: "Protocolo Adaptado a Empresa", valor_minimo_clp: 100000, valor_maximo_clp: 150000 },
+        { categoria: "Ley Karin", concepto: "Procedimiento de Investigación y Denuncia", valor_minimo_clp: 80000, valor_maximo_clp: 100000 },
+        { categoria: "Formatos", concepto: "Inducción IRL", valor_minimo_clp: 100000, valor_maximo_clp: 150000 },
+        { categoria: "Formatos", concepto: "Plan Medio Ambiente", valor_minimo_clp: 300000, valor_maximo_clp: 900000 },
+        { categoria: "Formatos", concepto: "Plan Vial (Manual de Carreteras)", valor_minimo_clp: 300000, valor_maximo_clp: 900000 },
+        { categoria: "Formatos", concepto: "Matriz de Requisitos Legales", valor_minimo_clp: 200000, valor_maximo_clp: 350000 },
+        { categoria: "Formatos", concepto: "Investigación de Accidentes (Árbol de Causas)", valor_minimo_clp: 100000, valor_maximo_clp: 150000 },
+        { categoria: "Otros", concepto: "Valor Hora Profesional", valor_minimo_uf: 2.0, valor_maximo_uf: 2.5 }
+    ],
+    asesorias_mensuales_2026: [
+        { rango_trabajadores: "1-30", visitas_mensuales: 1, valor_mensual_clp: 225000 },
+        { rango_trabajadores: "1-30", visitas_mensuales: 2, valor_mensual_clp: 315000 },
+        { rango_trabajadores: "1-30", visitas_mensuales: 3, valor_mensual_clp: 390000 },
+        { rango_trabajadores: "1-30", visitas_mensuales: 4, valor_mensual_clp: 500000 },
+        { rango_trabajadores: "31-60", visitas_mensuales: 1, valor_mensual_clp: 305000 },
+        { rango_trabajadores: "31-60", visitas_mensuales: 2, valor_mensual_clp: 360000 },
+        { rango_trabajadores: "31-60", visitas_mensuales: 3, valor_mensual_clp: 420000 },
+        { rango_trabajadores: "31-60", visitas_mensuales: 4, valor_mensual_clp: 560000 },
+        { rango_trabajadores: "61-99", visitas_mensuales: 1, valor_mensual_clp: 335000 },
+        { rango_trabajadores: "61-99", visitas_mensuales: 2, valor_mensual_clp: 415000 },
+        { rango_trabajadores: "61-99", visitas_mensuales: 3, valor_mensual_clp: 515000 },
+        { rango_trabajadores: "61-99", visitas_mensuales: 4, valor_mensual_clp: 760000 }
+    ]
 };
 
 const INFO_CONTRATOS = {
@@ -148,17 +181,17 @@ function evaluarOferta() {
     mEspecializacion = getVal('especializacion') ? (DATABASE.mult.especializacion[getVal('especializacion')] || 1.00) : 1.00;
     mExpMineria = getVal('exp_mineria') ? (DATABASE.mult.exp_mineria[getVal('exp_mineria')] || 1.00) : 1.00;
 
-    // BANDERAS ROJAS CON ARGUMENTO LEGAL
+   // BANDERAS ROJAS CON ARGUMENTO LEGAL (ACTUALIZADO AL DS 44, ART. 52)
     const checkFlag = (id, funcion, argumento) => { 
         if (isChecked(id)) redFlags.push({ funcion: funcion, argumento: argumento }); 
     };
     
-    checkFlag('tarea_ambiental', 'Gestión Ambiental / Residuos', 'La Ley 16.744 cubre salud ocupacional. Asumir gestión ambiental (Ley 19.300/SMA) exige responsabilidades civiles que ameritan ajustar el valor a un rol HSEQ.');
-    checkFlag('tarea_bodega', 'Administrar bodega y EPP', 'El deber técnico es seleccionar y fiscalizar el estándar del EPP. El control de stock, compras y entrega física es una tarea logística y administrativa.');
-    checkFlag('tarea_rrhh', 'Control de asistencia / RRHH', 'Las tareas de oficinista en desmedro de la supervisión en terreno exponen legalmente a la empresa ante la Dirección del Trabajo o la Seremi de Salud.');
-    checkFlag('tarea_operaciones', 'Jefatura / Supervisión Operativa', 'El DS 40 define al APR como asesor. Asumir mando operativo con metas de producción genera un conflicto de interés incompatible con las decisiones de seguridad.');
-    checkFlag('tarea_calidad', 'Sistemas de Calidad (ISO 9001)', 'La implementación y auditoría de Calidad requiere competencias y tiempo adicionales. Debe ser remunerado bajo la figura de encargado HSEQ.');
-    checkFlag('tarea_irl', 'Impartir la IRL (ex ODI)', 'Según el DS 44, la obligación de aplicar la IRL recae sobre el empleador mediante la jefatura a cargo. El prevencionista asesora, pero no imparte la instrucción.');
+    checkFlag('tarea_ambiental', 'Gestión Ambiental / Residuos', 'El Art. 52 del DS 44 circunscribe las funciones al Sistema de Gestión de SST. Asumir gestión ambiental pura (Ley 19.300) excede este marco y amerita un rol HSEQ.');
+    checkFlag('tarea_bodega', 'Administrar bodega y EPP', 'Según el Art. 52 del DS 44, la función es técnica y asesora (selección y fiscalización del EPP), no logística ni administrativa como el control de inventario.');
+    checkFlag('tarea_rrhh', 'Control de asistencia / RRHH', 'El Art. 52 del DS 44 exige dedicación a la prevención. Asumir tareas administrativas desvía el foco legal y expone a la empresa ante fiscalizaciones.');
+    checkFlag('tarea_operaciones', 'Jefatura / Supervisión Operativa', 'El Art. 52 del DS 44 establece un rol asesor. Asumir mando operativo con metas de producción genera un conflicto de interés incompatible con el cargo.');
+    checkFlag('tarea_calidad', 'Sistemas de Calidad (ISO 9001)', 'La normativa (DS 44, Art. 52) delimita el alcance a la Higiene y Seguridad. Sistemas de calidad requieren tiempo y competencias adicionales.');
+    checkFlag('tarea_irl', 'Impartir la IRL', 'Conforme al DS 44, la obligación de aplicar la IRL recae en la jefatura directa. El experto diseña y asesora, pero no suple la responsabilidad de línea.');
 
     const sueldoJusto = mBase * mRegion * mRubro * mZona * mContrato * mTrab * mModalidad * mDuracion * mSector * mTurno * mEspecializacion * mExpMineria;
     const diferencia = sueldoOfrecido - sueldoJusto;
@@ -197,7 +230,6 @@ function evaluarOferta() {
 
     html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
     
-    // TABLA COMPARATIVA FINAL (Incluye Ofrecido vs Sugerido)
     html += `<table style="width:100%;font-size:0.80rem;border-collapse:collapse; margin-bottom: 5px; background: #fff; border-radius: 4px; overflow: hidden;">`;
     html += `<tr><td style="padding:6px;color:#555; border-bottom: 1px solid #eee;">Sueldo Líquido Ofrecido</td>
                  <td style="padding:6px;text-align:right;color:#555; border-bottom: 1px solid #eee;">$${fmt(sueldoOfrecido)}</td></tr>`;
@@ -205,7 +237,6 @@ function evaluarOferta() {
                  <td style="padding:6px;text-align:right;font-weight:bold;color:#d35400;font-size:0.95rem">$${fmt(sueldoJusto)}</td></tr>`;
     html += `</table>`;
 
-    // RENDERIZAR BANDERAS ROJAS CON ARGUMENTO
     if (redFlags.length > 0) {
         resDiv.style.backgroundColor = '#f8d7da'; resDiv.style.borderLeft = '5px solid #dc3545';
         html += `<hr style="border:none;border-top:1px solid #f5c6cb;margin:8px 0">`;
@@ -218,7 +249,6 @@ function evaluarOferta() {
     }
 
     const preguntas = [];
-    
     preguntas.push({
         icono: '💡', pregunta: 'Recomendaciones Estratégicas',
         detalle: '• <strong>Negocia:</strong> Usa el sueldo sugerido en este reporte como respaldo de mercado.<br>• <strong>Beneficios:</strong> Consulta si el cargo cuenta con bonos, <strong>almuerzo</strong>, <strong>pasajes para traslado entre regiones</strong> o si disponen de <strong>buses de acercamiento al lugar de trabajo</strong>.<br>• <strong>Claridad:</strong> Asegura que tu rol y contrato se limite a Prevención de Riesgos.'
@@ -235,12 +265,13 @@ function evaluarOferta() {
         });
     }
 
-    // AÑADIDO: PIE DE PÁGINA PARA EL REPORTE PDF
-    html += `<hr style="border:none;border-top:1px solid #eee;margin:15px 0 10px 0">`;
-    html += `<div style="text-align: center; font-size: 0.75rem; color: #7f8c8d; background: #f9f9f9; padding: 10px; border-radius: 6px;">
-                <p style="margin: 0; font-weight: bold; color: #2c3e50;">Radar<span style="color: #e74c3c;">APR</span> 📡</p>
-                <p style="margin: 4px 0;">Fuente de Datos: Mi Futuro, Instituto Nacional de Estudios territoriales y Normativa Chilena de Seguridad y Salud en el Trabajo - junio 2026 -V1.0</p>
-                <p style="margin: 4px 0 0; font-weight: bold;">Contacto y sugerencias: <a href="mailto:trabajoalemena@gmail.com" style="color: #2980b9; text-decoration: none;">trabajoalemena@gmail.com</a></p>
+    html += `<div id="footer-pdf-report" style="display: none;">
+                <hr style="border:none;border-top:1px solid #eee;margin:15px 0 10px 0">
+                <div style="text-align: center; font-size: 0.75rem; color: #7f8c8d; background: #f9f9f9; padding: 10px; border-radius: 6px;">
+                    <p style="margin: 0; font-weight: bold; color: #2c3e50;">Radar<span style="color: #e74c3c;">APR</span> 📡</p>
+                    <p style="margin: 4px 0;">Fuente de Datos: Mi Futuro, Instituto Nacional de Estudios territoriales y Normativa Chilena de Seguridad y Salud en el Trabajo - junio 2026 - V1.0</p>
+                    <p style="margin: 4px 0 0; font-weight: bold;">Contacto y sugerencias: <a href="mailto:trabajoalemena@gmail.com" style="color: #2980b9; text-decoration: none;">trabajoalemena@gmail.com</a></p>
+                </div>
              </div>`;
 
     html += `<div style="margin-top: 15px;">
@@ -251,10 +282,9 @@ function evaluarOferta() {
 
     resDiv.innerHTML = html;
 
-    // Almacenamos temporalmente los datos para el nombre del PDF
     window.datosReporteActual = {
         sueldo: sueldoOfrecido,
-        formacion: formacion, // 'tecnico' o 'ingeniero' (Nombre corto)
+        formacion: formacion, 
         certificacion: getSelectedText('especializacion'),
         rubro: getSelectedText('rubro')
     };
@@ -281,7 +311,7 @@ function evaluarOferta() {
 }
 
 // ============================================================
-// EXPORTADOR A PDF CON NOMBRE DINÁMICO
+// EXPORTADOR A PDF CON NOMBRE DINÁMICO Y PIE DE PÁGINA OCULTO
 // ============================================================
 function descargarPDF() {
     const elemento = document.getElementById('resultado_analisis');
@@ -289,6 +319,9 @@ function descargarPDF() {
 
     const botonPDF = elemento.querySelector('.btn-pdf');
     if (botonPDF) botonPDF.style.display = 'none';
+
+    const footerPDF = document.getElementById('footer-pdf-report');
+    if (footerPDF) footerPDF.style.display = 'block';
 
     const colorFondoOriginal = elemento.style.backgroundColor;
     elemento.style.backgroundColor = '#ffffff';
@@ -309,7 +342,6 @@ function descargarPDF() {
         elemento.insertBefore(cabecera, elemento.firstChild);
     }
 
-    // CONSTRUCCIÓN DEL NOMBRE DEL ARCHIVO (CON NOMBRE CORTO PARA FORMACIÓN)
     let nombreArchivo = "Reporte_RadarAPR.pdf";
     if (window.datosReporteActual) {
         const d = window.datosReporteActual;
@@ -319,7 +351,6 @@ function descargarPDF() {
         const nRubro = d.rubro.replace(/\s+/g, '_').substring(0, 20);
         
         nombreArchivo = `Reporte_RadarAPR_${fechaFormat}_$${nSueldo}_${nFormacion}_${nCert}_${nRubro}.pdf`;
-        // Limpiamos caracteres inválidos para nombres de archivos
         nombreArchivo = nombreArchivo.replace(/[\\/:\*\?"<>\|]/g, ''); 
     }
 
@@ -333,7 +364,9 @@ function descargarPDF() {
 
     html2pdf().set(opciones).from(elemento).save().then(() => {
         if (botonPDF) botonPDF.style.display = 'block'; 
+        if (footerPDF) footerPDF.style.display = 'none'; 
         if (cabecera) cabecera.remove();
+        
         elemento.style.backgroundColor = colorFondoOriginal; 
         
         window.dataLayer = window.dataLayer || [];
@@ -341,6 +374,148 @@ function descargarPDF() {
             'event': 'descarga_pdf_reporte'
         });
     });
+}
+
+// ============================================================
+// LÓGICA DEL COTIZADOR DE SERVICIOS INDEPENDIENTES
+// ============================================================
+function toggleFiltrosServicios() {
+    const tipo = document.getElementById('tipo_servicio_independiente').value;
+    const divDoc = document.getElementById('filtros_documentales');
+    const divMen = document.getElementById('filtros_mensuales');
+    const btn = document.getElementById('btn_cotizar_servicio');
+    const resultado = document.getElementById('resultado_servicio');
+
+    resultado.style.display = 'none';
+    resultado.innerHTML = '';
+
+    if (tipo === 'documental') {
+        divDoc.style.display = 'block'; divMen.style.display = 'none'; btn.style.display = 'block';
+    } else if (tipo === 'mensual') {
+        divDoc.style.display = 'none'; divMen.style.display = 'block'; btn.style.display = 'block';
+    } else {
+        divDoc.style.display = 'none'; divMen.style.display = 'none'; btn.style.display = 'none';
+    }
+}
+
+function cargarConceptosDocumentos() {
+    const categoriaSelect = document.getElementById('categoria_documento').value;
+    const conceptoSelect = document.getElementById('concepto_documento');
+    const labelConcepto = conceptoSelect.previousElementSibling; 
+    
+    conceptoSelect.innerHTML = '<option value="" selected disabled>-- Seleccione el servicio --</option>';
+    conceptoSelect.value = ""; 
+    
+    if (!categoriaSelect) return;
+
+    if (categoriaSelect === "Otros") {
+        conceptoSelect.style.display = 'none';
+        if (labelConcepto) labelConcepto.style.display = 'none';
+    } else {
+        conceptoSelect.style.display = '';
+        if (labelConcepto) labelConcepto.style.display = '';
+    }
+
+    const serviciosFiltrados = DATABASE.servicios_hitos_2026.filter(s => s.categoria === categoriaSelect);
+    
+    serviciosFiltrados.forEach(servicio => {
+        const option = document.createElement('option');
+        option.value = servicio.concepto; option.textContent = servicio.concepto;
+        conceptoSelect.appendChild(option);
+    });
+
+    if (categoriaSelect === "Otros" && serviciosFiltrados.length > 0) {
+        conceptoSelect.value = serviciosFiltrados[0].concepto;
+    }
+}
+
+async function calcularServicioIndependiente() {
+    const tipo = document.getElementById('tipo_servicio_independiente').value;
+    const resDiv = document.getElementById('resultado_servicio');
+    const fmt = n => Math.round(n).toLocaleString('es-CL');
+    
+    resDiv.style.display = 'block';
+    resDiv.innerHTML = `<p style="color:#555; font-size:0.9rem;">⏳ Calculando y conectando con el valor de la UF actual...</p>`;
+    
+    let html = `<h4 style="margin:0 0 10px 0; color: #2c3e50;">🧾 Cotización Sugerida</h4>`;
+
+    if (tipo === 'documental') {
+        const categoria = document.getElementById('categoria_documento').value;
+        const concepto = document.getElementById('concepto_documento').value;
+        
+        if (!categoria) {
+            alert("⚠️ Atención: Debes elegir al menos una Categoría.");
+            resDiv.style.display = 'none'; return;
+        }
+        if (categoria !== "Otros" && !concepto) {
+            alert("⚠️ Atención: Debes elegir un Servicio Específico en el segundo menú.");
+            resDiv.style.display = 'none'; return;
+        }
+
+        let dataServicio;
+        if (categoria === "Otros") {
+            dataServicio = DATABASE.servicios_hitos_2026.find(s => s.categoria.trim() === "Otros");
+            if (!dataServicio) dataServicio = { concepto: "Valor Hora Profesional", valor_minimo_uf: 2.0, valor_maximo_uf: 2.5 };
+        } else {
+            dataServicio = DATABASE.servicios_hitos_2026.find(s => s.concepto.trim() === concepto.trim());
+        }
+        
+        if (!dataServicio) {
+            alert(`⚠️ Error interno: No se encontró "${concepto}" en la base de datos.`);
+            resDiv.style.display = 'none'; return;
+        }
+        
+        if (dataServicio.valor_minimo_uf !== undefined) {
+            let valorUF = 40000; 
+            let fechaUF = "Referencial"; let origenUF = "Valor de respaldo";
+
+            try {
+                const response = await fetch('https://mindicador.cl/api/uf');
+                if (response.ok) {
+                    const dataAPI = await response.json();
+                    valorUF = dataAPI.serie[0].valor;
+                    const fechaRaw = new Date(dataAPI.serie[0].fecha);
+                    fechaUF = `${String(fechaRaw.getDate()).padStart(2, '0')}-${String(fechaRaw.getMonth() + 1).padStart(2, '0')}-${fechaRaw.getFullYear()}`;
+                    origenUF = "Actualizado hoy";
+                }
+            } catch (error) { console.warn("No se pudo conectar a mindicador.cl"); }
+
+            const minPesos = fmt(dataServicio.valor_minimo_uf * valorUF);
+            const maxPesos = fmt(dataServicio.valor_maximo_uf * valorUF);
+
+            html += `<p style="margin:5px 0; font-size:0.95rem;"><strong>Servicio:</strong> ${dataServicio.concepto}</p>`;
+            html += `<p style="margin:5px 0; font-size:1.1rem; color: #d35400; font-weight: bold;">Rango sugerido: ${dataServicio.valor_minimo_uf} UF a ${dataServicio.valor_maximo_uf} UF</p>`;
+            html += `<p style="margin:0 0 5px 0; font-size:1.05rem; color: #27ae60; font-weight: bold;">(Aprox. $${minPesos} a $${maxPesos} CLP)</p>`;
+            html += `<p style="margin:5px 0; font-size:0.75rem; color: #7f8c8d;">*Valor UF (${origenUF}): $${fmt(valorUF)}</p>`;
+        } else {
+            html += `<p style="margin:5px 0; font-size:0.95rem;"><strong>Entregable:</strong> ${dataServicio.concepto}</p>`;
+            html += `<p style="margin:5px 0; font-size:1.1rem; color: #d35400; font-weight: bold;">Rango sugerido: $${fmt(dataServicio.valor_minimo_clp)} - $${fmt(dataServicio.valor_maximo_clp)}</p>`;
+            html += `<p style="margin:5px 0; font-size:0.75rem; color: #555;">*El valor final depende de la complejidad de la matriz o programa.</p>`;
+        }
+
+    } else if (tipo === 'mensual') {
+        const rango = document.getElementById('rango_trabajadores_pyme').value;
+        const visitas = parseInt(document.getElementById('visitas_mensuales_pyme').value);
+        
+        if (!rango || isNaN(visitas)) {
+            alert("⚠️ Atención: Selecciona el tamaño de la empresa y la cantidad de visitas requeridas.");
+            resDiv.style.display = 'none'; return;
+        }
+
+        const dataMensual = DATABASE.asesorias_mensuales_2026.find(a => a.rango_trabajadores === rango && a.visitas_mensuales === visitas);
+        
+        if (!dataMensual) {
+            alert("⚠️ Error interno: Combinación de asesoría mensual no encontrada en la BD.");
+            resDiv.style.display = 'none'; return;
+        }
+
+        html += `<p style="margin:5px 0; font-size:0.95rem;"><strong>Dotación:</strong> ${rango} trabajadores</p>`;
+        html += `<p style="margin:5px 0; font-size:0.95rem;"><strong>Presencialidad:</strong> ${visitas} visita(s) al mes (3 hrs aprox. c/u)</p>`;
+        html += `<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">`;
+        html += `<p style="margin:5px 0; font-size:1.1rem; color: #27ae60; font-weight: bold;">Valor Mensual: $${fmt(dataMensual.valor_mensual_clp)}</p>`;
+    }
+
+    resDiv.innerHTML = html;
 }
 
 // ============================================================
